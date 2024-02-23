@@ -4,10 +4,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{A86C8451-C291-446F-BF9F-0A7A80D478DD}</ProjectGuid>
+    <ProjectGuid>{D714F97E-CCB6-4148-A932-3C5CAFBE7AA2}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>CoinyProject.IdentityServer</RootNamespace>
-    <AssemblyName>CoinyProject.IdentityServer</AssemblyName>
+    <RootNamespace>CoinyProject.Core_Domain</RootNamespace>
+    <AssemblyName>CoinyProject.Core-Domain</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

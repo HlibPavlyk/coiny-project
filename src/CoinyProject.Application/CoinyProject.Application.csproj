@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{4A38FB03-1E44-475C-B894-B69B3E11AB1C}</ProjectGuid>
+    <ProjectGuid>{8EFE973B-027D-42FA-ADCA-862C3E3D2E7E}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>CoinyProject.Application</RootNamespace>
     <AssemblyName>CoinyProject.Application</AssemblyName>
