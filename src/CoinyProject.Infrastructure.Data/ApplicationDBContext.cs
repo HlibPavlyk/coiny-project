@@ -19,9 +19,11 @@ namespace CoinyProject.Infrastructure.Data
         public DbSet<AlbumElement> AlbumElements { get; set; }
         public DbSet<AlbumElementAccessibility> AlbumElementAccessibilities { get; set; }
         public DbSet<Auction> Auctions { get; set; }
+        public DbSet<AuctionBet> AuctionBets { get; set; }
         public DbSet<Discussion> Discussions { get; set; }
         public DbSet<DiscussionMessage> DiscussionMessages { get; set; }
         public DbSet<DiscussionTopic> DiscussionTopics { get; set; }
+        public DbSet<FavoriteAlbums> FavoriteAlbums { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

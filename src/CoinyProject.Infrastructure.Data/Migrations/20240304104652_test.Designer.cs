@@ -4,6 +4,7 @@ using CoinyProject.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CoinyProject.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    partial class ApplicationDBContextModelSnapshot : ModelSnapshot
+    [Migration("20240304104652_test")]
+    partial class test
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -31,6 +34,7 @@ namespace CoinyProject.Infrastructure.Data.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
@@ -38,11 +42,7 @@ namespace CoinyProject.Infrastructure.Data.Migrations
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)");
 
-                    b.Property<int>("Rate")
-                        .HasColumnType("int");
-
                     b.Property<string>("UserId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
@@ -63,7 +63,7 @@ namespace CoinyProject.Infrastructure.Data.Migrations
                     b.Property<int>("AccessibilityId")
                         .HasColumnType("int");
 
-                    b.Property<int>("AlbumId")
+                    b.Property<int?>("AlbumId")
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
@@ -80,8 +80,7 @@ namespace CoinyProject.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AccessibilityId")
-                        .IsUnique();
+                    b.HasIndex("AccessibilityId");
 
                     b.HasIndex("AlbumId");
 
@@ -113,6 +112,9 @@ namespace CoinyProject.Infrastructure.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("AuctionBetId")
+                        .HasColumnType("int");
+
                     b.Property<float>("BetDelta")
                         .HasColumnType("real");
 
@@ -133,8 +135,9 @@ namespace CoinyProject.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("LotId")
-                        .IsUnique();
+                    b.HasIndex("AuctionBetId");
+
+                    b.HasIndex("LotId");
 
                     b.ToTable("Auctions");
                 });
@@ -147,9 +150,6 @@ namespace CoinyProject.Infrastructure.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AuctionId")
-                        .HasColumnType("int");
-
                     b.Property<float>("Price")
                         .HasColumnType("real");
 
@@ -159,11 +159,9 @@ namespace CoinyProject.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AuctionId");
-
                     b.HasIndex("UserId");
 
-                    b.ToTable("AuctionBets");
+                    b.ToTable("AuctionBet");
                 });
 
             modelBuilder.Entity("CoinyProject.Core.Domain.Entities.Discussion", b =>
@@ -181,19 +179,14 @@ namespace CoinyProject.Infrastructure.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("RootQuestion")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("RootQuestionId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("DiscussionTopicId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("RootQuestionId");
 
                     b.ToTable("Discussions");
                 });
@@ -206,7 +199,7 @@ namespace CoinyProject.Infrastructure.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("DiscussionId")
+                    b.Property<int?>("DiscussionId")
                         .HasColumnType("int");
 
                     b.Property<string>("Message")
@@ -214,7 +207,6 @@ namespace CoinyProject.Infrastructure.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
@@ -303,8 +295,7 @@ namespace CoinyProject.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RoleId")
-                        .IsUnique();
+                    b.HasIndex("RoleId");
 
                     b.ToTable("Users");
                 });
@@ -328,60 +319,52 @@ namespace CoinyProject.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("CoinyProject.Core.Domain.Entities.Album", b =>
                 {
-                    b.HasOne("CoinyProject.Core.Domain.Entities.User", "User")
+                    b.HasOne("CoinyProject.Core.Domain.Entities.User", null)
                         .WithMany("Albums")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
+                        .HasForeignKey("UserId");
                 });
 
             modelBuilder.Entity("CoinyProject.Core.Domain.Entities.AlbumElement", b =>
                 {
                     b.HasOne("CoinyProject.Core.Domain.Entities.AlbumElementAccessibility", "Accessibility")
-                        .WithOne("AlbumElement")
-                        .HasForeignKey("CoinyProject.Core.Domain.Entities.AlbumElement", "AccessibilityId")
+                        .WithMany()
+                        .HasForeignKey("AccessibilityId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("CoinyProject.Core.Domain.Entities.Album", "Album")
+                    b.HasOne("CoinyProject.Core.Domain.Entities.Album", null)
                         .WithMany("Elements")
-                        .HasForeignKey("AlbumId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("AlbumId");
 
                     b.Navigation("Accessibility");
-
-                    b.Navigation("Album");
                 });
 
             modelBuilder.Entity("CoinyProject.Core.Domain.Entities.Auction", b =>
                 {
-                    b.HasOne("CoinyProject.Core.Domain.Entities.AlbumElement", "Lot")
-                        .WithOne("Auction")
-                        .HasForeignKey("CoinyProject.Core.Domain.Entities.Auction", "LotId")
+                    b.HasOne("CoinyProject.Core.Domain.Entities.AuctionBet", "AuctionBet")
+                        .WithMany()
+                        .HasForeignKey("AuctionBetId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("CoinyProject.Core.Domain.Entities.AlbumElement", "Lot")
+                        .WithMany()
+                        .HasForeignKey("LotId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AuctionBet");
 
                     b.Navigation("Lot");
                 });
 
             modelBuilder.Entity("CoinyProject.Core.Domain.Entities.AuctionBet", b =>
                 {
-                    b.HasOne("CoinyProject.Core.Domain.Entities.Auction", "Auction")
-                        .WithMany("AuctionBets")
-                        .HasForeignKey("AuctionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("CoinyProject.Core.Domain.Entities.User", "User")
-                        .WithMany("AuctionBets")
+                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Auction");
 
                     b.Navigation("User");
                 });
@@ -389,37 +372,31 @@ namespace CoinyProject.Infrastructure.Data.Migrations
             modelBuilder.Entity("CoinyProject.Core.Domain.Entities.Discussion", b =>
                 {
                     b.HasOne("CoinyProject.Core.Domain.Entities.DiscussionTopic", "DiscussionTopic")
-                        .WithMany("Discussions")
+                        .WithMany()
                         .HasForeignKey("DiscussionTopicId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("CoinyProject.Core.Domain.Entities.User", "User")
-                        .WithMany("Discussions")
-                        .HasForeignKey("UserId")
+                    b.HasOne("CoinyProject.Core.Domain.Entities.DiscussionMessage", "RootQuestion")
+                        .WithMany()
+                        .HasForeignKey("RootQuestionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("DiscussionTopic");
 
-                    b.Navigation("User");
+                    b.Navigation("RootQuestion");
                 });
 
             modelBuilder.Entity("CoinyProject.Core.Domain.Entities.DiscussionMessage", b =>
                 {
-                    b.HasOne("CoinyProject.Core.Domain.Entities.Discussion", "Discussion")
+                    b.HasOne("CoinyProject.Core.Domain.Entities.Discussion", null)
                         .WithMany("Messages")
-                        .HasForeignKey("DiscussionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("DiscussionId");
 
                     b.HasOne("CoinyProject.Core.Domain.Entities.User", "User")
-                        .WithMany("DiscussionMessages")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Discussion");
+                        .WithMany()
+                        .HasForeignKey("UserId");
 
                     b.Navigation("User");
                 });
@@ -427,8 +404,8 @@ namespace CoinyProject.Infrastructure.Data.Migrations
             modelBuilder.Entity("CoinyProject.Core.Domain.Entities.User", b =>
                 {
                     b.HasOne("CoinyProject.Core.Domain.Entities.UserRole", "Role")
-                        .WithOne("User")
-                        .HasForeignKey("CoinyProject.Core.Domain.Entities.User", "RoleId")
+                        .WithMany()
+                        .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -440,48 +417,14 @@ namespace CoinyProject.Infrastructure.Data.Migrations
                     b.Navigation("Elements");
                 });
 
-            modelBuilder.Entity("CoinyProject.Core.Domain.Entities.AlbumElement", b =>
-                {
-                    b.Navigation("Auction")
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("CoinyProject.Core.Domain.Entities.AlbumElementAccessibility", b =>
-                {
-                    b.Navigation("AlbumElement")
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("CoinyProject.Core.Domain.Entities.Auction", b =>
-                {
-                    b.Navigation("AuctionBets");
-                });
-
             modelBuilder.Entity("CoinyProject.Core.Domain.Entities.Discussion", b =>
                 {
                     b.Navigation("Messages");
                 });
 
-            modelBuilder.Entity("CoinyProject.Core.Domain.Entities.DiscussionTopic", b =>
-                {
-                    b.Navigation("Discussions");
-                });
-
             modelBuilder.Entity("CoinyProject.Core.Domain.Entities.User", b =>
                 {
                     b.Navigation("Albums");
-
-                    b.Navigation("AuctionBets");
-
-                    b.Navigation("DiscussionMessages");
-
-                    b.Navigation("Discussions");
-                });
-
-            modelBuilder.Entity("CoinyProject.Core.Domain.Entities.UserRole", b =>
-                {
-                    b.Navigation("User")
-                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }
