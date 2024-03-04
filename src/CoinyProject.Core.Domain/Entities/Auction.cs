@@ -10,14 +10,14 @@ namespace CoinyProject.Core.Domain.Entities
     public class Auction
     {
         public int Id { get; set; }
-        public int LotId { get; set; }
+        public int AlbumElementId { get; set; }
         public float StartPrice { get; set; }
         public float BetDelta { get; set; } 
         public DateTime StartTime { get; set; }
         public DateTime ExpirationTime { get; set; }
         public bool IsSoldEarlier { get; set; }
 
-        public virtual AlbumElement Lot { get; set; }
+        public virtual AlbumElement AlbumElement { get; set; }
         public virtual ICollection<AuctionBet> AuctionBets { get; set; }
     }
 }

@@ -5,7 +5,7 @@
 namespace CoinyProject.Infrastructure.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class AddFavorites : Migration
+    public partial class update : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,12 +15,12 @@ namespace CoinyProject.Infrastructure.Data.Migrations
                 table: "AlbumElements");
 
             migrationBuilder.DropForeignKey(
-                name: "FK_Albums_Users_UserId",
-                table: "Albums");
-
-            migrationBuilder.DropForeignKey(
                 name: "FK_AuctionBet_Users_UserId",
                 table: "AuctionBet");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_Auctions_AlbumElements_LotId",
+                table: "Auctions");
 
             migrationBuilder.DropForeignKey(
                 name: "FK_Auctions_AuctionBet_AuctionBetId",
@@ -31,12 +31,12 @@ namespace CoinyProject.Infrastructure.Data.Migrations
                 table: "DiscussionMessages");
 
             migrationBuilder.DropForeignKey(
-                name: "FK_DiscussionMessages_Users_UserId",
-                table: "DiscussionMessages");
-
-            migrationBuilder.DropForeignKey(
                 name: "FK_Discussions_DiscussionMessages_RootQuestionId",
                 table: "Discussions");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_Users_UserRoles_RoleId",
+                table: "Users");
 
             migrationBuilder.DropIndex(
                 name: "IX_Users_RoleId",
@@ -74,6 +74,16 @@ namespace CoinyProject.Infrastructure.Data.Migrations
                 name: "AuctionBet",
                 newName: "AuctionBets");
 
+            migrationBuilder.RenameColumn(
+                name: "RoleId",
+                table: "Users",
+                newName: "UserRoleId");
+
+            migrationBuilder.RenameColumn(
+                name: "LotId",
+                table: "Auctions",
+                newName: "AlbumElementId");
+
             migrationBuilder.RenameIndex(
                 name: "IX_AuctionBet_UserId",
                 table: "AuctionBets",
@@ -90,18 +100,7 @@ namespace CoinyProject.Infrastructure.Data.Migrations
                 name: "UserId",
                 table: "Discussions",
                 type: "nvarchar(450)",
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AlterColumn<string>(
-                name: "UserId",
-                table: "DiscussionMessages",
-                type: "nvarchar(450)",
-                nullable: false,
-                defaultValue: "",
-                oldClrType: typeof(string),
-                oldType: "nvarchar(450)",
-                oldNullable: true);
+                nullable: true);
 
             migrationBuilder.AlterColumn<int>(
                 name: "DiscussionId",
@@ -111,16 +110,6 @@ namespace CoinyProject.Infrastructure.Data.Migrations
                 defaultValue: 0,
                 oldClrType: typeof(int),
                 oldType: "int",
-                oldNullable: true);
-
-            migrationBuilder.AlterColumn<string>(
-                name: "UserId",
-                table: "Albums",
-                type: "nvarchar(450)",
-                nullable: false,
-                defaultValue: "",
-                oldClrType: typeof(string),
-                oldType: "nvarchar(450)",
                 oldNullable: true);
 
             migrationBuilder.AlterColumn<string>(
@@ -148,6 +137,14 @@ namespace CoinyProject.Infrastructure.Data.Migrations
                 oldType: "int",
                 oldNullable: true);
 
+            migrationBuilder.AlterColumn<string>(
+                name: "UserId",
+                table: "AuctionBets",
+                type: "nvarchar(450)",
+                nullable: true,
+                oldClrType: typeof(string),
+                oldType: "nvarchar(450)");
+
             migrationBuilder.AddColumn<int>(
                 name: "AuctionId",
                 table: "AuctionBets",
@@ -160,10 +157,35 @@ namespace CoinyProject.Infrastructure.Data.Migrations
                 table: "AuctionBets",
                 column: "Id");
 
+            migrationBuilder.CreateTable(
+                name: "FavoriteAlbums",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    AlbumId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FavoriteAlbums", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_FavoriteAlbums_Albums_AlbumId",
+                        column: x => x.AlbumId,
+                        principalTable: "Albums",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_FavoriteAlbums_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id");
+                });
+
             migrationBuilder.CreateIndex(
-                name: "IX_Users_RoleId",
+                name: "IX_Users_UserRoleId",
                 table: "Users",
-                column: "RoleId",
+                column: "UserRoleId",
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -172,9 +194,9 @@ namespace CoinyProject.Infrastructure.Data.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Auctions_LotId",
+                name: "IX_Auctions_AlbumElementId",
                 table: "Auctions",
-                column: "LotId",
+                column: "AlbumElementId",
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -188,19 +210,21 @@ namespace CoinyProject.Infrastructure.Data.Migrations
                 table: "AuctionBets",
                 column: "AuctionId");
 
+            migrationBuilder.CreateIndex(
+                name: "IX_FavoriteAlbums_AlbumId",
+                table: "FavoriteAlbums",
+                column: "AlbumId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FavoriteAlbums_UserId",
+                table: "FavoriteAlbums",
+                column: "UserId");
+
             migrationBuilder.AddForeignKey(
                 name: "FK_AlbumElements_Albums_AlbumId",
                 table: "AlbumElements",
                 column: "AlbumId",
                 principalTable: "Albums",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_Albums_Users_UserId",
-                table: "Albums",
-                column: "UserId",
-                principalTable: "Users",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Cascade);
 
@@ -217,6 +241,13 @@ namespace CoinyProject.Infrastructure.Data.Migrations
                 table: "AuctionBets",
                 column: "UserId",
                 principalTable: "Users",
+                principalColumn: "Id");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Auctions_AlbumElements_AlbumElementId",
+                table: "Auctions",
+                column: "AlbumElementId",
+                principalTable: "AlbumElements",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Cascade);
 
@@ -229,18 +260,17 @@ namespace CoinyProject.Infrastructure.Data.Migrations
                 onDelete: ReferentialAction.Cascade);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_DiscussionMessages_Users_UserId",
-                table: "DiscussionMessages",
-                column: "UserId",
-                principalTable: "Users",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
-
-            migrationBuilder.AddForeignKey(
                 name: "FK_Discussions_Users_UserId",
                 table: "Discussions",
                 column: "UserId",
                 principalTable: "Users",
+                principalColumn: "Id");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Users_UserRoles_UserRoleId",
+                table: "Users",
+                column: "UserRoleId",
+                principalTable: "UserRoles",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Cascade);
         }
@@ -253,10 +283,6 @@ namespace CoinyProject.Infrastructure.Data.Migrations
                 table: "AlbumElements");
 
             migrationBuilder.DropForeignKey(
-                name: "FK_Albums_Users_UserId",
-                table: "Albums");
-
-            migrationBuilder.DropForeignKey(
                 name: "FK_AuctionBets_Auctions_AuctionId",
                 table: "AuctionBets");
 
@@ -265,19 +291,26 @@ namespace CoinyProject.Infrastructure.Data.Migrations
                 table: "AuctionBets");
 
             migrationBuilder.DropForeignKey(
-                name: "FK_DiscussionMessages_Discussions_DiscussionId",
-                table: "DiscussionMessages");
+                name: "FK_Auctions_AlbumElements_AlbumElementId",
+                table: "Auctions");
 
             migrationBuilder.DropForeignKey(
-                name: "FK_DiscussionMessages_Users_UserId",
+                name: "FK_DiscussionMessages_Discussions_DiscussionId",
                 table: "DiscussionMessages");
 
             migrationBuilder.DropForeignKey(
                 name: "FK_Discussions_Users_UserId",
                 table: "Discussions");
 
+            migrationBuilder.DropForeignKey(
+                name: "FK_Users_UserRoles_UserRoleId",
+                table: "Users");
+
+            migrationBuilder.DropTable(
+                name: "FavoriteAlbums");
+
             migrationBuilder.DropIndex(
-                name: "IX_Users_RoleId",
+                name: "IX_Users_UserRoleId",
                 table: "Users");
 
             migrationBuilder.DropIndex(
@@ -285,7 +318,7 @@ namespace CoinyProject.Infrastructure.Data.Migrations
                 table: "Discussions");
 
             migrationBuilder.DropIndex(
-                name: "IX_Auctions_LotId",
+                name: "IX_Auctions_AlbumElementId",
                 table: "Auctions");
 
             migrationBuilder.DropIndex(
@@ -320,6 +353,16 @@ namespace CoinyProject.Infrastructure.Data.Migrations
                 name: "AuctionBets",
                 newName: "AuctionBet");
 
+            migrationBuilder.RenameColumn(
+                name: "UserRoleId",
+                table: "Users",
+                newName: "RoleId");
+
+            migrationBuilder.RenameColumn(
+                name: "AlbumElementId",
+                table: "Auctions",
+                newName: "LotId");
+
             migrationBuilder.RenameIndex(
                 name: "IX_AuctionBets_UserId",
                 table: "AuctionBet",
@@ -331,14 +374,6 @@ namespace CoinyProject.Infrastructure.Data.Migrations
                 type: "int",
                 nullable: false,
                 defaultValue: 0);
-
-            migrationBuilder.AlterColumn<string>(
-                name: "UserId",
-                table: "DiscussionMessages",
-                type: "nvarchar(450)",
-                nullable: true,
-                oldClrType: typeof(string),
-                oldType: "nvarchar(450)");
 
             migrationBuilder.AlterColumn<int>(
                 name: "DiscussionId",
@@ -354,14 +389,6 @@ namespace CoinyProject.Infrastructure.Data.Migrations
                 type: "int",
                 nullable: false,
                 defaultValue: 0);
-
-            migrationBuilder.AlterColumn<string>(
-                name: "UserId",
-                table: "Albums",
-                type: "nvarchar(450)",
-                nullable: true,
-                oldClrType: typeof(string),
-                oldType: "nvarchar(450)");
 
             migrationBuilder.AlterColumn<string>(
                 name: "Description",
@@ -380,6 +407,16 @@ namespace CoinyProject.Infrastructure.Data.Migrations
                 nullable: true,
                 oldClrType: typeof(int),
                 oldType: "int");
+
+            migrationBuilder.AlterColumn<string>(
+                name: "UserId",
+                table: "AuctionBet",
+                type: "nvarchar(450)",
+                nullable: false,
+                defaultValue: "",
+                oldClrType: typeof(string),
+                oldType: "nvarchar(450)",
+                oldNullable: true);
 
             migrationBuilder.AddPrimaryKey(
                 name: "PK_AuctionBet",
@@ -419,17 +456,18 @@ namespace CoinyProject.Infrastructure.Data.Migrations
                 principalColumn: "Id");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_Albums_Users_UserId",
-                table: "Albums",
-                column: "UserId",
-                principalTable: "Users",
-                principalColumn: "Id");
-
-            migrationBuilder.AddForeignKey(
                 name: "FK_AuctionBet_Users_UserId",
                 table: "AuctionBet",
                 column: "UserId",
                 principalTable: "Users",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Auctions_AlbumElements_LotId",
+                table: "Auctions",
+                column: "LotId",
+                principalTable: "AlbumElements",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Cascade);
 
@@ -449,17 +487,18 @@ namespace CoinyProject.Infrastructure.Data.Migrations
                 principalColumn: "Id");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_DiscussionMessages_Users_UserId",
-                table: "DiscussionMessages",
-                column: "UserId",
-                principalTable: "Users",
-                principalColumn: "Id");
-
-            migrationBuilder.AddForeignKey(
                 name: "FK_Discussions_DiscussionMessages_RootQuestionId",
                 table: "Discussions",
                 column: "RootQuestionId",
                 principalTable: "DiscussionMessages",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Users_UserRoles_RoleId",
+                table: "Users",
+                column: "RoleId",
+                principalTable: "UserRoles",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Cascade);
         }

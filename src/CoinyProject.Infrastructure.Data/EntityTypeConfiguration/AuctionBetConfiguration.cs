@@ -4,25 +4,26 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace CoinyProject.Infrastructure.Data.EntityTypeConfiguration
 {
-    internal class AlbumConfiguration : IEntityTypeConfiguration<Album>
+    internal class AuctionBetConfiguration : IEntityTypeConfiguration<AuctionBet>
     {
-        public void Configure(EntityTypeBuilder<Album> builder)
+        public void Configure(EntityTypeBuilder<AuctionBet> builder)
         {
             builder.HasKey(al => al.Id);
 
-            builder.Property(al => al.Name)
-                .IsRequired(true)
-                .HasMaxLength(30);
+            builder.HasOne(auctionBet => auctionBet.User)
+           .WithMany(user => user.AuctionBets)
+           .HasForeignKey(auctionBet => auctionBet.UserId)
+           .OnDelete(DeleteBehavior.NoAction);
 
-            builder.Property(al => al.Description)
-                .IsRequired(false);
 
-            builder.Property(al => al.Rate).HasDefaultValue(0);
+
+
         }
     }
 }
