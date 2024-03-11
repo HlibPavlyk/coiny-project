@@ -12,13 +12,11 @@ namespace CoinyProject.Infrastructure.Data
 {
     public static class ConnectionExtensions
     {
-        public static void AddDBConnection(this IServiceCollection services, IConfiguration configuration)
+        public static void AddDBConnection(this IServiceCollection service, IConfiguration configuration)
         {
-            services.AddDbContext<ApplicationDBContext>(options =>
+            IServiceCollection serviceCollection = service.AddDbContext<ApplicationDBContext>(options =>
             options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = false)
-                .AddEntityFrameworkStores<ApplicationDBContext>();
         }
     }
 

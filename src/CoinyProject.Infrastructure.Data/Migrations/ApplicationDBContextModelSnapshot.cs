@@ -51,7 +51,7 @@ namespace CoinyProject.Infrastructure.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Albums");
+                    b.ToTable("Albums", (string)null);
                 });
 
             modelBuilder.Entity("CoinyProject.Core.Domain.Entities.AlbumElement", b =>
@@ -81,7 +81,7 @@ namespace CoinyProject.Infrastructure.Data.Migrations
 
                     b.HasIndex("AlbumId");
 
-                    b.ToTable("AlbumElements");
+                    b.ToTable("AlbumElements", (string)null);
                 });
 
             modelBuilder.Entity("CoinyProject.Core.Domain.Entities.Auction", b =>
@@ -117,7 +117,7 @@ namespace CoinyProject.Infrastructure.Data.Migrations
                     b.HasIndex("AlbumElementId")
                         .IsUnique();
 
-                    b.ToTable("Auctions");
+                    b.ToTable("Auctions", (string)null);
                 });
 
             modelBuilder.Entity("CoinyProject.Core.Domain.Entities.AuctionBet", b =>
@@ -144,7 +144,7 @@ namespace CoinyProject.Infrastructure.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AuctionBets");
+                    b.ToTable("AuctionBets", (string)null);
                 });
 
             modelBuilder.Entity("CoinyProject.Core.Domain.Entities.Discussion", b =>
@@ -175,7 +175,7 @@ namespace CoinyProject.Infrastructure.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Discussions");
+                    b.ToTable("Discussions", (string)null);
                 });
 
             modelBuilder.Entity("CoinyProject.Core.Domain.Entities.DiscussionMessage", b =>
@@ -202,7 +202,7 @@ namespace CoinyProject.Infrastructure.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("DiscussionMessages");
+                    b.ToTable("DiscussionMessages", (string)null);
                 });
 
             modelBuilder.Entity("CoinyProject.Core.Domain.Entities.DiscussionTopic", b =>
@@ -220,7 +220,7 @@ namespace CoinyProject.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("DiscussionTopics");
+                    b.ToTable("DiscussionTopics", (string)null);
                 });
 
             modelBuilder.Entity("CoinyProject.Core.Domain.Entities.FavoriteAlbums", b =>
@@ -244,7 +244,7 @@ namespace CoinyProject.Infrastructure.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("FavoriteAlbums");
+                    b.ToTable("FavoriteAlbums", (string)null);
                 });
 
             modelBuilder.Entity("CoinyProject.Core.Domain.Entities.User", b =>

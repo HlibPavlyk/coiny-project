@@ -3,21 +3,28 @@ using CoinyProject.IdentityServer.Infrastructure;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Configuration;
+using CoinyProject.Core.Domain.Entities;
+using CoinyProject.WebUI.Areas.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("IdentityDBContextConnection") ?? throw new InvalidOperationException("Connection string 'IdentityDBContextConnection' not found.");
 
+/*builder.Services.AddDbContext<CoinyProjectWebUIContext>(options => options.UseSqlServer(connectionString));
+
+builder.Services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<CoinyProjectWebUIContext>();
+*/
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
 builder.Services.AddDBConnection(builder.Configuration);
-
+builder.Services.ConfigurateIdentityOptions();
+builder.Services.AddIdentityUser();
 
 var app = builder.Build();
 
-app.DBEnsureCreated();
+/*app.DBEnsureCreated();*/
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
