@@ -16,10 +16,13 @@ namespace CoinyProject.Infrastructure.Data.EntityTypeConfiguration
         {
             builder.HasKey(al => al.Id);
 
+            builder.Property(x => x.Price)
+                .HasColumnType("decimal(10,2)");
+
             builder.HasOne(auctionBet => auctionBet.User)
-           .WithMany(user => user.AuctionBets)
-           .HasForeignKey(auctionBet => auctionBet.UserId)
-           .OnDelete(DeleteBehavior.NoAction);
+               .WithMany(user => user.AuctionBets)
+               .HasForeignKey(auctionBet => auctionBet.UserId)
+               .OnDelete(DeleteBehavior.NoAction);
 
 
 

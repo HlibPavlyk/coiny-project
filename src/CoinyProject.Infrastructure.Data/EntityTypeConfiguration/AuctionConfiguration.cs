@@ -15,6 +15,11 @@ namespace CoinyProject.Infrastructure.Data.EntityTypeConfiguration
         {
             builder.HasKey(x => x.Id);
 
+            builder.Property(x => x.StartPrice)
+                .HasColumnType("decimal(10,2)");
+            builder.Property(x => x.BetDelta)
+                .HasColumnType("decimal(10,2)");
+
             builder.Property(x => x.StartTime)
                 .HasDefaultValueSql("getdate()");
         }

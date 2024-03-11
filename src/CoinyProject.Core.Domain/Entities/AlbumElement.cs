@@ -15,10 +15,8 @@ namespace CoinyProject.Core.Domain.Entities
         public string Description { get; set; }
         public byte[] Image { get; set; }
         public int AlbumId { get; set; }
-        public int AccessibilityId { get; set; }
 
         public virtual Album Album { get; set; }
-        public virtual AlbumElementAccessibility Accessibility { get; set; }
         public virtual Auction Auction { get; set; }
     }
 }

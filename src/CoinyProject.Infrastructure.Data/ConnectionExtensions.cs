@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using CoinyProject.Core.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -11,15 +12,13 @@ namespace CoinyProject.Infrastructure.Data
 {
     public static class ConnectionExtensions
     {
-        public static void AddDBConnection(this IServiceCollection service, IConfiguration configuration)
+        public static void AddDBConnection(this IServiceCollection services, IConfiguration configuration)
         {
-            IServiceCollection serviceCollection = service.AddDbContext<ApplicationDBContext>(options =>
-            
-                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"))
-                /*options.UseLazyLoadingProxies();
-                options.Use*/
+            services.AddDbContext<ApplicationDBContext>(options =>
+            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
-            );
+            services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = false)
+                .AddEntityFrameworkStores<ApplicationDBContext>();
         }
     }
 

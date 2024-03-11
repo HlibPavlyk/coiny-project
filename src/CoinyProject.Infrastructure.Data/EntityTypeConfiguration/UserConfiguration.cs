@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CoinyProject.Infrastructure.Data.EntityTypeConfiguration
+namespace CoinyProject.IdentityServer.Infrastructure.EntityTypeConfiguration
 {
     internal class UserConfiguration : IEntityTypeConfiguration<User>
     {

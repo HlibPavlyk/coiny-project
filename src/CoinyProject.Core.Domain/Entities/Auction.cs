@@ -11,8 +11,8 @@ namespace CoinyProject.Core.Domain.Entities
     {
         public int Id { get; set; }
         public int AlbumElementId { get; set; }
-        public float StartPrice { get; set; }
-        public float BetDelta { get; set; } 
+        public decimal StartPrice { get; set; }
+        public decimal BetDelta { get; set; } 
         public DateTime StartTime { get; set; }
         public DateTime ExpirationTime { get; set; }
         public bool IsSoldEarlier { get; set; }

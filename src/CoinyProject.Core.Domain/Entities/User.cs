@@ -11,9 +11,7 @@ namespace CoinyProject.Core.Domain.Entities
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        public int UserRoleId { get; set; }
 
-        public virtual UserRole Role { get; set; }
         public virtual ICollection<Album> Albums { get; set; }
         public virtual ICollection<AuctionBet> AuctionBets { get; set; }
         public virtual ICollection<FavoriteAlbums> FavoriteAlbums { get; set; }
