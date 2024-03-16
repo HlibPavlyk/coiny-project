@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Client;
 using System;
@@ -22,7 +23,10 @@ namespace CoinyProject.Infrastructure.Data
                 await db.EnsureDeletedAsync();
                 await db.EnsureCreatedAsync();
 
+
             }
         }
+
+   
     }
 }

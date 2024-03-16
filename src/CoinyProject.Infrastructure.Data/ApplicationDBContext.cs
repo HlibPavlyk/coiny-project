@@ -12,6 +12,8 @@ namespace CoinyProject.Infrastructure.Data
 {
     public class ApplicationDBContext : IdentityDbContext<User>
     {
+       
+
         public ApplicationDBContext(DbContextOptions<ApplicationDBContext> options) : base(options) { }
 
         public DbSet<Album> Albums { get; set; }

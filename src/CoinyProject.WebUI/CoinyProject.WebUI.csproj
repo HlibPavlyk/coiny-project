@@ -23,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\CoinyProject.Application\CoinyProject.Application.csproj" />
     <ProjectReference Include="..\CoinyProject.IdentityServer\CoinyProject.IdentityServer.csproj" />
     <ProjectReference Include="..\CoinyProject.Infrastructure.Data\CoinyProject.Infrastructure.Data.csproj" />
   </ItemGroup>

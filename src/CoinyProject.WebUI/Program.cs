@@ -7,7 +7,6 @@ using CoinyProject.Core.Domain.Entities;
 using CoinyProject.WebUI.Areas.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
-var connectionString = builder.Configuration.GetConnectionString("IdentityDBContextConnection") ?? throw new InvalidOperationException("Connection string 'IdentityDBContextConnection' not found.");
 
 /*builder.Services.AddDbContext<CoinyProjectWebUIContext>(options => options.UseSqlServer(connectionString));
 

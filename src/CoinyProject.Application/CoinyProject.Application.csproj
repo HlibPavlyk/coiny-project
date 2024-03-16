@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\CoinyProject.Infrastructure.Data\CoinyProject.Infrastructure.Data.csproj" />
+  </ItemGroup>
+
 </Project>

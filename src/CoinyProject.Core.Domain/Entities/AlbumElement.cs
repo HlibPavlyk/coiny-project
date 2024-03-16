@@ -12,11 +12,11 @@ namespace CoinyProject.Core.Domain.Entities
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public string Description { get; set; }
-        public byte[] Image { get; set; }
-        public int AlbumId { get; set; }
+        public string? Description { get; set; }
+        public byte[]? Image { get; set; }
+        public int? AlbumId { get; set; }
 
-        public virtual Album Album { get; set; }
-        public virtual Auction Auction { get; set; }
+        public virtual Album? Album { get; set; }
+        public virtual Auction? Auction { get; set; }
     }
 }
