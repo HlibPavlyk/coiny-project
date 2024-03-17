@@ -14,9 +14,9 @@ namespace CoinyProject.WebUI.Controllers
     {
         private readonly IAlbumService _albumService;
 
-        public AlbumController(ApplicationDBContext db)
+        public AlbumController(IAlbumService albumService)
         {
-            _albumService = new AlbumService(new UnitOfWork(db));
+            _albumService = albumService;
         }
 
         public ActionResult Index()
@@ -32,8 +32,8 @@ namespace CoinyProject.WebUI.Controllers
         [HttpPost]
         public async Task<ActionResult> Create(AlbumCreating album)
         {
-            int albumId = await _albumService.AddAlbum(album);
-            return RedirectToAction("Create","AlbumElement", new { albumId });
+            _albumService.AddAlbum(album);
+            return RedirectToAction("Create","AlbumElement");
         }
 
     }

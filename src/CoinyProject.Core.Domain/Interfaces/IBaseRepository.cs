@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -13,6 +14,7 @@ namespace CoinyProject.Core.Domain.Interfaces
         Task Add(TEntity entity);
         Task Remove(TEntity entity);
         Task Update(TEntity entity);
+        IQueryable<TEntity> Include(Expression<Func<TEntity, object>> navigationProperty);
 
     }
 }

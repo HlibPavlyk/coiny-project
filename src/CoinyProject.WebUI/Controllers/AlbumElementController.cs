@@ -1,4 +1,5 @@
-﻿using CoinyProject.Application.AlbumServices.Services;
+﻿using CoinyProject.Application.AlbumServices.Interfaces;
+using CoinyProject.Application.AlbumServices.Services;
 using CoinyProject.Application.DTO;
 using CoinyProject.Core.Domain.Entities;
 using CoinyProject.Infrastructure.Data;
@@ -11,30 +12,33 @@ namespace CoinyProject.WebUI.Controllers
 {
     public class AlbumElementController : Controller
     {
-        private readonly AlbumElementService _albumElementService;
+        private readonly IAlbumService _albumService;
 
-        public AlbumElementController(ApplicationDBContext db)
+        public AlbumElementController(IAlbumService albumService)
         {
-            _albumElementService = new AlbumElementService(new UnitOfWork(db));
+            _albumService = albumService;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Create(int albumId)
+        public IActionResult Create()
         {
-            await _albumElementService.SetAlbumId(albumId);
             return View();
         }
 
         [HttpPost]
         public async Task<IActionResult> Create(AlbumElementCreating element)
         {
-            await _albumElementService.AddAlbumElement(element);
+            await _albumService.AddAlbumElement(element);
             return  RedirectToAction("Create");
         }
         public async Task<IActionResult> Commit()
         {
-            await _albumElementService.CommitAlbumElementList();
-            return RedirectToAction("Index","Album");
+            var (status, message) = await _albumService.CommitAlbumCreation();
+            TempData[status] = message;
+
+            if (status == "success")
+                return RedirectToAction("Index","Album");
+            else
+                return RedirectToAction("Create");
         }
 
     }

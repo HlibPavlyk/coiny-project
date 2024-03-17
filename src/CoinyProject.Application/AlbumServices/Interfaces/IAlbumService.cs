@@ -9,6 +9,8 @@ namespace CoinyProject.Application.AlbumServices.Interfaces
 {
     public interface IAlbumService
     {
-        Task<int> AddAlbum(AlbumCreating album);
+        Task AddAlbum(AlbumCreating album);
+        Task AddAlbumElement(AlbumElementCreating albumElement);
+        Task<(string, string)> CommitAlbumCreation();
     }
 }

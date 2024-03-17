@@ -18,7 +18,7 @@ namespace CoinyProject.Infrastructure.Data.Repositories
             AlbumElementRepository = new AlbumElementRepository(dbContext); 
             AlbumRepository = new AlbumRepository(dbContext);
         }
-        public Task Commit() => _dbContext.SaveChangesAsync();
+        public void Commit() => _dbContext.SaveChanges();
 
         public void Dispose() => _dbContext.Dispose();
     }

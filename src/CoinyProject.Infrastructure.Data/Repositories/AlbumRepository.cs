@@ -13,12 +13,12 @@ namespace CoinyProject.Infrastructure.Data.Repositories
         {
         }
 
-       /* public ApplicationDBContext ApplicationDBContex
+        public ApplicationDBContext ApplicationDBContex
         {
             get
             {
                 return _dbContext as ApplicationDBContext;
             }
-        }*/
+        }
     }
 }

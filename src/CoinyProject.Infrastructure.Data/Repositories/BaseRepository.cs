@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -17,7 +18,7 @@ namespace CoinyProject.Infrastructure.Data.Repositories
         }
         public Task Add(TEntity entity)
         {
-            _dbContext.Add(entity);
+            _dbContext.AddAsync(entity);
             return Task.CompletedTask;
         }
 
@@ -29,6 +30,11 @@ namespace CoinyProject.Infrastructure.Data.Repositories
         public async Task<TEntity> GetById(int id)
         {
             return await _dbContext.Set<TEntity>().FindAsync(id);
+        }
+
+        public IQueryable<TEntity> Include(Expression<Func<TEntity, object>> navigationProperty)
+        {
+            return _dbContext.Set<TEntity>().Include(navigationProperty);
         }
 
         public Task Remove(TEntity entity)

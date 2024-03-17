@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using System.Configuration;
 using CoinyProject.Core.Domain.Entities;
 using CoinyProject.WebUI.Areas.Identity;
+using CoinyProject.Application.AlbumServices.Interfaces;
+using CoinyProject.Application.AlbumServices.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,10 +22,11 @@ builder.Services.AddRazorPages();
 builder.Services.AddDBConnection(builder.Configuration);
 builder.Services.ConfigurateIdentityOptions();
 builder.Services.AddIdentityUser();
+builder.Services.AddScoped<IAlbumService, AlbumService>();
 
 var app = builder.Build();
 
-/*app.DBEnsureCreated();*/
+app.DBEnsureCreated();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
