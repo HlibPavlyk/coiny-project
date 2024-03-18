@@ -36,6 +36,10 @@ namespace CoinyProject.Infrastructure.Data.Repositories
         {
             return _dbContext.Set<TEntity>().Include(navigationProperty);
         }
+        public IQueryable<TEntity> Where(Expression<Func<TEntity, bool>> predicate)
+        {
+            return _dbContext.Set<TEntity>().Where(predicate);
+        }
 
         public Task Remove(TEntity entity)
         {

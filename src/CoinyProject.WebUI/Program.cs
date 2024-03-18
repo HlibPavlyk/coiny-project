@@ -23,6 +23,11 @@ builder.Services.AddDBConnection(builder.Configuration);
 builder.Services.ConfigurateIdentityOptions();
 builder.Services.AddIdentityUser();
 builder.Services.AddScoped<IAlbumService, AlbumService>();
+builder.Services.AddControllersWithViews().AddJsonOptions(o =>
+{
+    o.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+    o.JsonSerializerOptions.PropertyNamingPolicy = null;
+});
 
 var app = builder.Build();
 

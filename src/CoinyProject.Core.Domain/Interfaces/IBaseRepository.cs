@@ -15,6 +15,7 @@ namespace CoinyProject.Core.Domain.Interfaces
         Task Remove(TEntity entity);
         Task Update(TEntity entity);
         IQueryable<TEntity> Include(Expression<Func<TEntity, object>> navigationProperty);
+        IQueryable<TEntity> Where(Expression<Func<TEntity, bool>> predicate);
 
     }
 }

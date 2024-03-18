@@ -1,27 +1,36 @@
 ﻿@using CoinyProject.Application.DTO
 @model AlbumElementCreating
-<form method="post">
+<form method="post" enctype="multipart/form-data">
     <div class="border p-3 mt-4">
         <div class="row pb-2">
             <h2 class="text-primary">Create Album Element</h2>
             <hr />
-        </div>
-        <div class="mb-3 row p-1">
-            <label asp-for="Name" class="p-0"></label>
-            <input asp-for="Name" class="form-control" />
-            <span asp-validation-for="Name" class="text-danger"></span>
-        </div>
-        <div class="mb-3 row p-1">
-            <label asp-for="Description" class="p-0"></label>
-            <input asp-for="Description" class="form-control" />
-        </div>
-        <div class="mb-3 row p-1">
-            <label asp-for="Image" class="p-0"></label>
-            <input asp-for="Image" type="file" class="form-control" />
+        <div class="row">
+            <div class="col-md-8">
+                
+                <div class="mb-3 row p-1">
+                    <label asp-for="Name" class="p-0"></label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+                <div class="mb-3 row p-1">
+                    <label asp-for="Description" class="p-0"></label>
+                    <input asp-for="Description" class="form-control" />
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+                <div class="mb-3 row p-1">
+                    <label asp-for="Image" class="p-0"></label>
+                    <input id="imgFile" asp-for="Image" type="file" class="form-control" />
+                        <span asp-validation-for="Image" class="text-danger"></span>
+                </div>
+            </div>
+                <div class="col-md-4 ">
+                    <img id="imgViewer" width="300" height="300" class="rounded mx-auto d-block border-3" />
+            </div>
         </div>
         <div class="row">
             <div class="col-6 col-md-3">
-                <button type="submit" class="btn btn-primary form-control">Add Album Element</button>
+                <button id="btnSave" type="submit" class="btn btn-primary form-control">Add Album Element</button>
             </div>
             <div class="col-6 col-md-3">
                 <a asp-controller="AlbumElement" asp-action="Commit" class="btn btn-outline-secondary form-control text-primary">
@@ -29,8 +38,18 @@
                 </a>
             </div>
         </div>
+        </div>
     </div>
 </form>
+
+<script type="text/javascript">
+    imgFile.onchange = evt => {
+        const [file] = imgFile.files
+        if (file) {
+            imgViewer.src = URL.createObjectURL(file)
+        }
+    }
+</script>
 
 @section Scripts {
     @{

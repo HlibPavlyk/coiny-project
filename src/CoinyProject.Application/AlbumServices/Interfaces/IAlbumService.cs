@@ -1,4 +1,5 @@
 ﻿using CoinyProject.Application.DTO;
+using CoinyProject.Core.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,5 +13,7 @@ namespace CoinyProject.Application.AlbumServices.Interfaces
         Task AddAlbum(AlbumCreating album);
         Task AddAlbumElement(AlbumElementCreating albumElement);
         Task<(string, string)> CommitAlbumCreation();
+        Task<IEnumerable<AlbumGetDTO>> GetAllAlbumsDTO();
+        Task<AlbumGetByIdDTO> GetAlbumById(int id);
     }
 }

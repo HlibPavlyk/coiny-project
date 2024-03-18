@@ -21,6 +21,10 @@ namespace CoinyProject.Infrastructure.Data.EntityTypeConfiguration
 
             builder.Property(x => x.Description)
                 .IsRequired(false);
+
+            builder.Property(x => x.ImageURL)
+                .IsRequired(false);
+            
         }
     }
 }
