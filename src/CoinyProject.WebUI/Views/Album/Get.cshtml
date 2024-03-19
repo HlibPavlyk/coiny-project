@@ -1,11 +1,8 @@
-﻿@using CoinyProject.Application.DTO
-@model AlbumGetByIdDTO
-
-<div class="container">
+﻿<div class="container">
     <div class="row pt-4 pb-3">
         <div class="col-6">
             <h2 class="text-primary">@Model.Name</h2>
-            <p class="text-primary">@(string.IsNullOrEmpty(Model.Description) ? "Description is not availabe" : Model.Description)</p>
+            <p class="text-primary">@(string.IsNullOrEmpty(Model.Description) ? "Description is not available" : Model.Description)</p>
         </div>
         <div class="col-6 text-end">
             <a asp-controller="Album" asp-action="Index" class="btn btn-primary">
@@ -13,14 +10,15 @@
             </a>
         </div>
     </div>
-    <div class="row">
-        @if (Model != null)
-            foreach (AlbumElementGetDTO element in Model.Elements)
+    @if (Model != null)
+    {
+        <div class="row">
+            @foreach (var element in Model.Elements)
             {
                 <div class="col-md-3">
                     <partial name="_AlbumElementView" model="@element" />
                 </div>
             }
-    </div>
-
+        </div>
+    }
 </div>

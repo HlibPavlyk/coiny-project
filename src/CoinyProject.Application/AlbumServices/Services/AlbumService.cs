@@ -42,7 +42,6 @@ namespace CoinyProject.Application.AlbumServices.Services
         {
             string imageURL = null;
             var album = _unitOfWork.AlbumRepository.Include(x => x.Elements)
-                .Where(x => x.Elements.Count == 0)
                 .OrderByDescending(x => x.Id)
                 .FirstOrDefault();
 
