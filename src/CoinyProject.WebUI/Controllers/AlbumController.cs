@@ -26,7 +26,7 @@ namespace CoinyProject.WebUI.Controllers
             return View(albums);
         }
 
-        [Route("album-details/{id:int:min(1)}", Name = "albumDetailsRoute"), ActionName("Get")]
+        [ActionName("Get")]
         public async Task<ActionResult> GetAlbum(int id)
         {
             var album = await _albumService.GetAlbumById(id);

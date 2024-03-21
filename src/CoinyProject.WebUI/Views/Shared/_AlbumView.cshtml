@@ -8,7 +8,7 @@
         <p class="card-text">@(string.IsNullOrEmpty(Model.Description) ? "Description is not availabe": Model.Description)</p>
         <div class="d-flex justify-content-between align-items-center">
             <div class="btn-group">
-                <a asp-route="albumDetailsRoute" asp-route-id="@Model.Id"
+                <a asp-action="Get" asp-controller="Album" asp-route-id="@Model.Id"
                    class="btn btn-sm btn-outline-secondary">View details</a>
             </div>
             <small class="text-muted">@Model.Rate

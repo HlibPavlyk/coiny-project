@@ -5,6 +5,7 @@ using CoinyProject.Infrastructure.Data;
 using CoinyProject.Infrastructure.Data.Migrations;
 using CoinyProject.Infrastructure.Data.Repositories;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -40,24 +41,26 @@ namespace CoinyProject.Application.AlbumServices.Services
 
             return _album.Id;
         }
+
+        public async Task<string> ConvertToImageUrl(IFormFile image)
+        {
+            string folder = "albums/elements/";
+            folder += Guid.NewGuid().ToString() + "_" + image.FileName;
+
+            string imageURL = "/" + folder;
+
+            string serverFolder = Path.Combine(_webHostEnvironment.WebRootPath, folder);
+
+            await image.CopyToAsync(new FileStream(serverFolder, FileMode.Create));
+
+            return imageURL;
+        }
+
         public async Task AddAlbumElement(AlbumElementCreating element)
         {
-            string imageURL = "";
             var album = _unitOfWork.AlbumRepository.Include(x => x.Elements)
                 .Where(x => x.Id == element.AlbumId)
                 .FirstOrDefault();
-
-            if (element.Image != null)
-            {
-                string folder = "albums/elements/";
-                folder += Guid.NewGuid().ToString() + "_" + element.Image.FileName;
-
-                imageURL = "/" + folder;
-
-                string serverFolder = Path.Combine(_webHostEnvironment.WebRootPath, folder);
-
-                await element.Image.CopyToAsync(new FileStream(serverFolder, FileMode.Create));
-            }   
 
             if (album != null)
             {
@@ -65,7 +68,7 @@ namespace CoinyProject.Application.AlbumServices.Services
                 {
                     Name = element.Name,
                     Description = element.Description,
-                    ImageURL = imageURL
+                    ImageURL = await ConvertToImageUrl(element.Image),
                 };
 
                 album.Elements.Add(_albumElement);
@@ -162,5 +165,56 @@ namespace CoinyProject.Application.AlbumServices.Services
             await _unitOfWork.AlbumRepository.Remove(album);
             _unitOfWork.Commit();
         }
+
+        public async Task<AlbumElementEditDTO> GetAlbumElementForEdit(int id)
+        {
+            var albumElement = await _unitOfWork.AlbumElementRepository
+                .Where(x => x.Id == id)
+                .AsNoTracking()
+                .FirstOrDefaultAsync();
+
+            var albumElementGetDTO = new AlbumElementEditDTO()
+            {
+                Id = albumElement.Id,
+                Name = albumElement.Name,
+                Description = albumElement.Description,
+                ImageURL = albumElement.ImageURL
+            };
+
+            return albumElementGetDTO;
+
+        }
+
+        public async Task<int> UpdateAlbumElement(AlbumElementEditDTO element)
+        {
+            var _element = await _unitOfWork.AlbumElementRepository
+                .Where(x => x.Id == element.Id)
+                .FirstOrDefaultAsync();
+
+            _element.Name = element.Name;
+            _element.Description = element.Description;
+
+            if(element.Image != null)
+                _element.ImageURL = await ConvertToImageUrl(element.Image);
+
+            await _unitOfWork.AlbumElementRepository.Update(_element);
+            _unitOfWork.Commit();
+
+            return _element.AlbumId;
+        }
+
+        public async Task<int> DeleteAlbumElement(int id)
+        {
+            var element = _unitOfWork.AlbumElementRepository
+                .Where(x => x.Id == id)
+                .FirstOrDefault();
+
+            await _unitOfWork.AlbumElementRepository.Remove(element);
+            _unitOfWork.Commit(); 
+            
+            return element.AlbumId;
+        }
+
+        
     }
 }

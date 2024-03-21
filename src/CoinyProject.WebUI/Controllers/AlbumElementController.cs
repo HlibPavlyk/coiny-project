@@ -34,7 +34,28 @@ namespace CoinyProject.WebUI.Controllers
 
             return RedirectToAction("Create");
         }
-     
+
+        public async Task<ActionResult> Edit(int id)
+        {
+            var album = await _albumService.GetAlbumElementForEdit(id);
+            return View(album);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Edit(AlbumElementEditDTO album)
+        {
+            var id = await _albumService.UpdateAlbumElement(album);
+            TempData["success"] = "Album element successfuly updated";
+            return RedirectToAction("Get","Album", new { id });
+        }
+
+        public async Task<ActionResult> Delete(int id)
+        {
+            var albumId = await _albumService.DeleteAlbumElement(id);
+            TempData["success"] = "Album element successfuly deleted";
+            return RedirectToAction("Get", "Album", new { id = albumId });
+        }
+
 
     }
 }
