@@ -23,6 +23,10 @@ namespace CoinyProject.Infrastructure.Data.EntityTypeConfiguration
                 .IsRequired(false);
 
             builder.Property(al => al.Rate).HasDefaultValue(0);
+
+            builder.HasMany(u => u.Elements)
+                .WithOne(u => u.Album).
+                OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

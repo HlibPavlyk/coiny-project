@@ -2,6 +2,7 @@
 using CoinyProject.Application.AlbumServices.Interfaces;
 using CoinyProject.Application.AlbumServices.Services;
 using CoinyProject.Application.DTO;
+using CoinyProject.Core.Domain.Entities;
 using CoinyProject.Infrastructure.Data;
 using CoinyProject.Infrastructure.Data.Repositories;
 using Microsoft.AspNetCore.Http;
@@ -40,8 +41,27 @@ namespace CoinyProject.WebUI.Controllers
         [HttpPost]
         public async Task<ActionResult> Create(AlbumCreating album)
         {
-            _albumService.AddAlbum(album);
-            return RedirectToAction("Create","AlbumElement");
+            var albumId = await _albumService.AddAlbum(album);
+            return RedirectToAction("Create", "AlbumElement", new { id = albumId });
+        }
+
+        public async Task<ActionResult> Edit(int id)
+        {
+            var album = await _albumService.GetAlbumForEdit(id);
+            return View(album);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Edit(AlbumEditDTO album)
+        {
+            await _albumService.UpdateAlbum(album);
+            return RedirectToAction("Index");
+        }
+
+        public async Task<ActionResult> Delete(int id)
+        {
+            await _albumService.DeleteAlbum(id);
+            return RedirectToAction("Index");
         }
 
     }

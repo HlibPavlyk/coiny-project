@@ -27,7 +27,7 @@ namespace CoinyProject.Application.AlbumServices.Services
             _webHostEnvironment = webHostEnvironment;   
         }
 
-        public async Task AddAlbum(AlbumCreating album)
+        public async Task<int> AddAlbum(AlbumCreating album)
         {
             Album _album = new Album();
 
@@ -37,12 +37,14 @@ namespace CoinyProject.Application.AlbumServices.Services
 
             await _unitOfWork.AlbumRepository.Add(_album);
             _unitOfWork.Commit();
+
+            return _album.Id;
         }
         public async Task AddAlbumElement(AlbumElementCreating element)
         {
-            string imageURL = null;
+            string imageURL = "";
             var album = _unitOfWork.AlbumRepository.Include(x => x.Elements)
-                .OrderByDescending(x => x.Id)
+                .Where(x => x.Id == element.AlbumId)
                 .FirstOrDefault();
 
             if (element.Image != null)
@@ -69,22 +71,7 @@ namespace CoinyProject.Application.AlbumServices.Services
                 album.Elements.Add(_albumElement);
                 _unitOfWork.Commit();
             }
-
-
            
-        }
-
-        public Task<(string,string)> CommitAlbumCreation()
-        {
-            var album = _unitOfWork.AlbumRepository.Include(x => x.Elements)
-                .Where(x => !x.Elements.Any())
-                .AsNoTracking()
-                .FirstOrDefault();
-
-            if (album != null)
-                return Task.FromResult(("error", "At least one element must be provided"));
-            else
-                return Task.FromResult(("success", "Album successfule created"));
         }
 
         public async Task<IEnumerable<AlbumGetDTO>> GetAllAlbumsDTO()
@@ -104,7 +91,7 @@ namespace CoinyProject.Application.AlbumServices.Services
                     Name = album.Name,
                     Description = album.Description,
                     Rate = album.Rate,
-                    TitleImageURL = album.Elements.FirstOrDefault().ImageURL
+                    TitleImageURL = album.Elements?.FirstOrDefault()?.ImageURL
                 });
             }
             return albumsGetDTOList;
@@ -134,6 +121,46 @@ namespace CoinyProject.Application.AlbumServices.Services
             };
 
             return AlbumGetByIdDTO;
+        }
+
+        public async Task<AlbumEditDTO> GetAlbumForEdit(int id)
+        {
+            var album = await _unitOfWork.AlbumRepository
+                .Where(x => x.Id == id)
+                .AsNoTracking()
+                .FirstOrDefaultAsync();
+
+            var albumEditDTO = new AlbumEditDTO()
+            {
+                Id = album.Id,
+                Name = album.Name,
+                Description = album.Description
+            };
+
+            return albumEditDTO;
+        }
+        public async Task UpdateAlbum(AlbumEditDTO album)
+        {
+            var _album = await _unitOfWork.AlbumRepository
+                .Where(x => x.Id == album.Id)
+                .FirstOrDefaultAsync();
+
+            _album.Name = album.Name;
+            _album.Description = album.Description;
+
+            await _unitOfWork.AlbumRepository.Update(_album);
+            _unitOfWork.Commit();
+
+        }
+
+        public async Task DeleteAlbum(int id)
+        {
+            var album = await _unitOfWork.AlbumRepository
+                .Where(x => x.Id == id)
+                .FirstOrDefaultAsync();
+
+            await _unitOfWork.AlbumRepository.Remove(album);
+            _unitOfWork.Commit();
         }
     }
 }

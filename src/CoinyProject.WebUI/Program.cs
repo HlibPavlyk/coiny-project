@@ -31,7 +31,7 @@ builder.Services.AddControllersWithViews().AddJsonOptions(o =>
 
 var app = builder.Build();
 
-app.DBEnsureCreated();
+/*app.DBEnsureCreated();*/
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

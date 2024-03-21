@@ -7,6 +7,7 @@ using CoinyProject.Infrastructure.Data.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Xml.Linq;
+using static Azure.Core.HttpHeader;
 
 namespace CoinyProject.WebUI.Controllers
 {
@@ -19,8 +20,9 @@ namespace CoinyProject.WebUI.Controllers
             _albumService = albumService;
         }
 
-        public IActionResult Create()
+        public IActionResult Create(int id)
         {
+            TempData["AlbumId"] = id.ToString();
             return View();
         }
 
@@ -28,18 +30,11 @@ namespace CoinyProject.WebUI.Controllers
         public async Task<IActionResult> Create(AlbumElementCreating element)
         {
             await _albumService.AddAlbumElement(element);
-            return  RedirectToAction("Create");
-        }
-        public async Task<IActionResult> Commit()
-        {
-            var (status, message) = await _albumService.CommitAlbumCreation();
-            TempData[status] = message;
+            TempData["success"] = "Album element successfuly created";
 
-            if (status == "success")
-                return RedirectToAction("Index","Album");
-            else
-                return RedirectToAction("Create");
+            return RedirectToAction("Create");
         }
+     
 
     }
 }

@@ -1,5 +1,7 @@
 ﻿@using CoinyProject.Application.DTO
 @model AlbumElementCreating
+
+
 <form method="post" enctype="multipart/form-data">
     <div class="border p-3 mt-4">
         <div class="row pb-2">
@@ -7,7 +9,7 @@
             <hr />
         <div class="row">
             <div class="col-md-8">
-                
+                <input asp-for="AlbumId" value="@TempData["AlbumId"]" type="hidden" />
                 <div class="mb-3 row p-1">
                     <label asp-for="Name" class="p-0"></label>
                     <input asp-for="Name" class="form-control" />
@@ -33,8 +35,8 @@
                 <button id="btnSave" type="submit" class="btn btn-primary form-control">Add Album Element</button>
             </div>
             <div class="col-6 col-md-3">
-                <a asp-controller="AlbumElement" asp-action="Commit" class="btn btn-outline-secondary form-control text-primary">
-                    Create Album
+                <a asp-controller="Album" asp-action="Index" class="btn btn-outline-secondary form-control text-primary">
+                    Back to List
                 </a>
             </div>
         </div>

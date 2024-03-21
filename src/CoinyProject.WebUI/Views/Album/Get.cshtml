@@ -1,13 +1,32 @@
-﻿<div class="container">
+﻿@using CoinyProject.Application.DTO
+@model AlbumGetByIdDTO
+
+<div class="container">
     <div class="row pt-4 pb-3">
-        <div class="col-6">
-            <h2 class="text-primary">@Model.Name</h2>
-            <p class="text-primary">@(string.IsNullOrEmpty(Model.Description) ? "Description is not available" : Model.Description)</p>
-        </div>
-        <div class="col-6 text-end">
-            <a asp-controller="Album" asp-action="Index" class="btn btn-primary">
-                <i class="bi bi-plus-circle"></i> Go Back
-            </a>
+        <div class="col-12">
+            <div class="row">
+                <div class="col-6">
+                    <h2 class="text-primary">@Model.Name</h2>
+                    <p class="text-primary">@(string.IsNullOrEmpty(Model.Description) ? "Description is not available" : Model.Description)</p>
+                </div>
+                <div class="col-6 text-end">
+                    <div>
+                        <a asp-controller="Album" asp-action="Index" class="btn btn-primary">
+                            <i class="bi bi-arrow-left"></i> Go Back
+                        </a>
+                    </div>
+                    <div class="pt-4">
+                        <a asp-controller="Album" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+                            <i class="bi bi-pencil"></i> Edit
+                        </a>
+                        <a asp-controller="Album" asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">
+                            <i class="bi bi-trash"></i> Delete
+                        </a>
+                    </div>
+                </div>
+                
+            </div>
+            
         </div>
     </div>
     @if (Model != null)

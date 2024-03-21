@@ -33,7 +33,7 @@ namespace CoinyProject.IdentityServer.Infrastructure.EntityTypeConfiguration
 
             builder.HasMany(u => u.Albums)
                 .WithOne(u => u.User).
-                OnDelete(DeleteBehavior.Cascade);
+                OnDelete(DeleteBehavior.NoAction);
 
             builder.HasMany(u => u.DiscussionMessages)
                 .WithOne(u => u.User).
