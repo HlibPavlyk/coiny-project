@@ -19,13 +19,22 @@ namespace CoinyProject.Application.AlbumServices.Services
 {
     public class AlbumService : IAlbumService
     {
-        private readonly UnitOfWork _unitOfWork;
+        private readonly ApplicationDBContext _dBContext;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly string imageFolder = "albums/elements/";
 
         public AlbumService(ApplicationDBContext dBContext, IWebHostEnvironment webHostEnvironment)
         {
-            _unitOfWork = new UnitOfWork(dBContext);
-            _webHostEnvironment = webHostEnvironment;   
+            _webHostEnvironment = webHostEnvironment;
+            _dBContext = dBContext;
+        }
+        public async Task<string> ConvertToImageUrl(IFormFile image)
+        {
+            string folder = imageFolder + Guid.NewGuid().ToString() + "_" + image.FileName;
+
+            await image.CopyToAsync(new FileStream(Path.Combine(_webHostEnvironment.WebRootPath, folder), FileMode.Create));
+
+            return "/" + folder;
         }
 
         public async Task<int> AddAlbum(AlbumCreating album)
@@ -36,31 +45,19 @@ namespace CoinyProject.Application.AlbumServices.Services
             if (album.Description != null)
                 _album.Description = album.Description;
 
-            await _unitOfWork.AlbumRepository.Add(_album);
-            _unitOfWork.Commit();
+            await _dBContext.Albums.AddAsync(_album);
+            await _dBContext.SaveChangesAsync();
 
             return _album.Id;
         }
 
-        public async Task<string> ConvertToImageUrl(IFormFile image)
-        {
-            string folder = "albums/elements/";
-            folder += Guid.NewGuid().ToString() + "_" + image.FileName;
-
-            string imageURL = "/" + folder;
-
-            string serverFolder = Path.Combine(_webHostEnvironment.WebRootPath, folder);
-
-            await image.CopyToAsync(new FileStream(serverFolder, FileMode.Create));
-
-            return imageURL;
-        }
 
         public async Task AddAlbumElement(AlbumElementCreating element)
         {
-            var album = _unitOfWork.AlbumRepository.Include(x => x.Elements)
+            var album = await _dBContext.Albums
+                .Include(x => x.Elements)
                 .Where(x => x.Id == element.AlbumId)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
 
             if (album != null)
             {
@@ -72,21 +69,21 @@ namespace CoinyProject.Application.AlbumServices.Services
                 };
 
                 album.Elements.Add(_albumElement);
-                _unitOfWork.Commit();
+                await _dBContext.SaveChangesAsync();
             }
            
         }
 
         public async Task<IEnumerable<AlbumGetDTO>> GetAllAlbumsDTO()
         {
-            var alums = await _unitOfWork.AlbumRepository
+            var albums = await _dBContext.Albums
                 .Include(x => x.Elements)
                 .AsNoTracking()
                 .ToListAsync();
 
             var albumsGetDTOList = new List<AlbumGetDTO>();
 
-            foreach(Album album in alums)
+            foreach(Album album in albums)
             {
                 albumsGetDTOList.Add(new AlbumGetDTO()
                 {
@@ -102,11 +99,12 @@ namespace CoinyProject.Application.AlbumServices.Services
 
         public async Task<AlbumGetByIdDTO> GetAlbumById(int id)
         {
-            var album = await _unitOfWork.AlbumRepository
+            var album = await _dBContext.Albums
                 .Where(x => x.Id == id)
                 .Include(x => x.Elements)
                 .AsNoTracking()
                 .FirstOrDefaultAsync();
+            
 
             var AlbumGetByIdDTO = new AlbumGetByIdDTO()
             {
@@ -128,7 +126,7 @@ namespace CoinyProject.Application.AlbumServices.Services
 
         public async Task<AlbumEditDTO> GetAlbumForEdit(int id)
         {
-            var album = await _unitOfWork.AlbumRepository
+            var album = await _dBContext.Albums
                 .Where(x => x.Id == id)
                 .AsNoTracking()
                 .FirstOrDefaultAsync();
@@ -144,31 +142,31 @@ namespace CoinyProject.Application.AlbumServices.Services
         }
         public async Task UpdateAlbum(AlbumEditDTO album)
         {
-            var _album = await _unitOfWork.AlbumRepository
+            var _album = await _dBContext.Albums
                 .Where(x => x.Id == album.Id)
                 .FirstOrDefaultAsync();
 
             _album.Name = album.Name;
             _album.Description = album.Description;
 
-            await _unitOfWork.AlbumRepository.Update(_album);
-            _unitOfWork.Commit();
+            _dBContext.Albums.Update(_album);
+            _dBContext.SaveChanges();
 
         }
 
         public async Task DeleteAlbum(int id)
         {
-            var album = await _unitOfWork.AlbumRepository
+            var album = await _dBContext.Albums
                 .Where(x => x.Id == id)
                 .FirstOrDefaultAsync();
 
-            await _unitOfWork.AlbumRepository.Remove(album);
-            _unitOfWork.Commit();
+            _dBContext.Albums.Remove(album);
+            _dBContext.SaveChanges();
         }
 
         public async Task<AlbumElementEditDTO> GetAlbumElementForEdit(int id)
         {
-            var albumElement = await _unitOfWork.AlbumElementRepository
+            var albumElement = await _dBContext.AlbumElements
                 .Where(x => x.Id == id)
                 .AsNoTracking()
                 .FirstOrDefaultAsync();
@@ -187,7 +185,7 @@ namespace CoinyProject.Application.AlbumServices.Services
 
         public async Task<int> UpdateAlbumElement(AlbumElementEditDTO element)
         {
-            var _element = await _unitOfWork.AlbumElementRepository
+            var _element = await _dBContext.AlbumElements
                 .Where(x => x.Id == element.Id)
                 .FirstOrDefaultAsync();
 
@@ -197,20 +195,20 @@ namespace CoinyProject.Application.AlbumServices.Services
             if(element.Image != null)
                 _element.ImageURL = await ConvertToImageUrl(element.Image);
 
-            await _unitOfWork.AlbumElementRepository.Update(_element);
-            _unitOfWork.Commit();
+            _dBContext.AlbumElements.Update(_element);
+            _dBContext.SaveChanges();
 
             return _element.AlbumId;
         }
 
         public async Task<int> DeleteAlbumElement(int id)
         {
-            var element = _unitOfWork.AlbumElementRepository
+            var element = await _dBContext.AlbumElements
                 .Where(x => x.Id == id)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
 
-            await _unitOfWork.AlbumElementRepository.Remove(element);
-            _unitOfWork.Commit(); 
+            _dBContext.AlbumElements.Remove(element);
+            _dBContext.SaveChanges();
             
             return element.AlbumId;
         }
