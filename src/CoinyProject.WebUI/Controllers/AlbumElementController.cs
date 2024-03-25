@@ -3,7 +3,6 @@ using CoinyProject.Application.AlbumServices.Services;
 using CoinyProject.Application.DTO;
 using CoinyProject.Core.Domain.Entities;
 using CoinyProject.Infrastructure.Data;
-using CoinyProject.Infrastructure.Data.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Xml.Linq;

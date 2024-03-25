@@ -7,6 +7,8 @@ using CoinyProject.Core.Domain.Entities;
 using CoinyProject.WebUI.Areas.Identity;
 using CoinyProject.Application.AlbumServices.Interfaces;
 using CoinyProject.Application.AlbumServices.Services;
+using System.Drawing.Text;
+using CoinyProject.Application.AutoMapper;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,9 +31,11 @@ builder.Services.AddControllersWithViews().AddJsonOptions(o =>
     o.JsonSerializerOptions.PropertyNamingPolicy = null;
 });
 
+builder.Services.AddAutoMapperService();
+
 var app = builder.Build();
 
-app.DBEnsureCreated();
+/*app.DBEnsureCreated();*/
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

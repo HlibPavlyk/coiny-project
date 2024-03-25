@@ -11,19 +11,19 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoinyProject.WebAPI", "src\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoinyProject.WebUI", "src\CoinyProject.WebUI\CoinyProject.WebUI.csproj", "{8D69EB8D-A05C-489C-95E1-73935D749CF8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoinyProject.Core.Domain", "src\CoinyProject.Core.Domain\CoinyProject.Core.Domain.csproj", "{9E35B419-F9BC-45C0-9D75-26A9183B2268}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoinyProject.Core.Domain", "src\CoinyProject.Core.Domain\CoinyProject.Core.Domain.csproj", "{9E35B419-F9BC-45C0-9D75-26A9183B2268}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoinyProject.Application", "src\CoinyProject.Application\CoinyProject.Application.csproj", "{4A248687-20EE-409A-9899-3272A0E48CB3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoinyProject.Application", "src\CoinyProject.Application\CoinyProject.Application.csproj", "{4A248687-20EE-409A-9899-3272A0E48CB3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoinyProject.Infrastructure", "src\CoinyProject.Infrastructure\CoinyProject.Infrastructure.csproj", "{43B37B4B-9052-46D5-845D-AB21E74D5057}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoinyProject.Infrastructure", "src\CoinyProject.Infrastructure\CoinyProject.Infrastructure.csproj", "{43B37B4B-9052-46D5-845D-AB21E74D5057}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoinyProject.Infrastructure.Data", "src\CoinyProject.Infrastructure.Data\CoinyProject.Infrastructure.Data.csproj", "{ADEE36F4-01B3-46F9-A1EB-D3B9BE2D4A7A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoinyProject.Infrastructure.Data", "src\CoinyProject.Infrastructure.Data\CoinyProject.Infrastructure.Data.csproj", "{ADEE36F4-01B3-46F9-A1EB-D3B9BE2D4A7A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoinyProject.Shared", "src\CoinyProject.Shared\CoinyProject.Shared.csproj", "{70C1241D-C297-4D3C-B26F-B7AA953EA24C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoinyProject.Shared", "src\CoinyProject.Shared\CoinyProject.Shared.csproj", "{70C1241D-C297-4D3C-B26F-B7AA953EA24C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoinyProject.IdentityServer", "src\CoinyProject.IdentityServer\CoinyProject.IdentityServer.csproj", "{15B0F024-EB65-42A9-897D-9232CE14EA7B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoinyProject.IdentityServer", "src\CoinyProject.IdentityServer\CoinyProject.IdentityServer.csproj", "{15B0F024-EB65-42A9-897D-9232CE14EA7B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoinyProject.Tests", "tests\CoinyProject.Tests\CoinyProject.Tests.csproj", "{E35A8F01-B8D3-4B17-ADD3-0538DE962BCB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoinyProject.Tests", "tests\CoinyProject.Tests\CoinyProject.Tests.csproj", "{E35A8F01-B8D3-4B17-ADD3-0538DE962BCB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

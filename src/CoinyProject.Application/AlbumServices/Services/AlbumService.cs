@@ -1,9 +1,9 @@
-﻿using CoinyProject.Application.AlbumServices.Interfaces;
+﻿using AutoMapper;
+using CoinyProject.Application.AlbumServices.Interfaces;
 using CoinyProject.Application.DTO;
 using CoinyProject.Core.Domain.Entities;
 using CoinyProject.Infrastructure.Data;
 using CoinyProject.Infrastructure.Data.Migrations;
-using CoinyProject.Infrastructure.Data.Repositories;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -21,12 +21,15 @@ namespace CoinyProject.Application.AlbumServices.Services
     {
         private readonly ApplicationDBContext _dBContext;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IMapper _mapper;
+
         private readonly string imageFolder = "albums/elements/";
 
-        public AlbumService(ApplicationDBContext dBContext, IWebHostEnvironment webHostEnvironment)
+        public AlbumService(ApplicationDBContext dBContext, IWebHostEnvironment webHostEnvironment, IMapper mapper)
         {
             _webHostEnvironment = webHostEnvironment;
             _dBContext = dBContext;
+            _mapper = mapper;
         }
         public async Task<string> ConvertToImageUrl(IFormFile image)
         {
@@ -39,11 +42,7 @@ namespace CoinyProject.Application.AlbumServices.Services
 
         public async Task<int> AddAlbum(AlbumCreating album)
         {
-            Album _album = new Album();
-
-            _album.Name = album.Name;
-            if (album.Description != null)
-                _album.Description = album.Description;
+            var _album = _mapper.Map<Album>(album);
 
             await _dBContext.Albums.AddAsync(_album);
             await _dBContext.SaveChangesAsync();
@@ -105,23 +104,7 @@ namespace CoinyProject.Application.AlbumServices.Services
                 .AsNoTracking()
                 .FirstOrDefaultAsync();
             
-
-            var AlbumGetByIdDTO = new AlbumGetByIdDTO()
-            {
-                Id = album.Id,
-                Name = album.Name,
-                Rate = album.Rate,
-                Description = album.Description,
-                Elements = album.Elements.Select(x => new AlbumElementGetDTO()
-                {
-                    Id = x.Id,
-                    Name = x.Name,
-                    Description = x.Description,
-                    ImageURL = x.ImageURL
-                }).ToList()
-            };
-
-            return AlbumGetByIdDTO;
+            return _mapper.Map<AlbumGetByIdDTO>(album);
         }
 
         public async Task<AlbumEditDTO> GetAlbumForEdit(int id)
@@ -131,14 +114,7 @@ namespace CoinyProject.Application.AlbumServices.Services
                 .AsNoTracking()
                 .FirstOrDefaultAsync();
 
-            var albumEditDTO = new AlbumEditDTO()
-            {
-                Id = album.Id,
-                Name = album.Name,
-                Description = album.Description
-            };
-
-            return albumEditDTO;
+            return _mapper.Map<AlbumEditDTO>(album);
         }
         public async Task UpdateAlbum(AlbumEditDTO album)
         {
@@ -146,12 +122,12 @@ namespace CoinyProject.Application.AlbumServices.Services
                 .Where(x => x.Id == album.Id)
                 .FirstOrDefaultAsync();
 
-            _album.Name = album.Name;
-            _album.Description = album.Description;
-
-            _dBContext.Albums.Update(_album);
-            _dBContext.SaveChanges();
-
+            if (_album != null)
+            {
+                _mapper.Map(album, _album);
+                _dBContext.Albums.Update(_album);
+                _dBContext.SaveChanges();
+            }
         }
 
         public async Task DeleteAlbum(int id)
@@ -171,15 +147,7 @@ namespace CoinyProject.Application.AlbumServices.Services
                 .AsNoTracking()
                 .FirstOrDefaultAsync();
 
-            var albumElementGetDTO = new AlbumElementEditDTO()
-            {
-                Id = albumElement.Id,
-                Name = albumElement.Name,
-                Description = albumElement.Description,
-                ImageURL = albumElement.ImageURL
-            };
-
-            return albumElementGetDTO;
+            return _mapper.Map<AlbumElementEditDTO>(albumElement);
 
         }
 
