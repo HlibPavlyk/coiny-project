@@ -12,7 +12,11 @@ namespace CoinyProject.Application.DTO
 {
     public class AlbumElementCreating
     {
+        [Required, MaxLength(20)]
+        [RegularExpression("^[^!@#$%^&*()_+\\-=\\[\\]{};:'\"\\\\|,.<>\\/?]+$", ErrorMessage = "The field must not contain special characters")]
         public string Name { get; set; }
+
+        [MaxLength(100)]
         public string? Description { get; set; }
         public int AlbumId { get; set; }
         public IFormFile Image { get; set; }
