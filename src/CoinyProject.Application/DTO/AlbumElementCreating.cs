@@ -19,6 +19,7 @@ namespace CoinyProject.Application.DTO
         [MaxLength(100)]
         public string? Description { get; set; }
         public int AlbumId { get; set; }
+        [Required]
         public IFormFile Image { get; set; }
     }
 }

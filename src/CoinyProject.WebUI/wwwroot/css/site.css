@@ -44,3 +44,41 @@ body {
 .login-logout-card .card-body {
     padding: 10px 20px;
 }
+
+.img-size {
+    width: 100%;
+    height: 15vw;
+    object-fit: cover;
+}
+
+.img-size-create {
+    width: 80%;
+    height: 15vw;
+    object-fit: cover;
+}
+
+.card .img-fit{
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+}
+
+.card{
+    height: 100%;
+}
+
+.card-body{
+    display: flex;
+    height: 100%;
+    flex-direction:column;
+}
+
+.card-text{
+    flex-grow: 1;
+}
+
+@media (max-width: 768px) {
+    .card .img-fit{
+        aspect-ratio: 1 / 1;
+        object-fit: cover;
+}
+
