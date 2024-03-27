@@ -1,3 +1,4 @@
+using CoinyProject.Application.AlbumServices.Interfaces;
 using CoinyProject.Core.Domain.Entities;
 using CoinyProject.WebUI.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -7,19 +8,18 @@ using System.Diagnostics;
 
 namespace CoinyProject.WebUI.Controllers
 {
-    [Authorize]
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
-
-        public HomeController(ILogger<HomeController> logger)
+        private readonly IAlbumService _albumService;
+        public HomeController(IAlbumService albumService)
         {
-            _logger = logger;
+            _albumService = albumService;
         }
 
-        public IActionResult Index()
+        public async Task<ActionResult> Index()
         {
-            return View();
+            var albums = await _albumService.GetAllAlbumsDTO();
+            return View(albums);
         }
 
         public IActionResult Privacy()

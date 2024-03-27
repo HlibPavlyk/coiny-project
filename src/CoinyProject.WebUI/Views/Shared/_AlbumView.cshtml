@@ -1,7 +1,7 @@
 ﻿@using CoinyProject.Application.DTO
 @model AlbumGetDTO
 
-<div class="card shadow-sm">
+<div class="card mb-4 shadow-sm">
     <img src="@(string.IsNullOrEmpty(Model.TitleImageURL) ? "/albums/noimage.jpg" : Model.TitleImageURL)" class="img-fit img-thumbnail" />
     <div class="card-body">
         <h3 class="card-title">@Model.Name</h3>

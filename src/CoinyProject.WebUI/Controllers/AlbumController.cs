@@ -5,12 +5,14 @@ using CoinyProject.Application.AlbumServices.Services;
 using CoinyProject.Application.DTO;
 using CoinyProject.Core.Domain.Entities;
 using CoinyProject.Infrastructure.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Xml.Linq;
 
 namespace CoinyProject.WebUI.Controllers
 {
+    [Authorize]
     public class AlbumController : Controller
     {
         private readonly IAlbumService _albumService;

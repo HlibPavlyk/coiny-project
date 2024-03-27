@@ -1,8 +1,26 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+﻿@using CoinyProject.Application.DTO
+@model IEnumerable<AlbumGetDTO>
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container p-1">
+
+    <div class="row pt-4 pb-3">
+        <div class="col-6">
+            <h2 class="text-primary">
+                Home Page
+        </div>
+        <div class="col-6 text-end">
+            <a asp-controller="Album" asp-action="Create" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Add New Album
+            </a>
+        </div>
+    </div>
+
+    @if (Model != null)
+        foreach (var album in Model)
+        {
+            <div class="row justify-content-center  mb-5">
+            <partial name="_HomeAlbumView" model="@album" />
+            </div>
+        }
 </div>
+
