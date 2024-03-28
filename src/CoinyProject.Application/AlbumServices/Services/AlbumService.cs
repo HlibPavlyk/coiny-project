@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -31,7 +32,7 @@ namespace CoinyProject.Application.AlbumServices.Services
             _dBContext = dBContext;
             _mapper = mapper;
         }
-        public async Task<string> ConvertToImageUrl(IFormFile image)
+        protected async Task<string> ConvertToImageUrl(IFormFile image)
         {
             string folder = imageFolder + Guid.NewGuid().ToString() + "_" + image.FileName;
 
@@ -40,9 +41,34 @@ namespace CoinyProject.Application.AlbumServices.Services
             return "/" + folder;
         }
 
-        public async Task<int> AddAlbum(AlbumCreating album)
+        protected async Task AlbumAuthorCheck(int albumId, string currentUserId)
+        {
+            var userId = await _dBContext.Albums
+                .Where(x => x.Id == albumId)
+                .AsNoTracking()
+                .Select(x => x.UserId)
+                .FirstOrDefaultAsync();
+
+            if (userId != currentUserId)
+                throw new UnauthorizedAccessException("Access is denied. Current user is not the author of album");
+        }
+
+        protected async Task AlbumAuthorCheckForElements(int albumElementId, string currentUserId)
+        {
+            var albumId = await _dBContext.AlbumElements
+                .Where(x => x.Id == albumElementId)
+                .AsNoTracking()
+                .Select(x => x.AlbumId)
+                .FirstOrDefaultAsync();
+
+            await AlbumAuthorCheck(albumId, currentUserId);
+
+        }
+
+        public async Task<int> AddAlbum(AlbumCreating album, string userId)
         {
             var _album = _mapper.Map<Album>(album);
+            _album.UserId = userId;
 
             await _dBContext.Albums.AddAsync(_album);
             await _dBContext.SaveChangesAsync();
@@ -73,12 +99,18 @@ namespace CoinyProject.Application.AlbumServices.Services
            
         }
 
-        public async Task<IEnumerable<AlbumGetDTO>> GetAllAlbumsDTO()
+        public async Task<IEnumerable<AlbumGetDTO>> GetAllAlbumsDTO(string? userId = null)
         {
-            var albums = await _dBContext.Albums
-                .Include(x => x.Elements)
-                .AsNoTracking()
-                .ToListAsync();
+            IQueryable<Album> query = _dBContext.Albums
+                                       .Include(x => x.Elements)
+                                       .AsNoTracking();
+
+            if (!string.IsNullOrEmpty(userId))
+            {
+                query = query.Where(x => x.UserId == userId);
+            }
+
+            var albums = await query.ToListAsync();
 
             var albumsGetDTOList = new List<AlbumGetDTO>();
 
@@ -104,11 +136,15 @@ namespace CoinyProject.Application.AlbumServices.Services
                 .AsNoTracking()
                 .FirstOrDefaultAsync();
             
+            var a = _mapper.Map<AlbumGetByIdDTO>(album);
+
             return _mapper.Map<AlbumGetByIdDTO>(album);
         }
 
-        public async Task<AlbumEditDTO> GetAlbumForEdit(int id)
+        public async Task<AlbumEditDTO> GetAlbumForEdit(int id, string currentUserId)
         {
+            await AlbumAuthorCheck(id, currentUserId);
+
             var album = await _dBContext.Albums
                 .Where(x => x.Id == id)
                 .AsNoTracking()
@@ -130,8 +166,10 @@ namespace CoinyProject.Application.AlbumServices.Services
             }
         }
 
-        public async Task DeleteAlbum(int id)
+        public async Task DeleteAlbum(int id, string currentUserId)
         {
+            await AlbumAuthorCheck(id, currentUserId);
+
             var album = await _dBContext.Albums
                 .Where(x => x.Id == id)
                 .FirstOrDefaultAsync();
@@ -140,8 +178,10 @@ namespace CoinyProject.Application.AlbumServices.Services
             _dBContext.SaveChanges();
         }
 
-        public async Task<AlbumElementEditDTO> GetAlbumElementForEdit(int id)
+        public async Task<AlbumElementEditDTO> GetAlbumElementForEdit(int id, string currentUserId)
         {
+            await AlbumAuthorCheckForElements(id, currentUserId);
+
             var albumElement = await _dBContext.AlbumElements
                 .Where(x => x.Id == id)
                 .AsNoTracking()
@@ -169,8 +209,10 @@ namespace CoinyProject.Application.AlbumServices.Services
             return _element.AlbumId;
         }
 
-        public async Task<int> DeleteAlbumElement(int id)
+        public async Task<int> DeleteAlbumElement(int id, string currentUserId)
         {
+            await AlbumAuthorCheckForElements(id, currentUserId);
+
             var element = await _dBContext.AlbumElements
                 .Where(x => x.Id == id)
                 .FirstOrDefaultAsync();

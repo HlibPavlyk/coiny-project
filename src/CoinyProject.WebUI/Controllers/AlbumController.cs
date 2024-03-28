@@ -8,6 +8,7 @@ using CoinyProject.Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using System.Xml.Linq;
 
 namespace CoinyProject.WebUI.Controllers
@@ -24,7 +25,7 @@ namespace CoinyProject.WebUI.Controllers
 
         public async Task<ActionResult> Index()
         {
-            var albums = await _albumService.GetAllAlbumsDTO();
+            var albums = await _albumService.GetAllAlbumsDTO(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             return View(albums);
         }
 
@@ -43,13 +44,13 @@ namespace CoinyProject.WebUI.Controllers
         [HttpPost]
         public async Task<ActionResult> Create(AlbumCreating album)
         {
-            var albumId = await _albumService.AddAlbum(album);
+            var albumId = await _albumService.AddAlbum(album, User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             return RedirectToAction("Create", "AlbumElement", new { id = albumId });
         }
 
         public async Task<ActionResult> Edit(int id)
         {
-            var album = await _albumService.GetAlbumForEdit(id);
+            var album = await _albumService.GetAlbumForEdit(id, User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             return View(album);
         }
 
@@ -62,7 +63,7 @@ namespace CoinyProject.WebUI.Controllers
 
         public async Task<ActionResult> Delete(int id)
         {
-            await _albumService.DeleteAlbum(id);
+            await _albumService.DeleteAlbum(id, User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             return RedirectToAction("Index");
         }
 

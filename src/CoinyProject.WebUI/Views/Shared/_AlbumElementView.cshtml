@@ -1,15 +1,22 @@
 ﻿@using CoinyProject.Application.DTO
 @model AlbumElementGetDTO
+@{
+    bool isOwner = TempData["isOwner"] != null && (bool)TempData["isOwner"];
+}
 
 <div class="card shadow-sm ">
     <img src="@(string.IsNullOrEmpty(Model.ImageURL) ? "/albums/noimage.jpg" : Model.ImageURL)" class=" img-fit img-thumbnail" />
     <div class="card-body">
         <h3 class="card-title">@Model.Name</h3>
         <p class="card-text">@(string.IsNullOrEmpty(Model.Description) ? "Description is not availabe" : Model.Description)</p>
-        <div class=" text-end">
-            <a asp-action="Edit" asp-controller="AlbumElement" asp-route-id="@Model.Id" class="btn btn-sm btn-warning">
-                <i class="bi bi-pencil"></i> Edit Element
-            </a>
-        </div>
+        @if (isOwner)
+        {
+            <div class=" text-end">
+                <a asp-action="Edit" asp-controller="AlbumElement" asp-route-id="@Model.Id" class="btn btn-sm btn-warning">
+                    <i class="bi bi-pencil"></i> Edit Element
+                </a>
+            </div>
+        }
+        
     </div>
  </div>
