@@ -1,9 +1,13 @@
 ﻿@using CoinyProject.Application.DTO
+@using Microsoft.AspNetCore.Mvc.Localization
+
 @model AlbumCreating
+@inject IViewLocalizer Localizer
+
 <form method="post">
     <div class="border p-3 mt-4">
         <div class="row pb-2">
-            <h2 class="text-primary">Create Album</h2>
+            <h2 class="text-primary">@Localizer["Create Album"]</h2>
             <hr />
         </div>
         <div class="mb-3 row p-1">
@@ -17,11 +21,11 @@
         </div>
         <div class="row">
             <div class="col-6 col-md-3">
-                <button type="submit" class="btn btn-primary form-control">Сontinue Creating</button>
+                <button type="submit" class="btn btn-primary form-control">@Localizer["Сontinue Creating"]</button>
             </div>
             <div class="col-6 col-md-3">
                 <a asp-controller="Album" asp-action="Index" class="btn btn-outline-secondary form-control text-primary">
-                    Back To List
+                    @Localizer["Back To List"]
                 </a>
             </div>
         </div>

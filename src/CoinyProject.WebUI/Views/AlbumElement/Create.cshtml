@@ -5,7 +5,7 @@
 <form method="post" enctype="multipart/form-data">
     <div class="border p-3 mt-4">
         <div class="row pb-2">
-            <h2 class="text-primary">Create Album Element</h2>
+            <h2 class="text-primary">@Localizer["Create Album Element"]</h2>
             <hr />
         <div class="row">
             <div class="col-md-8">
@@ -32,11 +32,11 @@
         </div>
         <div class="row">
             <div class="col-6 col-md-3">
-                <button id="btnSave" type="submit" class="btn btn-primary form-control">Add Album Element</button>
+                    <button id="btnSave" type="submit" class="btn btn-primary form-control">@Localizer["Add Album Element"]</button>
             </div>
             <div class="col-6 col-md-3">
                 <a asp-controller="Album" asp-action="Index" class="btn btn-outline-secondary form-control text-primary">
-                    Back to List
+                    @Localizer["Back to List"]
                 </a>
             </div>
         </div>

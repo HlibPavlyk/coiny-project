@@ -9,6 +9,10 @@ using CoinyProject.Application.AlbumServices.Interfaces;
 using CoinyProject.Application.AlbumServices.Services;
 using System.Drawing.Text;
 using CoinyProject.Application.AutoMapper;
+using Microsoft.AspNetCore.Mvc.Razor;
+using System.Globalization;
+using Microsoft.AspNetCore.Localization;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,13 +22,44 @@ builder.Services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfi
 */
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews()
+    .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix);
+
+builder.Services.AddRazorPages()
+    .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix);
+
+builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    var supportedCultures = new[]
+    {
+        new CultureInfo("en-US"),
+        new CultureInfo("uk-UA")
+    };
+
+    options.DefaultRequestCulture = new RequestCulture("en-US");
+    options.SupportedCultures = supportedCultures;
+    options.SupportedUICultures = supportedCultures;
+});
+
+builder.Services.AddMvc().AddDataAnnotationsLocalization(options =>
+{
+    options.DataAnnotationLocalizerProvider = (type, factory) =>
+    {
+        var assemblyName = new AssemblyName(typeof(CoinyProject.Application.DTO.AlbumCreating).GetTypeInfo().Assembly.FullName);
+        return factory.Create("Translations", assemblyName.Name);
+    };
+
+});
+
 builder.Services.AddRazorPages();
 
 builder.Services.AddDBConnection(builder.Configuration);
 builder.Services.ConfigurateIdentityOptions();
 builder.Services.AddIdentityUser();
 builder.Services.AddScoped<IAlbumService, AlbumService>();
+
 builder.Services.AddControllersWithViews().AddJsonOptions(o =>
 {
     o.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
@@ -33,7 +68,11 @@ builder.Services.AddControllersWithViews().AddJsonOptions(o =>
 
 builder.Services.AddAutoMapperService();
 
+
+
 var app = builder.Build();
+
+app.UseRequestLocalization();
 
 /*app.DBEnsureCreated();*/
 

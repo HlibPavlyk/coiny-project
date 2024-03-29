@@ -10,11 +10,14 @@ namespace CoinyProject.Application.DTO
 {
     public class AlbumCreating
     {
-        [Required, MaxLength(20)]
+        [MaxLength(20)]
+        [Required(ErrorMessage = "The name field is required")]
         [RegularExpression("^[^!@#$%^&*()_+\\-=\\[\\]{};:'\"\\\\|,.<>\\/?]+$", ErrorMessage = "The field must not contain special characters")]
+        [Display(Name = "Name")]
         public string Name { get; set; }
 
         [MaxLength(100)]
+        [Display(Name = "Description")]
         public string? Description { get; set; }
     }
 }

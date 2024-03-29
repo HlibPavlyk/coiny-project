@@ -4,7 +4,7 @@
 <form method="post" enctype="multipart/form-data" action="Edit">
     <div class="border p-3 mt-4">
         <div class="row pb-2">
-            <h2 class="text-primary">Create Album Element</h2>
+            <h2 class="text-primary">@Localizer["Edit Album Element"]</h2>
             <hr />
             <div class="row">
                 <div class="col-md-8">
@@ -31,16 +31,16 @@
             </div>
             <div class="row">
                 <div class="col-3 col-md-2">
-                    <button id="btnSave" type="submit" class="btn btn-primary form-control">Update</button>
+                    <button id="btnSave" type="submit" class="btn btn-primary form-control">@Localizer["Update"]</button>
                 </div>
                 <div class="col-3 col-md-2">
                     <a asp-controller="AlbumElement" asp-action="Delete" asp-route-id="@Model.Id" class="form-control btn btn-danger">
-                        <i class="bi bi-trash"></i> Delete
+                        <i class="bi bi-trash"></i> @Localizer["Delete"]
                     </a>
                 </div>
                 <div class="col-6 col-md-3">
                     <a asp-controller="Album" asp-action="Index" class="btn btn-outline-secondary form-control text-primary">
-                        Back to List
+                        @Localizer["Back to List"]
                     </a>
                 </div>
             </div>
