@@ -32,7 +32,7 @@ namespace CoinyProject.WebUI.Controllers
 
         public async Task<ActionResult> Index()
         {
-            var albums = await _albumService.GetAllAlbumsDTO();
+            var albums = await _albumService.GetAllAlbumsForView();
             return View(albums);
         }
 

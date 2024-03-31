@@ -13,7 +13,8 @@ namespace CoinyProject.Application.AlbumServices.Interfaces
     {
         Task<int> AddAlbum(AlbumCreating album, string userId);
         Task AddAlbumElement(AlbumElementCreating albumElement);
-        Task<IEnumerable<AlbumGetDTO>> GetAllAlbumsDTO(string? userId = null);
+        Task<IEnumerable<AlbumGetDTO>> GetAllAlbumsDTO(string userId);
+        Task<IEnumerable<AlbumGetDTO>> GetAllAlbumsForView();
         Task<AlbumGetByIdDTO> GetAlbumById(int id);
         Task<AlbumEditDTO> GetAlbumForEdit(int id, string currentUserId);
         Task UpdateAlbum(AlbumEditDTO album);

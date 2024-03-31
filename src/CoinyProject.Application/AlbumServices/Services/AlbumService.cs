@@ -99,22 +99,41 @@ namespace CoinyProject.Application.AlbumServices.Services
            
         }
 
-        public async Task<IEnumerable<AlbumGetDTO>> GetAllAlbumsDTO(string? userId = null)
+        public async Task<IEnumerable<AlbumGetDTO>> GetAllAlbumsDTO(string userId)
         {
-            IQueryable<Album> query = _dBContext.Albums
+            var albums = await _dBContext.Albums
                                        .Include(x => x.Elements)
-                                       .AsNoTracking();
-
-            if (!string.IsNullOrEmpty(userId))
-            {
-                query = query.Where(x => x.UserId == userId);
-            }
-
-            var albums = await query.ToListAsync();
+                                       .AsNoTracking()
+                                       .Where(x => x.UserId == userId)
+                                       .ToListAsync();
 
             var albumsGetDTOList = new List<AlbumGetDTO>();
 
             foreach(Album album in albums)
+            {
+                albumsGetDTOList.Add(new AlbumGetDTO()
+                {
+                    Id = album.Id,
+                    Name = album.Name,
+                    Description = album.Description,
+                    Rate = album.Rate,
+                    TitleImageURL = album.Elements?.FirstOrDefault()?.ImageURL
+                });
+            }
+            return albumsGetDTOList;
+        }
+
+        public async Task<IEnumerable<AlbumGetDTO>> GetAllAlbumsForView()
+        {
+            var albums = await _dBContext.Albums
+                                .Include(x => x.Elements)
+                                .Where(x => x.Elements.Count > 0)
+                                .AsNoTracking()
+                                .ToListAsync();
+
+            var albumsGetDTOList = new List<AlbumGetDTO>();
+
+            foreach (Album album in albums)
             {
                 albumsGetDTOList.Add(new AlbumGetDTO()
                 {
