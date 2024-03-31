@@ -34,7 +34,7 @@ builder.Services.AddControllersWithViews().AddJsonOptions(o =>
 
 builder.Services.AddAutoMapperService();
 
-
+builder.Services.AddSignalR();
 
 var app = builder.Build();
 

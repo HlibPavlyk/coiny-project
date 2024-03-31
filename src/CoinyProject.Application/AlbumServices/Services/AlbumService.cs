@@ -123,24 +123,27 @@ namespace CoinyProject.Application.AlbumServices.Services
             return albumsGetDTOList;
         }
 
-        public async Task<IEnumerable<AlbumGetDTO>> GetAllAlbumsForView()
+        public async Task<IEnumerable<AlbumGetForViewDTO>> GetAllAlbumsForView(string userId)
         {
             var albums = await _dBContext.Albums
                                 .Include(x => x.Elements)
+                                .Include(x => x.FavoriteAlbums)
                                 .Where(x => x.Elements.Count > 0)
+                                .OrderByDescending(x => x.Rate)
                                 .AsNoTracking()
                                 .ToListAsync();
 
-            var albumsGetDTOList = new List<AlbumGetDTO>();
+            var albumsGetDTOList = new List<AlbumGetForViewDTO>();
 
             foreach (Album album in albums)
             {
-                albumsGetDTOList.Add(new AlbumGetDTO()
+                albumsGetDTOList.Add(new AlbumGetForViewDTO()
                 {
                     Id = album.Id,
                     Name = album.Name,
                     Description = album.Description,
                     Rate = album.Rate,
+                    IsFavorite = album.FavoriteAlbums.Any(x => x.UserId == userId),
                     TitleImageURL = album.Elements?.FirstOrDefault()?.ImageURL
                 });
             }
@@ -242,6 +245,30 @@ namespace CoinyProject.Application.AlbumServices.Services
             return element.AlbumId;
         }
 
-        
+        public async Task LikeAlbum(int albumId, string currentUserId)
+        {
+            var user = await _dBContext.Users
+                .Include(u => u.FavoriteAlbums)
+                .FirstOrDefaultAsync(u => u.Id == currentUserId);
+            var album = await _dBContext.Albums.FirstOrDefaultAsync(a => a.Id == albumId);
+
+            if (user != null && album != null)
+            {
+                if (!user.FavoriteAlbums.Any(a => a.AlbumId == albumId))
+                {
+                    user.FavoriteAlbums.Add(new FavoriteAlbums { UserId = currentUserId, AlbumId = albumId });
+                    album.Rate++;
+                }
+                else
+                {
+                    _dBContext.FavoriteAlbums.Remove(user.FavoriteAlbums.FirstOrDefault(a => a.AlbumId == albumId));
+                    album.Rate--;
+                }
+
+                await _dBContext.SaveChangesAsync();
+
+            }
+
+        }
     }
 }

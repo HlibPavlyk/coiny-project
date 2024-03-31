@@ -11,8 +11,10 @@
                 <a asp-action="Get" asp-controller="Album" asp-route-id="@Model.Id"
                    class="btn btn-sm btn-outline-secondary">@Localizer["View details"]</a>
             </div>
-            <small class="text-muted">@Model.Rate
-                <i class="bi bi-suit-heart-fill"></i>
+            <small class="text-muted">
+                <i class="bi bi-star-fill"></i>
+                <span class="like-text">@Localizer["Liked"]</span>
+                | @Model.Rate
             </small>
         </div>
     </div>

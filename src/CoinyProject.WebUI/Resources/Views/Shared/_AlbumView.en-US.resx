@@ -120,6 +120,9 @@
   <data name="Description is not availabe" xml:space="preserve">
     <value>Description is not availabe</value>
   </data>
+  <data name="Liked" xml:space="preserve">
+    <value>Liked</value>
+  </data>
   <data name="View details" xml:space="preserve">
     <value>View details</value>
   </data>

@@ -120,6 +120,12 @@
   <data name="Description is not availabe" xml:space="preserve">
     <value>Опис недоступний</value>
   </data>
+  <data name="Like" xml:space="preserve">
+    <value>Вподобати</value>
+  </data>
+  <data name="Liked" xml:space="preserve">
+    <value>Вподобано</value>
+  </data>
   <data name="View Album" xml:space="preserve">
     <value>Переглянути альбом</value>
   </data>

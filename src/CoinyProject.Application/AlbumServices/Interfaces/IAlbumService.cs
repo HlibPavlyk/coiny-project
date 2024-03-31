@@ -14,7 +14,7 @@ namespace CoinyProject.Application.AlbumServices.Interfaces
         Task<int> AddAlbum(AlbumCreating album, string userId);
         Task AddAlbumElement(AlbumElementCreating albumElement);
         Task<IEnumerable<AlbumGetDTO>> GetAllAlbumsDTO(string userId);
-        Task<IEnumerable<AlbumGetDTO>> GetAllAlbumsForView();
+        Task<IEnumerable<AlbumGetForViewDTO>> GetAllAlbumsForView(string userId);
         Task<AlbumGetByIdDTO> GetAlbumById(int id);
         Task<AlbumEditDTO> GetAlbumForEdit(int id, string currentUserId);
         Task UpdateAlbum(AlbumEditDTO album);
@@ -22,5 +22,6 @@ namespace CoinyProject.Application.AlbumServices.Interfaces
         Task<AlbumElementEditDTO> GetAlbumElementForEdit(int id, string currentUserId);
         Task<int> UpdateAlbumElement(AlbumElementEditDTO album);
         Task<int> DeleteAlbumElement(int id, string currentUserId);
+        Task LikeAlbum(int id, string currentUserId);
     }
 }

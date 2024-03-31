@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using System.Security.Claims;
 
 namespace CoinyProject.WebUI.Controllers
 {
@@ -17,7 +18,7 @@ namespace CoinyProject.WebUI.Controllers
         {
             _albumService = albumService;
         }
-        
+
         [HttpPost]
         public IActionResult CultureManager(string culture)
         {
@@ -32,8 +33,15 @@ namespace CoinyProject.WebUI.Controllers
 
         public async Task<ActionResult> Index()
         {
-            var albums = await _albumService.GetAllAlbumsForView();
+            var albums = await _albumService.GetAllAlbumsForView(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             return View(albums);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Index(int id)
+        {
+            await _albumService.LikeAlbum(id, User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            return RedirectToAction("Index");
         }
 
         public IActionResult Privacy()
