@@ -13,45 +13,11 @@ using Microsoft.AspNetCore.Mvc.Razor;
 using System.Globalization;
 using Microsoft.AspNetCore.Localization;
 using System.Reflection;
+using CoinyProject.WebUI.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-/*builder.Services.AddDbContext<CoinyProjectWebUIContext>(options => options.UseSqlServer(connectionString));
-
-builder.Services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<CoinyProjectWebUIContext>();
-*/
-
-// Add services to the container.
-builder.Services.AddControllersWithViews()
-    .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix);
-
-builder.Services.AddRazorPages()
-    .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix);
-
-builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
-
-builder.Services.Configure<RequestLocalizationOptions>(options =>
-{
-    var supportedCultures = new[]
-    {
-        new CultureInfo("en-US"),
-        new CultureInfo("uk-UA")
-    };
-
-    options.DefaultRequestCulture = new RequestCulture("en-US");
-    options.SupportedCultures = supportedCultures;
-    options.SupportedUICultures = supportedCultures;
-});
-
-builder.Services.AddMvc().AddDataAnnotationsLocalization(options =>
-{
-    options.DataAnnotationLocalizerProvider = (type, factory) =>
-    {
-        var assemblyName = new AssemblyName(typeof(CoinyProject.Application.DTO.AlbumCreating).GetTypeInfo().Assembly.FullName);
-        return factory.Create("Translations", assemblyName.Name);
-    };
-
-});
+builder.Services.AddCustomLocalization();
 
 builder.Services.AddRazorPages();
 

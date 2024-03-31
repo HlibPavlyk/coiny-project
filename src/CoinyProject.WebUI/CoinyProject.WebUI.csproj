@@ -30,8 +30,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Resources\Controllers\" />
-    <Folder Include="Resources\Models\" />
     <Folder Include="wwwroot\albums\elements\" />
   </ItemGroup>
 

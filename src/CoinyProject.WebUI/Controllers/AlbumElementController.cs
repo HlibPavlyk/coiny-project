@@ -5,6 +5,7 @@ using CoinyProject.Core.Domain.Entities;
 using CoinyProject.Infrastructure.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using System.Security.Claims;
 using System.Xml.Linq;
 using static Azure.Core.HttpHeader;
@@ -14,10 +15,12 @@ namespace CoinyProject.WebUI.Controllers
     public class AlbumElementController : Controller
     {
         private readonly IAlbumService _albumService;
+        private readonly IStringLocalizer<AlbumElementController> _localizer;
 
-        public AlbumElementController(IAlbumService albumService)
+        public AlbumElementController(IAlbumService albumService, IStringLocalizer<AlbumElementController> localizer)
         {
             _albumService = albumService;
+            _localizer = localizer;
         }
 
         public IActionResult Create(int id)
@@ -30,7 +33,7 @@ namespace CoinyProject.WebUI.Controllers
         public async Task<IActionResult> Create(AlbumElementCreating element)
         {
             await _albumService.AddAlbumElement(element);
-            TempData["success"] = "Album element successfuly created";
+            TempData["success"] = Convert.ToString(_localizer["Album element successfully created"]);
 
             return RedirectToAction("Create");
         }
@@ -47,7 +50,7 @@ namespace CoinyProject.WebUI.Controllers
         {
             var id = await _albumService.UpdateAlbumElement(album);
 
-            TempData["success"] = "Album element successfuly updated";
+            TempData["success"] = Convert.ToString(_localizer["Album element successfully updated"]);
             return RedirectToAction("Get","Album", new { id });
         }
 
@@ -55,7 +58,7 @@ namespace CoinyProject.WebUI.Controllers
         {
             var albumId = await _albumService.DeleteAlbumElement(id, User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
-            TempData["success"] = "Album element successfuly deleted";
+            TempData["success"] = Convert.ToString(_localizer["Album element successfully deleted"]);
             return RedirectToAction("Get", "Album", new { id = albumId });
         }
 

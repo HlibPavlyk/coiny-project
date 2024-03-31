@@ -23,7 +23,6 @@ namespace CoinyProject.Application.DTO
         public string? Description { get; set; }
         public int AlbumId { get; set; }
 
-        [Required(ErrorMessage = "The image field is required")]
         [Display(Name = "Image")]
         public IFormFile? Image { get; set; }
         public string ImageURL { get; set; }
