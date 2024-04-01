@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Localization;
+﻿using CoinyProject.Application.DTO.Album;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc.Razor;
 using System.Globalization;
 using System.Reflection;
@@ -31,7 +32,7 @@ namespace CoinyProject.WebUI.Extensions
             {
                 options.DataAnnotationLocalizerProvider = (type, factory) =>
                 {
-                    var assemblyName = new AssemblyName(typeof(CoinyProject.Application.DTO.AlbumCreating).GetTypeInfo().Assembly.FullName);
+                    var assemblyName = new AssemblyName(typeof(AlbumCreating).GetTypeInfo().Assembly.FullName);
                     return factory.Create("Translations", assemblyName.Name);
                 };
             });

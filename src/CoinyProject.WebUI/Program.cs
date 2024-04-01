@@ -24,7 +24,9 @@ builder.Services.AddRazorPages();
 builder.Services.AddDBConnection(builder.Configuration);
 builder.Services.ConfigurateIdentityOptions();
 builder.Services.AddIdentityUser();
-builder.Services.AddScoped<IAlbumService, AlbumService>();
+
+builder.Services.AddScoped<IAlbumService, AlbumService>(); 
+builder.Services.AddScoped<IDiscussionService, DiscussionService>();
 
 builder.Services.AddControllersWithViews().AddJsonOptions(o =>
 {

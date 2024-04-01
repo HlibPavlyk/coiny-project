@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using CoinyProject.Application.DTO;
+using CoinyProject.Application.DTO.Album;
 using CoinyProject.Core.Domain.Entities;
 using System;
 using System.Collections.Generic;

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using CoinyProject.Core.Domain.Entities;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Client;
@@ -22,6 +23,13 @@ namespace CoinyProject.Infrastructure.Data
 
                 await db.EnsureDeletedAsync();
                 await db.EnsureCreatedAsync();
+
+                if (!dbContext.DiscussionTopics.Any())
+                {
+                    await dbContext.DiscussionTopics.AddAsync(new DiscussionTopic { Name = "Soviet" });
+                    await dbContext.DiscussionTopics.AddAsync(new DiscussionTopic { Name = "Tsar" });
+                    await dbContext.SaveChangesAsync();
+                }
 
 
             }

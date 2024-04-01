@@ -4,15 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CoinyProject.Application.DTO
+namespace CoinyProject.Application.DTO.Album
 {
-    public class AlbumGetByIdDTO
+    public class AlbumGetDTO
     {
         public int Id { get; set; }
         public string Name { get; set; }
         public string? Description { get; set; }
         public int Rate { get; set; }
-        public string UserId { get; set; }
-        public ICollection<AlbumElementGetDTO> Elements { get; set; }
+        public string? TitleImageURL { get; set; }
     }
 }
