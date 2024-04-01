@@ -1,4 +1,4 @@
-﻿using CoinyProject.Application.DTO;
+﻿using CoinyProject.Application.DTO.Album;
 using CoinyProject.Core.Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using System;

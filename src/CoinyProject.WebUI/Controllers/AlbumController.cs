@@ -2,7 +2,7 @@
 using CoinyProject.Application.AlbumServices;
 using CoinyProject.Application.AlbumServices.Interfaces;
 using CoinyProject.Application.AlbumServices.Services;
-using CoinyProject.Application.DTO;
+using CoinyProject.Application.DTO.Album;
 using CoinyProject.Core.Domain.Entities;
 using CoinyProject.Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;

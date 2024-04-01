@@ -1,0 +1,25 @@
+﻿@using CoinyProject.Application.DTO.Discussion
+@model IEnumerable<DiscussionGetForViewDTO>
+
+<div class="container p-1">
+    <div class="row pt-4 pb-3">
+        <div class="col-6">
+            <h2 class="text-primary">
+                @Localizer["Discussions"]
+        </div>
+        <div class="col-6 text-end">
+            <a asp-controller="Discussion" asp-action="Create" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> @Localizer["Add New Discussion"]
+            </a>
+        </div>
+    </div>
+
+    @if (Model != null)
+        foreach (var discussion in Model)
+        {
+            <div class="row justify-content-center  mb-4">
+                <partial name="_DiscussionsView" model="@discussion" />
+            </div>
+        }
+</div>
+

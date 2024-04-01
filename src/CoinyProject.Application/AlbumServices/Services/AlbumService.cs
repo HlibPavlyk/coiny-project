@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using CoinyProject.Application.AlbumServices.Interfaces;
-using CoinyProject.Application.DTO;
+using CoinyProject.Application.DTO.Album;
 using CoinyProject.Core.Domain.Entities;
 using CoinyProject.Infrastructure.Data;
 using CoinyProject.Infrastructure.Data.Migrations;
@@ -157,8 +157,6 @@ namespace CoinyProject.Application.AlbumServices.Services
                 .Include(x => x.Elements)
                 .AsNoTracking()
                 .FirstOrDefaultAsync();
-            
-            var a = _mapper.Map<AlbumGetByIdDTO>(album);
 
             return _mapper.Map<AlbumGetByIdDTO>(album);
         }

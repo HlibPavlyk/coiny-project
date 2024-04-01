@@ -1,4 +1,6 @@
-﻿using System;
+﻿using CoinyProject.Application.DTO.Album;
+using CoinyProject.Application.DTO.Discussion;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,5 +10,8 @@ namespace CoinyProject.Application.AlbumServices.Interfaces
 {
     public interface IDiscussionService
     {
+        Task AddDiscussion(DiscussionCreateDTO discussion, string userId);
+        Task<IEnumerable<DiscussionTopicDTO>> GetAvailableTopics();
+        Task<IEnumerable<DiscussionGetForViewDTO>> GetAllDiscussionsForView();
     }
 }

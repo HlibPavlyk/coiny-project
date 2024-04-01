@@ -1,13 +1,10 @@
-﻿@    using CoinyProject.Application.DTO
-@    using Microsoft.AspNetCore.Mvc.Localization
-
-@model AlbumCreating
-@inject IViewLocalizer Localizer
+﻿@using CoinyProject.Application.DTO.Discussion
+@model DiscussionCreateDTO
 
 <form method="post">
     <div class="border p-3 mt-4">
         <div class="row pb-2">
-            <h2 class="text-primary">@Localizer["Create Album"]</h2>
+            <h2 class="text-primary">@Localizer["Create Discussion Topic"]</h2>
             <hr />
         </div>
         <div class="mb-3 row p-1">
@@ -16,15 +13,18 @@
             <span asp-validation-for="Name" class="text-danger"></span>
         </div>
         <div class="mb-3 row p-1">
-            <label asp-for="Description" class="p-0"></label>
-            <input asp-for="Description" class="form-control" />
+            <label asp-for="DiscussionTopicId" class="p-0"></label>
+            <select asp-for="DiscussionTopicId" asp-items="@(new SelectList(Model.AvailableTopics, "Id", "Name"))" class="form-control">
+                <option value="">@Localizer["Select Topic"]</option>
+            </select>
+            <span asp-validation-for="DiscussionTopicId" class="text-danger"></span>
         </div>
         <div class="row">
             <div class="col-6 col-md-3">
-                <button type="submit" class="btn btn-primary form-control">@Localizer["Сontinue Creating"]</button>
+                <button type="submit" class="btn btn-primary form-control">@Localizer["Continue Creating"]</button>
             </div>
             <div class="col-6 col-md-3">
-                <a asp-controller="Album" asp-action="Index" class="btn btn-outline-secondary form-control text-primary">
+                <a asp-controller="Discussion" asp-action="Index" class="btn btn-outline-secondary form-control text-primary">
                     @Localizer["Back To List"]
                 </a>
             </div>

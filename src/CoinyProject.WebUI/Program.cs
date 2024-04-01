@@ -42,7 +42,7 @@ var app = builder.Build();
 
 app.UseRequestLocalization();
 
-app.DBEnsureCreated();
+/*app.DBEnsureCreated();*/
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

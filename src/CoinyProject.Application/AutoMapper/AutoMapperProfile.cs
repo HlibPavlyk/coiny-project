@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CoinyProject.Application.DTO.Album;
+using CoinyProject.Application.DTO.Discussion;
 using CoinyProject.Core.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -24,6 +25,9 @@ namespace CoinyProject.Application.AutoMapper
             CreateMap<AlbumElement, AlbumElementEditDTO>();
             CreateMap<AlbumElementEditDTO, AlbumElement>();
 
+            CreateMap<DiscussionCreateDTO, Discussion>(); 
+
+            CreateMap<DiscussionTopic, DiscussionTopicDTO>(); 
         }
     }
 }
