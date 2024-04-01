@@ -18,6 +18,14 @@ namespace CoinyProject.Infrastructure.Data.EntityTypeConfiguration
 
             builder.Property(x => x.UserId)
                 .IsRequired(false);
+
+            builder.Property(x => x.Name)
+                .IsRequired()
+                .HasMaxLength(80);
+
+            builder.HasMany(u => u.Messages)
+               .WithOne(u => u.Discussion)
+               .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

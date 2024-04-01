@@ -14,6 +14,10 @@ namespace CoinyProject.Infrastructure.Data.EntityTypeConfiguration
         public void Configure(EntityTypeBuilder<DiscussionMessage> builder)
         {
             builder.HasKey(x => x.Id);
+            
+            builder.Property(x => x.Message)
+                .IsRequired()
+                .HasMaxLength(200);
 
             builder.Property(x => x.UserId)
                 .IsRequired(false);

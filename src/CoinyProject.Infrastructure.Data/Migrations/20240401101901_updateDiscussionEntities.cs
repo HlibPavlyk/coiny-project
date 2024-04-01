@@ -5,7 +5,7 @@
 namespace CoinyProject.Infrastructure.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class UpdateDB : Migration
+    public partial class updateDiscussionEntities : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -25,6 +25,10 @@ namespace CoinyProject.Infrastructure.Data.Migrations
             migrationBuilder.DropForeignKey(
                 name: "FK_DiscussionMessages_Users_UserId",
                 table: "DiscussionMessages");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_Discussions_DiscussionTopics_DiscussionTopicId",
+                table: "Discussions");
 
             migrationBuilder.DropForeignKey(
                 name: "FK_Discussions_Users_UserId",
@@ -56,8 +60,20 @@ namespace CoinyProject.Infrastructure.Data.Migrations
                 name: "IX_Users_UserRoleId",
                 table: "Users");
 
+            migrationBuilder.DropPrimaryKey(
+                name: "PK_DiscussionTopics",
+                table: "DiscussionTopics");
+
+            migrationBuilder.DropColumn(
+                name: "RootQuestion",
+                table: "Discussions");
+
             migrationBuilder.DropColumn(
                 name: "AccessibilityId",
+                table: "AlbumElements");
+
+            migrationBuilder.DropColumn(
+                name: "Image",
                 table: "AlbumElements");
 
             migrationBuilder.DropColumn(
@@ -67,6 +83,28 @@ namespace CoinyProject.Infrastructure.Data.Migrations
             migrationBuilder.RenameTable(
                 name: "Users",
                 newName: "AspNetUsers");
+
+            migrationBuilder.RenameTable(
+                name: "DiscussionTopics",
+                newName: "DiscussionTopic");
+
+            migrationBuilder.AlterColumn<string>(
+                name: "Name",
+                table: "Discussions",
+                type: "nvarchar(80)",
+                maxLength: 80,
+                nullable: false,
+                oldClrType: typeof(string),
+                oldType: "nvarchar(max)");
+
+            migrationBuilder.AlterColumn<string>(
+                name: "Message",
+                table: "DiscussionMessages",
+                type: "nvarchar(200)",
+                maxLength: 200,
+                nullable: false,
+                oldClrType: typeof(string),
+                oldType: "nvarchar(max)");
 
             migrationBuilder.AlterColumn<decimal>(
                 name: "StartPrice",
@@ -91,6 +129,20 @@ namespace CoinyProject.Infrastructure.Data.Migrations
                 nullable: false,
                 oldClrType: typeof(float),
                 oldType: "real");
+
+            migrationBuilder.AlterColumn<string>(
+                name: "UserId",
+                table: "Albums",
+                type: "nvarchar(450)",
+                nullable: true,
+                oldClrType: typeof(string),
+                oldType: "nvarchar(450)");
+
+            migrationBuilder.AddColumn<string>(
+                name: "ImageURL",
+                table: "AlbumElements",
+                type: "nvarchar(max)",
+                nullable: true);
 
             migrationBuilder.AlterColumn<string>(
                 name: "UserName",
@@ -131,9 +183,24 @@ namespace CoinyProject.Infrastructure.Data.Migrations
                 oldClrType: typeof(string),
                 oldType: "nvarchar(max)");
 
+            migrationBuilder.AlterColumn<string>(
+                name: "Name",
+                table: "DiscussionTopic",
+                type: "nvarchar(80)",
+                maxLength: 80,
+                nullable: false,
+                oldClrType: typeof(string),
+                oldType: "nvarchar(50)",
+                oldMaxLength: 50);
+
             migrationBuilder.AddPrimaryKey(
                 name: "PK_AspNetUsers",
                 table: "AspNetUsers",
+                column: "Id");
+
+            migrationBuilder.AddPrimaryKey(
+                name: "PK_DiscussionTopic",
+                table: "DiscussionTopic",
                 column: "Id");
 
             migrationBuilder.CreateTable(
@@ -300,8 +367,7 @@ namespace CoinyProject.Infrastructure.Data.Migrations
                 table: "Albums",
                 column: "UserId",
                 principalTable: "AspNetUsers",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+                principalColumn: "Id");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_AuctionBets_AspNetUsers_UserId",
@@ -322,6 +388,13 @@ namespace CoinyProject.Infrastructure.Data.Migrations
                 table: "Discussions",
                 column: "UserId",
                 principalTable: "AspNetUsers",
+                principalColumn: "Id");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Discussions_DiscussionTopic_DiscussionTopicId",
+                table: "Discussions",
+                column: "DiscussionTopicId",
+                principalTable: "DiscussionTopic",
                 principalColumn: "Id");
 
             migrationBuilder.AddForeignKey(
@@ -352,6 +425,10 @@ namespace CoinyProject.Infrastructure.Data.Migrations
                 table: "Discussions");
 
             migrationBuilder.DropForeignKey(
+                name: "FK_Discussions_DiscussionTopic_DiscussionTopicId",
+                table: "Discussions");
+
+            migrationBuilder.DropForeignKey(
                 name: "FK_FavoriteAlbums_AspNetUsers_UserId",
                 table: "FavoriteAlbums");
 
@@ -374,6 +451,10 @@ namespace CoinyProject.Infrastructure.Data.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropPrimaryKey(
+                name: "PK_DiscussionTopic",
+                table: "DiscussionTopic");
+
+            migrationBuilder.DropPrimaryKey(
                 name: "PK_AspNetUsers",
                 table: "AspNetUsers");
 
@@ -385,9 +466,42 @@ namespace CoinyProject.Infrastructure.Data.Migrations
                 name: "UserNameIndex",
                 table: "AspNetUsers");
 
+            migrationBuilder.DropColumn(
+                name: "ImageURL",
+                table: "AlbumElements");
+
+            migrationBuilder.RenameTable(
+                name: "DiscussionTopic",
+                newName: "DiscussionTopics");
+
             migrationBuilder.RenameTable(
                 name: "AspNetUsers",
                 newName: "Users");
+
+            migrationBuilder.AlterColumn<string>(
+                name: "Name",
+                table: "Discussions",
+                type: "nvarchar(max)",
+                nullable: false,
+                oldClrType: typeof(string),
+                oldType: "nvarchar(80)",
+                oldMaxLength: 80);
+
+            migrationBuilder.AddColumn<string>(
+                name: "RootQuestion",
+                table: "Discussions",
+                type: "nvarchar(max)",
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AlterColumn<string>(
+                name: "Message",
+                table: "DiscussionMessages",
+                type: "nvarchar(max)",
+                nullable: false,
+                oldClrType: typeof(string),
+                oldType: "nvarchar(200)",
+                oldMaxLength: 200);
 
             migrationBuilder.AlterColumn<float>(
                 name: "StartPrice",
@@ -413,12 +527,39 @@ namespace CoinyProject.Infrastructure.Data.Migrations
                 oldClrType: typeof(decimal),
                 oldType: "decimal(10,2)");
 
+            migrationBuilder.AlterColumn<string>(
+                name: "UserId",
+                table: "Albums",
+                type: "nvarchar(450)",
+                nullable: false,
+                defaultValue: "",
+                oldClrType: typeof(string),
+                oldType: "nvarchar(450)",
+                oldNullable: true);
+
             migrationBuilder.AddColumn<int>(
                 name: "AccessibilityId",
                 table: "AlbumElements",
                 type: "int",
                 nullable: false,
                 defaultValue: 0);
+
+            migrationBuilder.AddColumn<byte[]>(
+                name: "Image",
+                table: "AlbumElements",
+                type: "varbinary(max)",
+                nullable: false,
+                defaultValue: new byte[0]);
+
+            migrationBuilder.AlterColumn<string>(
+                name: "Name",
+                table: "DiscussionTopics",
+                type: "nvarchar(50)",
+                maxLength: 50,
+                nullable: false,
+                oldClrType: typeof(string),
+                oldType: "nvarchar(80)",
+                oldMaxLength: 80);
 
             migrationBuilder.AlterColumn<string>(
                 name: "UserName",
@@ -465,6 +606,11 @@ namespace CoinyProject.Infrastructure.Data.Migrations
                 type: "int",
                 nullable: false,
                 defaultValue: 0);
+
+            migrationBuilder.AddPrimaryKey(
+                name: "PK_DiscussionTopics",
+                table: "DiscussionTopics",
+                column: "Id");
 
             migrationBuilder.AddPrimaryKey(
                 name: "PK_Users",
@@ -539,6 +685,14 @@ namespace CoinyProject.Infrastructure.Data.Migrations
                 column: "UserId",
                 principalTable: "Users",
                 principalColumn: "Id");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Discussions_DiscussionTopics_DiscussionTopicId",
+                table: "Discussions",
+                column: "DiscussionTopicId",
+                principalTable: "DiscussionTopics",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Discussions_Users_UserId",

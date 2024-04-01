@@ -35,10 +35,6 @@ namespace CoinyProject.IdentityServer.Infrastructure.EntityTypeConfiguration
                 .WithOne(u => u.User).
                 OnDelete(DeleteBehavior.NoAction);
 
-            builder.HasMany(u => u.DiscussionMessages)
-                .WithOne(u => u.User).
-                OnDelete(DeleteBehavior.NoAction);
-
             builder.HasMany(u => u.Discussions)
                 .WithOne(u => u.User).
                 OnDelete(DeleteBehavior.NoAction);

@@ -16,7 +16,11 @@ namespace CoinyProject.Infrastructure.Data.EntityTypeConfiguration
             builder.HasKey(x => x.Id);
 
             builder.Property(x => x.Name)
-                .HasMaxLength(50);
+                .HasMaxLength(80);
+
+            builder.HasMany(u => u.Discussions)
+               .WithOne(u => u.DiscussionTopic)
+               .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }

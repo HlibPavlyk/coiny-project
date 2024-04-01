@@ -12,7 +12,7 @@ namespace CoinyProject.Core.Domain.Entities
         public int Id { get; set; }
         public string Name { get; set; }
 
-        public virtual ICollection<Discussion> Discussions { get; set; }
+        public ICollection<Discussion>? Discussions { get; set; }
 
     }
 }

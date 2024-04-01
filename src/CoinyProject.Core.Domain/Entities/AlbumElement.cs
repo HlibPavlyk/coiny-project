@@ -17,7 +17,7 @@ namespace CoinyProject.Core.Domain.Entities
         public string ImageURL { get; set; }
         public int AlbumId { get; set; }
 
-        public virtual Album? Album { get; set; }
-        public virtual Auction? Auction { get; set; }
+        public Album? Album { get; set; }
+        public Auction? Auction { get; set; }
     }
 }
