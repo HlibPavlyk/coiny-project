@@ -4,6 +4,7 @@ using CoinyProject.Application.DTO.Album;
 using CoinyProject.Core.Domain.Entities;
 using CoinyProject.Infrastructure.Data;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 using System.Security.Claims;
@@ -16,11 +17,15 @@ namespace CoinyProject.WebUI.Controllers
     {
         private readonly IAlbumService _albumService;
         private readonly IStringLocalizer<AlbumElementController> _localizer;
+        private readonly UserManager<User> _userManager;
 
-        public AlbumElementController(IAlbumService albumService, IStringLocalizer<AlbumElementController> localizer)
+        public AlbumElementController(IAlbumService albumService, 
+            IStringLocalizer<AlbumElementController> localizer,
+            UserManager<User> userManager)
         {
             _albumService = albumService;
             _localizer = localizer;
+            _userManager = userManager;
         }
 
         public IActionResult Create(int id)
@@ -40,7 +45,7 @@ namespace CoinyProject.WebUI.Controllers
 
         public async Task<ActionResult> Edit(int id)
         {
-            var album = await _albumService.GetAlbumElementForEdit(id, User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var album = await _albumService.GetAlbumElementForEdit(id, _userManager.GetUserId(User));
 
             return View(album);
         }
@@ -56,7 +61,7 @@ namespace CoinyProject.WebUI.Controllers
 
         public async Task<ActionResult> Delete(int id)
         {
-            var albumId = await _albumService.DeleteAlbumElement(id, User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var albumId = await _albumService.DeleteAlbumElement(id, _userManager.GetUserId(User));
 
             TempData["success"] = Convert.ToString(_localizer["Album element successfully deleted"]);
             return RedirectToAction("Get", "Album", new { id = albumId });

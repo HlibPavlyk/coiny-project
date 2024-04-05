@@ -7,6 +7,7 @@ using CoinyProject.Core.Domain.Entities;
 using CoinyProject.Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Xml.Linq;
@@ -17,15 +18,17 @@ namespace CoinyProject.WebUI.Controllers
     public class AlbumController : Controller
     {
         private readonly IAlbumService _albumService;
+        private readonly UserManager<User> _userManager;
 
-        public AlbumController(IAlbumService albumService)
+        public AlbumController(IAlbumService albumService, UserManager<User> userManager)
         {
             _albumService = albumService;
+            _userManager = userManager;
         }
 
         public async Task<ActionResult> Index()
         {
-            var albums = await _albumService.GetAllAlbumsDTO(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var albums = await _albumService.GetAllAlbumsDTO(_userManager.GetUserId(User));
             return View(albums);
         }
 
@@ -44,13 +47,13 @@ namespace CoinyProject.WebUI.Controllers
         [HttpPost]
         public async Task<ActionResult> Create(AlbumCreating album)
         {
-            var albumId = await _albumService.AddAlbum(album, User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var albumId = await _albumService.AddAlbum(album, _userManager.GetUserId(User));
             return RedirectToAction("Create", "AlbumElement", new { id = albumId });
         }
 
         public async Task<ActionResult> Edit(int id)
         {
-            var album = await _albumService.GetAlbumForEdit(id, User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var album = await _albumService.GetAlbumForEdit(id, _userManager.GetUserId(User));
             return View(album);
         }
 
@@ -63,7 +66,7 @@ namespace CoinyProject.WebUI.Controllers
 
         public async Task<ActionResult> Delete(int id)
         {
-            await _albumService.DeleteAlbum(id, User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            await _albumService.DeleteAlbum(id, _userManager.GetUserId(User));
             return RedirectToAction("Index");
         }
 

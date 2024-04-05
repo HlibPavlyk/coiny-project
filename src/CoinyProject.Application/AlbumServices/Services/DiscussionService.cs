@@ -17,6 +17,7 @@ namespace CoinyProject.Application.AlbumServices.Services
     {
         private readonly ApplicationDBContext _dBContext;
         private readonly IMapper _mapper;
+
         public DiscussionService(ApplicationDBContext dBContext, IMapper mapper)
         {
             _dBContext = dBContext;
@@ -39,12 +40,7 @@ namespace CoinyProject.Application.AlbumServices.Services
                 .AsNoTracking()
                 .ToListAsync();
 
-            var _topics = new List<DiscussionTopicDTO>();
-            foreach (var topic in topics)
-            {
-                _topics.Add(_mapper.Map<DiscussionTopicDTO>(topic));
-            }
-            return _topics;
+            return _mapper.Map<List<DiscussionTopicDTO>>(topics);
         }
 
         public async Task<IEnumerable<DiscussionGetForViewDTO>> GetAllDiscussionsForView()
@@ -55,19 +51,30 @@ namespace CoinyProject.Application.AlbumServices.Services
                 .AsNoTracking()
                 .ToListAsync();
             
-                var discussions = new List<DiscussionGetForViewDTO>();
-
-                foreach (var discussion in _discussions)
-                {
-                    discussions.Add(new DiscussionGetForViewDTO()
-                    {
-                        Id = discussion.Id,
-                        Name = discussion.Name,
-                        Username = discussion.User.UserName,
-                        Topic = discussion.DiscussionTopic.Name
-                    });
-                }
-                return discussions;
+                return _mapper.Map<List<DiscussionGetForViewDTO>>(_discussions); ;
         }
+
+        public async Task AddDiscussionMessage(DiscussionMessageCreateDTO message)
+        {
+            var _message = _mapper.Map<DiscussionMessage>(message);
+
+            await _dBContext.DiscussionMessages.AddAsync(_message);
+            await _dBContext.SaveChangesAsync();
+        }
+
+        public async Task<DiscussionGetByIdDTO> GetDiscussionById(int discussionId)
+        {
+            var _discussion = await _dBContext.Discussions
+               .Include(x => x.User)
+               .Include(x => x.DiscussionTopic)
+               .Include(x => x.Messages)
+               .ThenInclude(x => x.User)
+               .Where(x => x.Id == discussionId)
+               .AsNoTracking()
+               .FirstOrDefaultAsync();
+            
+            return _mapper.Map<DiscussionGetByIdDTO>(_discussion);
+        }
+
     }
 }

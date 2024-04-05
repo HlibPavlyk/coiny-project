@@ -16,8 +16,8 @@ namespace CoinyProject.Application.DTO.Discussion
 
         [Required(ErrorMessage = "The topic field is required")]
         [Display(Name = "Topic")]
-        public int DiscussionTopicId { get; set; }  // Змінено тип на int?
+        public int DiscussionTopicId { get; set; } 
 
-        public IEnumerable<DiscussionTopicDTO> AvailableTopics { get; set; } // Доступні теми для випадаючого списку
+        public IEnumerable<DiscussionTopicDTO> AvailableTopics { get; set; }
     }
 }

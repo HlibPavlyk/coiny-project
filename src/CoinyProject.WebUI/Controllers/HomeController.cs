@@ -14,9 +14,11 @@ namespace CoinyProject.WebUI.Controllers
     public class HomeController : Controller
     {
         private readonly IAlbumService _albumService;
-        public HomeController(IAlbumService albumService)
+        private readonly UserManager<User> _userManager;
+        public HomeController(IAlbumService albumService, UserManager<User> userManager)
         {
             _albumService = albumService;
+            _userManager = userManager;
         }
 
         [HttpPost]
@@ -33,14 +35,15 @@ namespace CoinyProject.WebUI.Controllers
 
         public async Task<ActionResult> Index()
         {
-            var albums = await _albumService.GetAllAlbumsForView(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var albums = await _albumService.GetAllAlbumsForView(_userManager.GetUserId(User));
             return View(albums);
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> Index(int id)
         {
-            await _albumService.LikeAlbum(id, User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            await _albumService.LikeAlbum(id, _userManager.GetUserId(User));
             return RedirectToAction("Index");
         }
 

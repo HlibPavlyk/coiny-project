@@ -1,0 +1,138 @@
+﻿@* @using CoinyProject.Application.DTO.Discussion
+@model IEnumerable<DiscussionMessageCreateDTO>
+
+<div class="bg-light">
+    <h2 class="text-center text-primary">Discussion Talk</h2>
+    <div class="row">
+        <div class="col-md-12" id="chat">
+           
+            @if (Model != null)
+                @foreach (var message in Model)
+                {
+                    <div class="row">
+                        <div class="container bg-primary">
+                            <p class="text-lg-start">@message.Message</p>
+                        </div>
+                    </div>
+                }
+        </div>
+        <div class="col-md-12">
+            <form
+            data-ajax-begin="clearInputField" data-ajax-complete=""
+            data-ajax-failure="alert('Fail')" data-ajax-success="sendMessage"
+            data-ajax="true" data-ajax-method="POST">
+                <div class="row">
+                    <div class="col-md-10">
+                        <input name="Text" class="form-control" id="messageText" />
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary" id="submitButton">Send</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+ <script src="~/js/signalrReqHandler.js"></script>
+ <script src="~/signalr/signalr.min.js"></script>
+ <script src="~/lib/jquery/dist/jquery.unobtrusive-ajax.min.js"></script>
+ <script src="~/js/chat.js"></script> *@
+
+@using CoinyProject.Application.DTO.Discussion
+@using Microsoft.AspNetCore.Http
+
+@model DiscussionGetByIdDTO
+
+@{
+    var currentUser = Context.User;
+    var currentUserId = ViewBag.UserId;
+}
+
+<div class="container">
+    <h2 class="text-center text-primary">Discussion Talk</h2>
+    <div class="col-lg-6 center">
+        <div class="card">
+            <div class="row g-0">
+                <div class="col-6 col-md-12">
+                    <div class="card-body d-flex flex-column">
+                        <div class="text-muted">
+                            <span>
+                                Author: @Model.Username
+                            </span>
+                            <span class="text-primary rounded border border-primary px-2 py-1">
+                                Topic: @Model.Topic
+                            </span>
+                        </div>
+                        <div class="h-100">
+                            <h4 class="card-title">@Model.Name</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-6">
+            <ul id="messagesList" class="list-group">
+                @if(Model != null)
+                    foreach(var message in Model.Messages)
+                    {
+                        <li>@message.Username says @message.Message</li>
+                    }
+            </ul>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col-6">
+
+            <div class="input-group">
+                <input type="text" id="userInput" hidden value="@currentUser.Identity.Name" />
+                <input type="text" class="form-control" id="messageInput" placeholder="Type your message here..." />
+                <button class="btn btn-primary" id="sendButton">Send Message</button>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script>
+        $("#sendButton").click(function () {
+            var userId = "@currentUserId";
+            var message = $("#messageInput").val();
+
+            // Створюємо об'єкт на основі моделі даних
+            var dataToSend = {
+                UserId: userId,
+                Message: message,
+                DiscussionId: @Model.Id
+            };
+
+            if (message.trim() === "") {
+                alert("Please enter a message before sending.");
+                return;
+            }
+
+            $.ajax({
+                url: '/Discussion/Get',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(dataToSend), // Передаємо об'єкт з даними у форматі JSON
+                success: function (response) {
+                    // Ваш код обробки успішної відповіді
+                    console.log("Message sent successfully!");
+                    $("#messageInput").val() = "";
+                },
+                error: function (xhr, status, error) {
+                    // Ваш код обробки помилки
+                    console.error("Error sending message:", error);
+                }
+            });
+        });
+
+    </script>
+
+    <script src="~/js/signalr/dist/browser/signalr.js"></script>
+    <script src="~/lib/jquery/dist/jquery.unobtrusive-ajax.min.js"></script>
+    <script src="~/js/chat.js"></script>
+}

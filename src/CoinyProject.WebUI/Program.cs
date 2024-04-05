@@ -14,6 +14,7 @@ using System.Globalization;
 using Microsoft.AspNetCore.Localization;
 using System.Reflection;
 using CoinyProject.WebUI.Extensions;
+using CoinyProject.WebUI.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,6 +53,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
@@ -61,8 +63,13 @@ app.UseAuthorization();
 
 app.MapRazorPages();
 
+
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.MapHub<DiscussionHub>("/chat");
+
 
 app.Run();
