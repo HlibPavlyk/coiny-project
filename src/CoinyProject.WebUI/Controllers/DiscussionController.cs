@@ -67,17 +67,6 @@ namespace CoinyProject.WebUI.Controllers
             }
             return BadRequest();
         }
-        public IActionResult CreateMessage(DiscussionMessageCreateDTO message)
-        {
-            TempData["success"] = "Message successfully created";
-            return Ok();
-        }
-
-
-
-        public IActionResult Some()
-        {
-            return View();
-        }
+        
     }
 }

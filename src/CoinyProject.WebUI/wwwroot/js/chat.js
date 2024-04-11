@@ -1,16 +1,12 @@
-﻿"use strict";
-
+﻿
 var connection = new signalR.HubConnectionBuilder().withUrl("/chat").build();
 
-//Disable the send button until connection is established.
 document.getElementById("sendButton").disabled = true;
 
 connection.on("ReceiveMessage", function (user, message) {
     var li = document.createElement("li");
     document.getElementById("messagesList").appendChild(li);
-    // We can assign user-supplied strings to an element's textContent because it
-    // is not interpreted as markup. If you're assigning in any other way, you 
-    // should be aware of possible script injection concerns.
+
     li.textContent = `${user} says ${message}`;
 });
 
@@ -42,7 +38,6 @@ document.getElementById("sendButton").addEventListener("click", function (event)
 
 document.getElementById('submitButton').addEventListener('click', () => { });
 
-// userName is declared in razor page.
 const username = userName;
 const textInput = document.getElementById('messageText');
 const chat = document.getElementById('chat');
@@ -61,7 +56,7 @@ function addMessageToChat(message) {
 
     let sender = document.createElement('p');
     sender.className = "sender";
-    sender.textContent = message.sender; // Припускаючи, що ви передаєте таке поле з сервера
+    sender.textContent = message.sender; 
 
     let text = document.createElement('p');
     text.textContent = message.text;
@@ -76,5 +71,5 @@ function sendMessageToHub() {
     if (messageText.trim() === "") return;
 
     connection.invoke('SendMessage', messageText);
-    textInput.value = ""; // Очищаємо поле вводу після відправлення повідомлення
+    textInput.value = ""; 
 }*/

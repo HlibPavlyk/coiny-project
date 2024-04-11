@@ -3,11 +3,13 @@ using CoinyProject.Application.AlbumServices.Interfaces;
 using CoinyProject.Application.DTO.Album;
 using CoinyProject.Core.Domain.Entities;
 using CoinyProject.Infrastructure.Data;
+using CoinyProject.Infrastructure.Data.Interfaces;
 using CoinyProject.Infrastructure.Data.Migrations;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,13 +22,13 @@ namespace CoinyProject.Application.AlbumServices.Services
 {
     public class AlbumService : IAlbumService
     {
-        private readonly ApplicationDBContext _dBContext;
+        private readonly IApplicationDBContext _dBContext;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IMapper _mapper;
 
         private readonly string imageFolder = "albums/elements/";
 
-        public AlbumService(ApplicationDBContext dBContext, IWebHostEnvironment webHostEnvironment, IMapper mapper)
+        public AlbumService(IApplicationDBContext dBContext, IWebHostEnvironment webHostEnvironment, IMapper mapper)
         {
             _webHostEnvironment = webHostEnvironment;
             _dBContext = dBContext;
@@ -65,8 +67,11 @@ namespace CoinyProject.Application.AlbumServices.Services
 
         }
 
-        public async Task<int> AddAlbum(AlbumCreating album, string userId)
+        public async Task<int> AddAlbum(AlbumCreating? album, string? userId)
         {
+            if (album == null || userId.IsNullOrEmpty())
+                throw new ArgumentNullException("Album or userId is null");
+
             var _album = _mapper.Map<Album>(album);
             _album.UserId = userId;
 

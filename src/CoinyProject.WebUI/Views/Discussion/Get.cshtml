@@ -101,7 +101,6 @@
             var userId = "@currentUserId";
             var message = $("#messageInput").val();
 
-            // Створюємо об'єкт на основі моделі даних
             var dataToSend = {
                 UserId: userId,
                 Message: message,
@@ -109,7 +108,6 @@
             };
 
             if (message.trim() === "") {
-                alert("Please enter a message before sending.");
                 return;
             }
 
@@ -117,14 +115,12 @@
                 url: '/Discussion/Get',
                 type: 'POST',
                 contentType: 'application/json',
-                data: JSON.stringify(dataToSend), // Передаємо об'єкт з даними у форматі JSON
+                data: JSON.stringify(dataToSend),
                 success: function (response) {
-                    // Ваш код обробки успішної відповіді
                     console.log("Message sent successfully!");
                     $("#messageInput").val() = "";
                 },
                 error: function (xhr, status, error) {
-                    // Ваш код обробки помилки
                     console.error("Error sending message:", error);
                 }
             });

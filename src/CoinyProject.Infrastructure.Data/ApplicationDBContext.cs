@@ -1,4 +1,5 @@
 ﻿using CoinyProject.Core.Domain.Entities;
+using CoinyProject.Infrastructure.Data.Interfaces;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -10,10 +11,9 @@ using System.Threading.Tasks;
 
 namespace CoinyProject.Infrastructure.Data
 {
-    public class ApplicationDBContext : IdentityDbContext<User>
+    public class ApplicationDBContext : IdentityDbContext<User>, IApplicationDBContext
     {
        
-
         public ApplicationDBContext(DbContextOptions<ApplicationDBContext> options) : base(options) { }
 
         public DbSet<Album> Albums { get; set; }
@@ -25,12 +25,17 @@ namespace CoinyProject.Infrastructure.Data
         public DbSet<DiscussionTopic> DiscussionTopics { get; set; }
         public DbSet<FavoriteAlbums> FavoriteAlbums { get; set; }
 
+        public async Task<int> SaveChangesAsync()
+        {
+            return await base.SaveChangesAsync();
+        }
+
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDBContext).Assembly);
             base.OnModelCreating(modelBuilder);
         }
-
 
     }
 }
