@@ -7,17 +7,14 @@ using System.Threading.Tasks;
 
 namespace CoinyProject.Application.DTO.Discussion
 {
-    public class DiscussionCreateDTO
-    {
+    public record DiscussionCreateDTO(
         [MaxLength(80)]
         [Required(ErrorMessage = "The name field is required")]
         [Display(Name = "Name")]
-        public string Name { get; set; }
+        string Name,
 
         [Required(ErrorMessage = "The topic field is required")]
         [Display(Name = "Topic")]
-        public int DiscussionTopicId { get; set; } 
-
-        public IEnumerable<DiscussionTopicDTO> AvailableTopics { get; set; }
-    }
+        int DiscussionTopicId
+    ){ }
 }

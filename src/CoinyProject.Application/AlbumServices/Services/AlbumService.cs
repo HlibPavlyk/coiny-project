@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using CoinyProject.Application.AlbumServices.Interfaces;
 using CoinyProject.Application.DTO.Album;
+using CoinyProject.Application.DTO.Discussion;
 using CoinyProject.Core.Domain.Entities;
 using CoinyProject.Infrastructure.Data;
 using CoinyProject.Infrastructure.Data.Interfaces;
@@ -17,6 +18,8 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using static Azure.Core.HttpHeader;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace CoinyProject.Application.AlbumServices.Services
 {
@@ -112,20 +115,7 @@ namespace CoinyProject.Application.AlbumServices.Services
                                        .Where(x => x.UserId == userId)
                                        .ToListAsync();
 
-            var albumsGetDTOList = new List<AlbumGetDTO>();
-
-            foreach(Album album in albums)
-            {
-                albumsGetDTOList.Add(new AlbumGetDTO()
-                {
-                    Id = album.Id,
-                    Name = album.Name,
-                    Description = album.Description,
-                    Rate = album.Rate,
-                    TitleImageURL = album.Elements?.FirstOrDefault()?.ImageURL
-                });
-            }
-            return albumsGetDTOList;
+            return _mapper.Map<List<AlbumGetDTO>>(albums);
         }
 
         public async Task<IEnumerable<AlbumGetForViewDTO>> GetAllAlbumsForView(string userId)
@@ -138,21 +128,15 @@ namespace CoinyProject.Application.AlbumServices.Services
                                 .AsNoTracking()
                                 .ToListAsync();
 
-            var albumsGetDTOList = new List<AlbumGetForViewDTO>();
-
-            foreach (Album album in albums)
+            var albumsGetDTOList = albums.Select(album =>
             {
-                albumsGetDTOList.Add(new AlbumGetForViewDTO()
-                {
-                    Id = album.Id,
-                    Name = album.Name,
-                    Description = album.Description,
-                    Rate = album.Rate,
-                    IsFavorite = album.FavoriteAlbums.Any(x => x.UserId == userId),
-                    TitleImageURL = album.Elements?.FirstOrDefault()?.ImageURL
-                });
-            }
+                var albumGetDTO = _mapper.Map<AlbumGetForViewDTO>(album);
+                albumGetDTO.IsFavorite = album.FavoriteAlbums.Any(a => a.UserId == userId);
+                return albumGetDTO;
+            }).ToList();
+
             return albumsGetDTOList;
+
         }
 
         public async Task<AlbumGetByIdDTO> GetAlbumById(int id)

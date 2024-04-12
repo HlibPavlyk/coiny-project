@@ -27,12 +27,8 @@ namespace CoinyProject.WebUI.Controllers
 
         public async Task<IActionResult> Create()
         {
-            var discussion = new DiscussionCreateDTO
-            {
-                AvailableTopics = await _discussionService.GetAvailableTopics()
-            };
-
-            return View(discussion);
+            ViewBag.AvailableTopics = await _discussionService.GetAvailableTopics();
+            return View();
         }
 
         [HttpPost]

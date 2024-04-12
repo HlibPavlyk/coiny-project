@@ -7,11 +7,8 @@ using System.Threading.Tasks;
 
 namespace CoinyProject.Application.DTO.Album
 {
-    public class AlbumElementGetDTO
+    public record AlbumElementGetDTO(int Id, string Name, string? Description, string ImageURL)
     {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public string? Description { get; set; }
-        public string ImageURL { get; set; }
+        
     }
 }

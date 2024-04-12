@@ -1,5 +1,8 @@
 ﻿@using CoinyProject.Application.DTO.Discussion
 @model DiscussionCreateDTO
+@{
+    var availableTopics = ViewBag.AvailableTopics;
+}
 
 <form method="post">
     <div class="border p-3 mt-4">
@@ -14,7 +17,7 @@
         </div>
         <div class="mb-3 row p-1">
             <label asp-for="DiscussionTopicId" class="p-0"></label>
-            <select asp-for="DiscussionTopicId" asp-items="@(new SelectList(Model.AvailableTopics, "Id", "Name"))" class="form-control">
+            <select asp-for="DiscussionTopicId" asp-items="@(new SelectList(availableTopics, "Id", "Name"))" class="form-control">
                 <option value="">@Localizer["Select Topic"]</option>
             </select>
             <span asp-validation-for="DiscussionTopicId" class="text-danger"></span>

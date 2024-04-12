@@ -51,7 +51,7 @@ namespace CoinyProject.Application.AlbumServices.Services
                 .AsNoTracking()
                 .ToListAsync();
             
-                return _mapper.Map<List<DiscussionGetForViewDTO>>(_discussions); ;
+                return _mapper.Map<List<DiscussionGetForViewDTO>>(_discussions);
         }
 
         public async Task AddDiscussionMessage(DiscussionMessageCreateDTO message)

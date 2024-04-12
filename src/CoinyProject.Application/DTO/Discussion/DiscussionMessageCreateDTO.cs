@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace CoinyProject.Application.DTO.Discussion
 {
-    public class DiscussionMessageCreateDTO
-    {
-        public string UserId { get; set; }
-        public string Message { get; set; }
-        public int DiscussionId { get; set; }
-    }
+    public record DiscussionMessageCreateDTO (
+        string UserId, 
+        string Message, 
+        int DiscussionId
+        )
+    {}
 }

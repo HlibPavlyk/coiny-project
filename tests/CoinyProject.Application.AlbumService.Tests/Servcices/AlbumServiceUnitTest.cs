@@ -40,7 +40,7 @@ namespace CoinyProject.Application.Tests.Servcices
         [Fact]
         public async Task AddAlbum_ReturnsAlbumId_IfAddingAlbumIsCorrect()
         {
-            var albumCreating = new AlbumCreating { Name = "Test Album", Description = "Test Description" };
+            var albumCreating = new AlbumCreating ("Test Album", "Test Description" );
             var userId = "user123";
             var albumId = 1;
 

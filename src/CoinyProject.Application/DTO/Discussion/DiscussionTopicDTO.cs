@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace CoinyProject.Application.DTO.Discussion
 {
-    public class DiscussionTopicDTO
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-    }
+    public record DiscussionTopicDTO(
+        int Id, 
+        string Name
+        )
+    {}
 }
