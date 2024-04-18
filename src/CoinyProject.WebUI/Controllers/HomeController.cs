@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using System.Diagnostics;
 using System.Security.Claims;
 
@@ -15,10 +16,13 @@ namespace CoinyProject.WebUI.Controllers
     {
         private readonly IAlbumService _albumService;
         private readonly UserManager<User> _userManager;
-        public HomeController(IAlbumService albumService, UserManager<User> userManager)
+        private readonly IStringLocalizer<HomeController> _localizer;
+        public HomeController(IAlbumService albumService, UserManager<User> userManager,
+            IStringLocalizer<HomeController> localizer)
         {
             _albumService = albumService;
             _userManager = userManager;
+            _localizer = localizer;
         }
 
         [HttpPost]
@@ -35,22 +39,33 @@ namespace CoinyProject.WebUI.Controllers
 
         public async Task<ActionResult> Index()
         {
-            var albums = await _albumService.GetAllAlbumsForView(_userManager.GetUserId(User));
-            return View(albums);
+            try
+            {
+                var albums = await _albumService.GetAllAlbumsForView(_userManager.GetUserId(User));
+                return View(albums);
+            }
+            catch (ArgumentNullException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPost]
         [Authorize]
         public async Task<IActionResult> Index(int id)
         {
-            await _albumService.LikeAlbum(id, _userManager.GetUserId(User));
-            return RedirectToAction("Index");
+            try
+            {
+                await _albumService.LikeAlbum(id, _userManager.GetUserId(User));
+                return RedirectToAction("Index");
+            }
+            catch
+            {
+                TempData["error"] = Convert.ToString(_localizer["Error liking albums"]);
+                return RedirectToAction("Index");
+            }
         }
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

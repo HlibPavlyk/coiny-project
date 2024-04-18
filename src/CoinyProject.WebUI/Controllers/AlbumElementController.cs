@@ -28,7 +28,7 @@ namespace CoinyProject.WebUI.Controllers
             _userManager = userManager;
         }
 
-        public IActionResult Create(int id)
+        public IActionResult Create(int? id)
         {
             TempData["AlbumId"] = id.ToString();
             return View();
@@ -37,36 +37,67 @@ namespace CoinyProject.WebUI.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(AlbumElementCreating element)
         {
-            await _albumService.AddAlbumElement(element);
-            TempData["success"] = Convert.ToString(_localizer["Album element successfully created"]);
+            try
+            {
+                await _albumService.AddAlbumElement(element);
+                TempData["success"] = Convert.ToString(_localizer["Album element successfully created"]);
 
-            return RedirectToAction("Create");
+                return RedirectToAction("Create");
+            }
+            catch
+            {
+                TempData["error"] = Convert.ToString(_localizer["Error creating album element"]);
+                return RedirectToAction("Create");
+            }
+            
         }
 
         public async Task<ActionResult> Edit(int id)
         {
-            var album = await _albumService.GetAlbumElementForEdit(id, _userManager.GetUserId(User));
-
-            return View(album);
+            try
+            {
+                var album = await _albumService.GetAlbumElementForEdit(id, _userManager.GetUserId(User));
+                return View(album);
+            }
+            catch
+            {
+                TempData["error"] = Convert.ToString(_localizer["Error getting album element"]);
+                return RedirectToAction("Index", "Home");
+            }
         }
 
         [HttpPost]
         public async Task<ActionResult> Edit(AlbumElementEditDTO album)
         {
-            var id = await _albumService.UpdateAlbumElement(album);
+            try
+            {
+                var id = await _albumService.UpdateAlbumElement(album);
 
-            TempData["success"] = Convert.ToString(_localizer["Album element successfully updated"]);
-            return RedirectToAction("Get","Album", new { id });
+                TempData["success"] = Convert.ToString(_localizer["Album element successfully updated"]);
+                return RedirectToAction("Get", "Album", new { id });
+            }
+            catch
+            {
+                TempData["error"] = Convert.ToString(_localizer["Error updating album element"]);
+                return RedirectToAction("Index", "Home");
+            }
+            
         }
 
         public async Task<ActionResult> Delete(int id)
         {
-            var albumId = await _albumService.DeleteAlbumElement(id, _userManager.GetUserId(User));
+            try
+            {
+                var albumId = await _albumService.DeleteAlbumElement(id, _userManager.GetUserId(User));
 
-            TempData["success"] = Convert.ToString(_localizer["Album element successfully deleted"]);
-            return RedirectToAction("Get", "Album", new { id = albumId });
+                TempData["success"] = Convert.ToString(_localizer["Album element successfully deleted"]);
+                return RedirectToAction("Get", "Album", new { id = albumId });
+            }
+            catch
+            {
+                TempData["error"] = Convert.ToString(_localizer["Error getting album element"]);
+                return RedirectToAction("Index", "Home");
+            }
         }
-
-
     }
 }

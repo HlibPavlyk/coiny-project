@@ -47,7 +47,7 @@ namespace CoinyProject.Infrastructure.Data.Repositories.Realization
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<Album>?> GetAllAlbumsWithElementsAndFavoritesForView(string? userId)
+        public async Task<IEnumerable<Album>?> GetAllAlbumsWithElementsAndFavoritesForView()
         {
             return await _dBContext.Albums
                 .Include(x => x.Elements)

@@ -226,13 +226,13 @@ namespace CoinyProject.UnitTests.Servcices
 
             unitOfWork.Setup(Album => Album.Albums).Returns(albumRepository.Object);
 
-            albumRepository.Setup(m => m.GetAllAlbumsWithElementsAndFavoritesForView(It.IsAny<string>()))
+            albumRepository.Setup(m => m.GetAllAlbumsWithElementsAndFavoritesForView())
                 .ReturnsAsync(albums);
             var albumService = new AlbumService(_webHostEnvironment.Object, _mapper, unitOfWork.Object);
 
             var result = await albumService.GetAllAlbumsForView(testedAlbum.UserId);
 
-            albumRepository.Verify(m => m.GetAllAlbumsWithElementsAndFavoritesForView(It.IsAny<string>()), Times.Once);
+            albumRepository.Verify(m => m.GetAllAlbumsWithElementsAndFavoritesForView(), Times.Once);
             result.Should().HaveCount(5);
             result.First().Should().BeEquivalentTo(
                 new AlbumGetForViewDTO()
@@ -244,21 +244,6 @@ namespace CoinyProject.UnitTests.Servcices
                     TitleImageURL = testedAlbum.Elements.First().ImageURL,
                     IsFavorite = false
                 });
-        }
-
-        [Theory]
-        [InlineData(null)]
-        public async Task GetAllAlbumsForView_ReturnsException_IfInputArgumentsAreNull(string? userId)
-        {
-            Mock<IUnitOfWork> unitOfWork = new();
-            Mock<IAlbumRepository> albumRepository = new();
-
-            unitOfWork.Setup(Album => Album.Albums).Returns(albumRepository.Object);
-            var albumService = new AlbumService(_webHostEnvironment.Object, _mapper, unitOfWork.Object);
-
-            await Assert.ThrowsAsync<ArgumentNullException>(async () => await albumService.GetAllAlbumsForView(userId));
-
-            albumRepository.Verify(m => m.GetAllAlbumsWithElementsAndFavoritesForView(It.IsAny<string>()), Times.Never);
         }
 
         [Fact]

@@ -10,7 +10,7 @@ namespace CoinyProject.Infrastructure.Data.Repositories.Interfaces
     public interface IAlbumRepository : IBaseRepository<Album>
     {
         Task<IEnumerable<Album>?> GetAllAlbumsWithElements(string? userId);
-        Task<IEnumerable<Album>?> GetAllAlbumsWithElementsAndFavoritesForView(string? userId);
+        Task<IEnumerable<Album>?> GetAllAlbumsWithElementsAndFavoritesForView();
         Task<Album?> GetAlbumWithElementsById(int? id);
         Task<Album?> GetAlbumWithAuthorCheck(int? id, string? currentUserId);
         Task<Album?> GetAlbumById(int? id);

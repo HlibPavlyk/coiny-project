@@ -99,10 +99,7 @@ namespace CoinyProject.Application.AlbumServices.Services
 
         public async Task<IEnumerable<AlbumGetForViewDTO>> GetAllAlbumsForView(string? userId)
         {
-            if (userId == null)
-                throw new ArgumentNullException("userId is null");
-
-            var albums = await _unitOfWork.Albums.GetAllAlbumsWithElementsAndFavoritesForView(userId);
+            var albums = await _unitOfWork.Albums.GetAllAlbumsWithElementsAndFavoritesForView();
 
             if (albums == null)
                 throw new ArgumentNullException("albums is null");

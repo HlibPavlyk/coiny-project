@@ -4,64 +4,103 @@ using CoinyProject.Core.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using System.Security.Claims;
 
 namespace CoinyProject.WebUI.Controllers
 {
-    [Authorize]
     public class DiscussionController : Controller
     {
         private readonly IDiscussionService _discussionService;
         private readonly UserManager<User> _userManager;
-        public DiscussionController(IDiscussionService discussionService, UserManager<User> userManager)
+        private readonly IStringLocalizer<DiscussionController> _localizer;
+        public DiscussionController(IDiscussionService discussionService, UserManager<User> userManager,
+            IStringLocalizer<DiscussionController> localizer)
         {
             _discussionService = discussionService;
             _userManager = userManager;
+            _localizer = localizer;
         }
 
         public async Task<IActionResult> Index()
         {
-            var discussions = await _discussionService.GetAllDiscussionsForView();
-            return View(discussions);
+            try
+            {
+                var discussions = await _discussionService.GetAllDiscussionsForView();
+                return View(discussions);
+            }
+            catch
+            {
+                TempData["error"] = _localizer["An error occurred while loading discussions"];
+                return RedirectToAction("Index", "Home");
+            }
+            
         }
 
+        [Authorize]
         public async Task<IActionResult> Create()
         {
-            ViewBag.AvailableTopics = await _discussionService.GetAvailableTopics();
-            return View();
+            try
+            {
+                ViewBag.AvailableTopics = await _discussionService.GetAvailableTopics();
+                return View();
+            }
+            catch
+            {
+                TempData["error"] = _localizer["An error occurred while loading topics"];
+                return RedirectToAction("Index");
+            }
+            
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Create(DiscussionCreateDTO discussion)
+        [HttpPost, Authorize]
+        public async Task<IActionResult> Create(DiscussionCreateDTO? discussion)
         {
-            await _discussionService.AddDiscussion(discussion, _userManager.GetUserId(User));
+            try
+            {
+                await _discussionService.AddDiscussion(discussion, _userManager.GetUserId(User));
 
-            TempData["success"] = "Discussion successfully created";
-            return RedirectToAction("Index", "Discussion");
-
+                TempData["success"] = "Discussion successfully created";
+                return RedirectToAction("Index", "Discussion");
+            }
+            catch
+            {
+                TempData["error"] = _localizer["An error occurred while creating discussion"];
+                return RedirectToAction("Index");
+            }
         }
 
-        public async Task<IActionResult> Get(int id)
+        [Authorize]
+        public async Task<IActionResult> Get(int? id)
         {
-            if (id != 0)
+            try
             {
                 var discussin = await _discussionService.GetDiscussionById(id);
                 ViewBag.UserId = _userManager.GetUserId(User);
 
                 return View(discussin);
             }
-            return NotFound();
-            
+            catch
+            {
+                TempData["error"] = _localizer["An error occurred while loading discussion"];
+                return RedirectToAction("Index");
+            }
         }
-        [HttpPost]
-        public async Task<IActionResult> Get([FromBody] DiscussionMessageCreateDTO dataToSend)
+
+        [HttpPost, Authorize]
+        public async Task<IActionResult> Get([FromBody] DiscussionMessageCreateDTO? dataToSend)
         {
-            if (ModelState.IsValid)
+            try
             {
                 await _discussionService.AddDiscussionMessage(dataToSend);
                 return Ok();
             }
-            return BadRequest();
+            catch
+            {
+                TempData["error"] = _localizer["An error occurred while sending message"];
+                return RedirectToAction("Index");
+            }
+            
         }
         
     }
