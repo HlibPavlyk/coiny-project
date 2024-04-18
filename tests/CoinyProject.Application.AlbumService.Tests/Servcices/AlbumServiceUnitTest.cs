@@ -128,7 +128,7 @@ namespace CoinyProject.UnitTests.Servcices
             Mock<IUnitOfWork> unitOfWork = new();
             Mock<IAlbumRepository> albumRepository = new();
 
-            _webHostEnvironment.Setup(x => x.WebRootPath).Returns("..\\..\\..\\test");
+            _webHostEnvironment.Setup(x => x.WebRootPath).Returns("../../../test");
 
             unitOfWork.Setup(Album => Album.Albums).Returns(albumRepository.Object);
 
