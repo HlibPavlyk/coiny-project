@@ -109,7 +109,7 @@ namespace CoinyProject.UnitTests.Servcices
         {
             var image = await GetTestImage();
             _fixture.Customize<IFormFile>(c => c.FromFactory(() =>
-                new FormFile(image, 0, image.Length, "file", "test.jpg")
+                new FormFile(image, 0, image.Length, "file", "..\\..\\..\\Shared")
             ));
             _fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList()
                 .ForEach(b => _fixture.Behaviors.Remove(b));
