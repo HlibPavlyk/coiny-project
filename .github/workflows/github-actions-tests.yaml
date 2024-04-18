@@ -22,6 +22,9 @@ jobs:
               with:
                   dotnet-version: 6.0.x
 
+            - name: Upload photo to debug directory
+              run: cp tests/CoinyProject.Application.AlbumService.Tests/Shared/test.jpg tests/CoinyProject.Application.AlbumService.Tests/bin/Debug/net8.0/
+
             - name: Install dependencies
               run: dotnet restore
 
