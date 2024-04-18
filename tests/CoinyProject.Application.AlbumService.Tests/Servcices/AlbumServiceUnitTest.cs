@@ -24,6 +24,7 @@ using AutoFixture.Kernel;
 using CoinyProject.Infrastructure.Data.Repositories.Interfaces;
 using CoinyProject.Infrastructure.Data.Repositories.Realization;
 using System.Xml.Linq;
+using CoinyProject.Infrastructure.Data.Migrations;
 
 namespace CoinyProject.UnitTests.Servcices
 {
@@ -109,7 +110,7 @@ namespace CoinyProject.UnitTests.Servcices
         {
             var image = await GetTestImage();
             _fixture.Customize<IFormFile>(c => c.FromFactory(() =>
-                new FormFile(image, 0, image.Length, "file", "..\\..\\..\\Shared")
+                new FormFile(image, 0, image.Length, "file", "test.jpg")
             ));
             _fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList()
                 .ForEach(b => _fixture.Behaviors.Remove(b));

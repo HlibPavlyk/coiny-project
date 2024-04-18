@@ -32,4 +32,10 @@
     <Folder Include="test\albums\elements\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Shared\test.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
