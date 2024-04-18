@@ -1,13 +1,29 @@
-﻿
-var connection = new signalR.HubConnectionBuilder().withUrl("/chat").build();
+﻿var connection = new signalR.HubConnectionBuilder().withUrl("/chat").build();
 
 document.getElementById("sendButton").disabled = true;
+var currentUser = document.getElementById("currentUser").dataset.userId;
 
 connection.on("ReceiveMessage", function (user, message) {
-    var li = document.createElement("li");
-    document.getElementById("messagesList").appendChild(li);
+    var div = document.createElement("div");
+    document.getElementById("messagesList").appendChild(div);
 
-    li.textContent = `${user} says ${message}`;
+    div.classList.add("message-item", "mb-3", "border", "rounded", "p-2");
+
+    var badge = document.createElement("span");
+    badge.classList.add("badge", "bg-info");
+    badge.textContent = user;
+
+    var messageContent = document.createElement("div");
+    messageContent.classList.add("message-content");
+    messageContent.textContent = message;
+
+    if (user === currentUser) {
+        div.classList.add("text-end", "bg-body-tertiary");
+        badge.classList.add("bg-danger");
+    }
+
+    div.appendChild(badge);
+    div.appendChild(messageContent);
 });
 
 connection.start().then(function () {
@@ -23,53 +39,11 @@ document.getElementById("sendButton").addEventListener("click", function (event)
     if (message.trim() === "") {
         return;
     }
+
     connection.invoke("SendMessage", user, message).catch(function (err) {
         return console.error(err.toString());
     });
+
     document.getElementById("messageInput").value = "";
     event.preventDefault();
 });
-
-/*class DiscussionMessageCreateDTO {
-    constructor(text) {
-        this.text = text;
-    }
-}
-
-document.getElementById('submitButton').addEventListener('click', () => { });
-
-const username = userName;
-const textInput = document.getElementById('messageText');
-const chat = document.getElementById('chat');
-const messagesQueue = [];
-
-
-
-function clearInputField() {
-    messagesQueue.push(textInput.value);
-    textInput.value = "";
-}
-
-function addMessageToChat(message) {
-    let container = document.createElement('div');
-    container.className = "container";
-
-    let sender = document.createElement('p');
-    sender.className = "sender";
-    sender.textContent = message.sender; 
-
-    let text = document.createElement('p');
-    text.textContent = message.text;
-
-    container.appendChild(sender);
-    container.appendChild(text);
-    chat.appendChild(container);
-}
-
-function sendMessageToHub() {
-    let messageText = textInput.value;
-    if (messageText.trim() === "") return;
-
-    connection.invoke('SendMessage', messageText);
-    textInput.value = ""; 
-}*/
