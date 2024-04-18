@@ -15,7 +15,9 @@ using Microsoft.AspNetCore.Localization;
 using System.Reflection;
 using CoinyProject.WebUI.Extensions;
 using CoinyProject.WebUI.Hubs;
-using CoinyProject.Infrastructure.Data.Interfaces;
+using CoinyProject.UnitTests.Shared;
+using CoinyProject.Infrastructure.Data.Repositories.Realization;
+using CoinyProject.Infrastructure.Data.Repositories.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,10 +28,11 @@ builder.Services.AddRazorPages();
 builder.Services.AddDBConnection(builder.Configuration);
 builder.Services.ConfigurateIdentityOptions();
 builder.Services.AddIdentityUser();
+builder.Services.AddTransient<FakeDataGenerator>();
 
 builder.Services.AddScoped<IAlbumService, AlbumService>(); 
 builder.Services.AddScoped<IDiscussionService, DiscussionService>();
-builder.Services.AddScoped<IApplicationDBContext, ApplicationDBContext>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddControllersWithViews().AddJsonOptions(o =>
 {

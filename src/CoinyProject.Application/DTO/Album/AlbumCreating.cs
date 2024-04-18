@@ -18,5 +18,5 @@ namespace CoinyProject.Application.DTO.Album
 
         [MaxLength(100)]
         [Display(Name = "Description")]
-        string? Description){}
+        string? Description);
 }

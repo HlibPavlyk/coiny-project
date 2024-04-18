@@ -4,8 +4,8 @@ using CoinyProject.Application.DTO.Album;
 using CoinyProject.Application.DTO.Discussion;
 using CoinyProject.Core.Domain.Entities;
 using CoinyProject.Infrastructure.Data;
-using CoinyProject.Infrastructure.Data.Interfaces;
 using CoinyProject.Infrastructure.Data.Migrations;
+using CoinyProject.Infrastructure.Data.Repositories.Interfaces;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -25,17 +25,18 @@ namespace CoinyProject.Application.AlbumServices.Services
 {
     public class AlbumService : IAlbumService
     {
-        private readonly IApplicationDBContext _dBContext;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IMapper _mapper;
 
+        private readonly IUnitOfWork _unitOfWork;
+
         private readonly string imageFolder = "albums/elements/";
 
-        public AlbumService(IApplicationDBContext dBContext, IWebHostEnvironment webHostEnvironment, IMapper mapper)
+        public AlbumService(IWebHostEnvironment webHostEnvironment, IMapper mapper, IUnitOfWork unitOfWork)
         {
             _webHostEnvironment = webHostEnvironment;
-            _dBContext = dBContext;
             _mapper = mapper;
+            _unitOfWork = unitOfWork;
         }
         protected async Task<string> ConvertToImageUrl(IFormFile image)
         {
@@ -46,30 +47,6 @@ namespace CoinyProject.Application.AlbumServices.Services
             return "/" + folder;
         }
 
-        protected async Task AlbumAuthorCheck(int albumId, string currentUserId)
-        {
-            var userId = await _dBContext.Albums
-                .Where(x => x.Id == albumId)
-                .AsNoTracking()
-                .Select(x => x.UserId)
-                .FirstOrDefaultAsync();
-
-            if (userId != currentUserId)
-                throw new UnauthorizedAccessException("Access is denied. Current user is not the author of album");
-        }
-
-        protected async Task AlbumAuthorCheckForElements(int albumElementId, string currentUserId)
-        {
-            var albumId = await _dBContext.AlbumElements
-                .Where(x => x.Id == albumElementId)
-                .AsNoTracking()
-                .Select(x => x.AlbumId)
-                .FirstOrDefaultAsync();
-
-            await AlbumAuthorCheck(albumId, currentUserId);
-
-        }
-
         public async Task<int> AddAlbum(AlbumCreating? album, string? userId)
         {
             if (album == null || userId.IsNullOrEmpty())
@@ -78,20 +55,20 @@ namespace CoinyProject.Application.AlbumServices.Services
             var _album = _mapper.Map<Album>(album);
             _album.UserId = userId;
 
-            await _dBContext.Albums.AddAsync(_album);
-            await _dBContext.SaveChangesAsync();
+            await _unitOfWork.Albums.InsertAsync(_album);
+            await _unitOfWork.SaveChangesAsync();
 
             return _album.Id;
         }
 
 
-        public async Task AddAlbumElement(AlbumElementCreating element)
+        public async Task AddAlbumElement(AlbumElementCreating? element)
         {
-            var album = await _dBContext.Albums
-                .Include(x => x.Elements)
-                .Where(x => x.Id == element.AlbumId)
-                .FirstOrDefaultAsync();
+            if(element == null)
+                throw new ArgumentNullException("Element is null");
 
+            var album = await _unitOfWork.Albums.GetAlbumWithElementsById(element.AlbumId);
+                
             if (album != null)
             {
                 AlbumElement _albumElement = new AlbumElement()
@@ -102,109 +79,123 @@ namespace CoinyProject.Application.AlbumServices.Services
                 };
 
                 album.Elements.Add(_albumElement);
-                await _dBContext.SaveChangesAsync();
+                await _unitOfWork.SaveChangesAsync();
             }
            
         }
 
-        public async Task<IEnumerable<AlbumGetDTO>> GetAllAlbumsDTO(string userId)
+        public async Task<IEnumerable<AlbumGetDTO>> GetAllAlbumsDTO(string? userId)
         {
-            var albums = await _dBContext.Albums
-                                       .Include(x => x.Elements)
-                                       .AsNoTracking()
-                                       .Where(x => x.UserId == userId)
-                                       .ToListAsync();
+            if (userId == null)
+                throw new ArgumentNullException("userId is null");
+
+            var albums = await _unitOfWork.Albums.GetAllAlbumsWithElements(userId);
+
+            if (albums == null)
+                throw new ArgumentNullException("albums is null");
 
             return _mapper.Map<List<AlbumGetDTO>>(albums);
         }
 
-        public async Task<IEnumerable<AlbumGetForViewDTO>> GetAllAlbumsForView(string userId)
+        public async Task<IEnumerable<AlbumGetForViewDTO>> GetAllAlbumsForView(string? userId)
         {
-            var albums = await _dBContext.Albums
-                                .Include(x => x.Elements)
-                                .Include(x => x.FavoriteAlbums)
-                                .Where(x => x.Elements.Count > 0)
-                                .OrderByDescending(x => x.Rate)
-                                .AsNoTracking()
-                                .ToListAsync();
+            if (userId == null)
+                throw new ArgumentNullException("userId is null");
 
-            var albumsGetDTOList = albums.Select(album =>
+            var albums = await _unitOfWork.Albums.GetAllAlbumsWithElementsAndFavoritesForView(userId);
+
+            if (albums == null)
+                throw new ArgumentNullException("albums is null");
+
+            var albumsGetDTOList = new List<AlbumGetForViewDTO>();
+            foreach(var album in albums)
             {
                 var albumGetDTO = _mapper.Map<AlbumGetForViewDTO>(album);
-                albumGetDTO.IsFavorite = album.FavoriteAlbums.Any(a => a.UserId == userId);
-                return albumGetDTO;
-            }).ToList();
-
+                albumGetDTO.IsFavorite = album.FavoriteAlbums.Any(x => x.UserId == userId);
+                albumsGetDTOList.Add(albumGetDTO);
+            }
+            
             return albumsGetDTOList;
 
         }
 
-        public async Task<AlbumGetByIdDTO> GetAlbumById(int id)
+        public async Task<AlbumGetByIdDTO> GetAlbumById(int? id)
         {
-            var album = await _dBContext.Albums
-                .Where(x => x.Id == id)
-                .Include(x => x.Elements)
-                .AsNoTracking()
-                .FirstOrDefaultAsync();
+            if(id == null)
+                throw new ArgumentNullException("id is null");
+
+            var album = await _unitOfWork.Albums.GetAlbumWithElementsById(id);
+
+            if (album == null)
+                throw new ArgumentNullException("album is null");
 
             return _mapper.Map<AlbumGetByIdDTO>(album);
         }
 
-        public async Task<AlbumEditDTO> GetAlbumForEdit(int id, string currentUserId)
+        public async Task<AlbumEditDTO> GetAlbumForEdit(int? id, string? currentUserId)
         {
-            await AlbumAuthorCheck(id, currentUserId);
+            if (id == null || currentUserId == null)
+                throw new ArgumentNullException("id or currentUserId is null");
 
-            var album = await _dBContext.Albums
-                .Where(x => x.Id == id)
-                .AsNoTracking()
-                .FirstOrDefaultAsync();
+            var album = await _unitOfWork.Albums.GetAlbumWithAuthorCheck(id, currentUserId);
+
+            if (album == null)
+                throw new ArgumentNullException("album is null");
 
             return _mapper.Map<AlbumEditDTO>(album);
         }
-        public async Task UpdateAlbum(AlbumEditDTO album)
+        public async Task UpdateAlbum(AlbumEditDTO? album)
         {
-            var _album = await _dBContext.Albums
-                .Where(x => x.Id == album.Id)
-                .FirstOrDefaultAsync();
+            if (album == null)
+                throw new ArgumentNullException("album is null");
+
+            var _album = await _unitOfWork.Albums.GetAlbumById(album.Id);
 
             if (_album != null)
             {
                 _mapper.Map(album, _album);
-                _dBContext.Albums.Update(_album);
-                _dBContext.SaveChanges();
+                _unitOfWork.Albums.Update(_album);
+                _unitOfWork.SaveChanges();
             }
         }
 
-        public async Task DeleteAlbum(int id, string currentUserId)
+        public async Task DeleteAlbum(int? id, string? currentUserId)
         {
-            await AlbumAuthorCheck(id, currentUserId);
+            if (id == null || currentUserId == null)
+                throw new ArgumentNullException("id or currentUserId is null");
 
-            var album = await _dBContext.Albums
-                .Where(x => x.Id == id)
-                .FirstOrDefaultAsync();
+            var album = await _unitOfWork.Albums.GetAlbumWithAuthorCheck(id, currentUserId);
 
-            _dBContext.Albums.Remove(album);
-            _dBContext.SaveChanges();
+            if (album == null)
+                throw new ArgumentNullException("album is null");
+
+            _unitOfWork.Albums.Delete(album);
+            _unitOfWork.SaveChanges();
         }
 
-        public async Task<AlbumElementEditDTO> GetAlbumElementForEdit(int id, string currentUserId)
+        public async Task<AlbumElementEditDTO> GetAlbumElementForEdit(int? id, string? currentUserId)
         {
-            await AlbumAuthorCheckForElements(id, currentUserId);
+            if (id == null || currentUserId == null)
+                throw new ArgumentNullException("id or currentUserId is null");
 
-            var albumElement = await _dBContext.AlbumElements
-                .Where(x => x.Id == id)
-                .AsNoTracking()
-                .FirstOrDefaultAsync();
+            var albumElement = await _unitOfWork.AlbumElements.GetAlbumElementWithAuthorCheck(id, currentUserId);
+
+            if(albumElement == null)
+                throw new ArgumentNullException("albumElement is null");
 
             return _mapper.Map<AlbumElementEditDTO>(albumElement);
 
         }
 
-        public async Task<int> UpdateAlbumElement(AlbumElementEditDTO element)
+        public async Task<int> UpdateAlbumElement(AlbumElementEditDTO? element)
         {
-            var _element = await _dBContext.AlbumElements
-                .Where(x => x.Id == element.Id)
-                .FirstOrDefaultAsync();
+            if (element == null)
+                throw new ArgumentNullException("element is null");
+
+            var _element = await _unitOfWork.AlbumElements.GetAlbumElementById(element.Id);
+
+             if (_element == null)
+                throw new ArgumentNullException("element is null");
 
             _element.Name = element.Name;
             _element.Description = element.Description;
@@ -212,32 +203,35 @@ namespace CoinyProject.Application.AlbumServices.Services
             if(element.Image != null)
                 _element.ImageURL = await ConvertToImageUrl(element.Image);
 
-            _dBContext.AlbumElements.Update(_element);
-            _dBContext.SaveChanges();
+            _unitOfWork.AlbumElements.Update(_element);
+            _unitOfWork.SaveChanges();
 
             return _element.AlbumId;
         }
 
-        public async Task<int> DeleteAlbumElement(int id, string currentUserId)
+        public async Task<int> DeleteAlbumElement(int? id, string? currentUserId)
         {
-            await AlbumAuthorCheckForElements(id, currentUserId);
+            if (id == null || currentUserId == null)
+                throw new ArgumentNullException("id or currentUserId is null");
 
-            var element = await _dBContext.AlbumElements
-                .Where(x => x.Id == id)
-                .FirstOrDefaultAsync();
+            var element = await _unitOfWork.AlbumElements.GetAlbumElementById(id);
 
-            _dBContext.AlbumElements.Remove(element);
-            _dBContext.SaveChanges();
+            if (element == null)
+                throw new ArgumentNullException("element is null");
+
+            _unitOfWork.AlbumElements.Delete(element);
+            _unitOfWork.SaveChanges();
             
             return element.AlbumId;
         }
 
-        public async Task LikeAlbum(int albumId, string currentUserId)
+        public async Task LikeAlbum(int albumId, string? currentUserId)
         {
-            var user = await _dBContext.Users
-                .Include(u => u.FavoriteAlbums)
-                .FirstOrDefaultAsync(u => u.Id == currentUserId);
-            var album = await _dBContext.Albums.FirstOrDefaultAsync(a => a.Id == albumId);
+            if (albumId == 0 || currentUserId == null)
+                throw new ArgumentNullException("albumId or currentUserId is null");
+
+            var user = await _unitOfWork.Users.GetUserWithFavoriteAlbumsById(currentUserId); 
+            var album = await _unitOfWork.Albums.GetAlbumById(albumId);
 
             if (user != null && album != null)
             {
@@ -248,11 +242,11 @@ namespace CoinyProject.Application.AlbumServices.Services
                 }
                 else
                 {
-                    _dBContext.FavoriteAlbums.Remove(user.FavoriteAlbums.FirstOrDefault(a => a.AlbumId == albumId));
+                    _unitOfWork.FavoriteAlbums.Delete(user.FavoriteAlbums.FirstOrDefault(a => a.AlbumId == albumId));
                     album.Rate--;
                 }
 
-                await _dBContext.SaveChangesAsync();
+                await _unitOfWork.SaveChangesAsync();
 
             }
 

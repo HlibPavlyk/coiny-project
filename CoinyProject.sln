@@ -23,7 +23,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoinyProject.Shared", "src\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoinyProject.IdentityServer", "src\CoinyProject.IdentityServer\CoinyProject.IdentityServer.csproj", "{15B0F024-EB65-42A9-897D-9232CE14EA7B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoinyProject.Application.Tests", "tests\CoinyProject.Application.AlbumService.Tests\CoinyProject.Application.Tests.csproj", "{E76EE636-DCC4-4954-AAB2-A099FDE0728F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoinyProject.UnitTests", "tests\CoinyProject.Application.AlbumService.Tests\CoinyProject.UnitTests.csproj", "{E76EE636-DCC4-4954-AAB2-A099FDE0728F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

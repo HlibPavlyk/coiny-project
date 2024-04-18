@@ -362,3 +362,5 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /src/CoinyProject.WebUI/wwwroot/albums/elements
+/tests/CoinyProject.Application.AlbumService.Tests/test/albums/elements
+/tests/CoinyProject.Application.AlbumService.Tests/test/albums/elements/6abaf162-05db-4410-afcb-ea8e0a5db912_test.jpg
