@@ -38,4 +38,39 @@ The forum is a space where various questions on a given topic will be discussed.
 
 To prevent the creation of albums containing items that do not correspond to their essence, all such actions on the platform will require moderation.
 
+## Tech Stack
+
+### Architecture
+
+- Clean Architecture
+- СQRS
+
+### Database
+
+- SQL Server
+- Entity Framework Core
+
+### Technologies
+
+- ASP.NET Core Web MVC
+- Duende Identity Server
+- SignalR
+- - AutoMapper
+
+### FrontEnd
+- JavaScript
+- Ajax (for asynchronous requests)
+- Bootstrap (for responsive UI components)
+- Toastr (for displaying notifications)
+
+### Testing
+
+- xUnit 
+- Moq
+- FluentAssertions
+- Bogus
+- AutoFixture
+## Database schema
+
+![image](https://github.com/HlibPavlyk/CoinyProject/assets/135625402/63d1c614-19ea-494d-ab01-2180899c5e7c)
 
