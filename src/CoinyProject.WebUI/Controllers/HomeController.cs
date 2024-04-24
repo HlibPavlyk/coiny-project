@@ -24,6 +24,10 @@ namespace CoinyProject.WebUI.Controllers
             _userManager = userManager;
             _localizer = localizer;
         }
+        public IActionResult Logout()
+        {
+            return SignOut("Cookie", "oidc");
+        }
 
         [HttpPost]
         public IActionResult CultureManager(string culture)

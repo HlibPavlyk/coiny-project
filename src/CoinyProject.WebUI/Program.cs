@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Configuration;
 using CoinyProject.Core.Domain.Entities;
-using CoinyProject.WebUI.Areas.Identity;
 using CoinyProject.Application.AlbumServices.Interfaces;
 using CoinyProject.Application.AlbumServices.Services;
 using System.Drawing.Text;
@@ -18,10 +17,31 @@ using CoinyProject.WebUI.Hubs;
 using CoinyProject.UnitTests.Shared;
 using CoinyProject.Infrastructure.Data.Repositories.Realization;
 using CoinyProject.Infrastructure.Data.Repositories.Interfaces;
+using CoinyProject.Shared.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddCustomLocalization();
+
+builder.Services.AddAuthentication(config =>
+{
+    config.DefaultScheme = "Cookie";
+    config.DefaultChallengeScheme = "oidc";
+
+})
+    .AddCookie("Cookie")
+    .AddOpenIdConnect("oidc", config =>
+    {
+        config.Authority = "https://localhost:5443";
+        config.ClientId = "client_id_ui";
+        config.ClientSecret = "client_secret_ui";
+        config.SaveTokens = true;
+        config.ResponseType = "code";
+        config.SignedOutCallbackPath = "/Home/Index";
+        config.GetClaimsFromUserInfoEndpoint = true;
+
+
+    });
 
 builder.Services.AddRazorPages();
 
@@ -64,6 +84,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapRazorPages();
