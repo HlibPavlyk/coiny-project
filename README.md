@@ -52,10 +52,10 @@ To prevent the creation of albums containing items that do not correspond to the
 
 ### Technologies
 
-- ASP.NET Core Web MVC
+- ASP.NET Core MVC
 - Duende Identity Server
 - SignalR
-- - AutoMapper
+- AutoMapper
 
 ### FrontEnd
 - JavaScript
