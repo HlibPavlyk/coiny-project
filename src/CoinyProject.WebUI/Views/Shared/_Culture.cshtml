@@ -1,0 +1,21 @@
+﻿@using Microsoft.AspNetCore.Localization
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.Extensions.Options
+
+@inject IViewLocalizer Localizer
+@inject IOptions<RequestLocalizationOptions> LocOptions
+
+@{
+    var culture = Context.Features.Get<IRequestCultureFeature>();
+    var cultureList = LocOptions.Value.SupportedUICultures.Select(c => 
+        new SelectListItem { Value = c.Name, Text = Localizer.GetString(c.Name) }).ToList();
+}
+
+<div class="nav-item dropdown">
+    <form asp-controller="Home" asp-action="CultureManager" method="post">
+        <select name="culture" class="dropdown-item" asp-for="@culture.RequestCulture.UICulture.Name" asp-items="cultureList"
+        onchange="this.form.submit();">
+
+        </select>
+    </form>
+</div>

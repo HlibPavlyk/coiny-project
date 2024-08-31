@@ -1,0 +1,37 @@
+﻿@using CoinyProject.Application.DTO.Album
+
+@model AlbumCreating
+
+<form method="post">
+    <div class="border p-3 mt-4">
+        <div class="row pb-2">
+            <h2 class="text-primary">@Localizer["Create Album"]</h2>
+            <hr />
+        </div>
+        <div class="mb-3 row p-1">
+            <label asp-for="Name" class="p-0"></label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+        <div class="mb-3 row p-1">
+            <label asp-for="Description" class="p-0"></label>
+            <input asp-for="Description" class="form-control" />
+        </div>
+        <div class="row">
+            <div class="col-6 col-md-3">
+                <button type="submit" class="btn btn-primary form-control">@Localizer["Сontinue Creating"]</button>
+            </div>
+            <div class="col-6 col-md-3">
+                <a asp-controller="Album" asp-action="Index" class="btn btn-outline-secondary form-control text-primary">
+                    @Localizer["Back To List"]
+                </a>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    @{
+        <partial name="_ValidationScriptsPartial" />
+    }
+}

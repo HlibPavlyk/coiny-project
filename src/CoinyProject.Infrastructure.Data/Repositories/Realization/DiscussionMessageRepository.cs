@@ -1,0 +1,20 @@
+﻿using CoinyProject.Core.Domain.Entities;
+using CoinyProject.Infrastructure.Data.Repositories.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace CoinyProject.Infrastructure.Data.Repositories.Realization
+{
+    public class DiscussionMessageRepository : BaseRepository<DiscussionMessage>, IDiscussionMessageRepository
+    {
+        private readonly ApplicationDBContext _dBContext;
+
+        public DiscussionMessageRepository(ApplicationDBContext dBContext) : base(dBContext)
+        {
+            _dBContext = dBContext;
+        }
+    }
+}

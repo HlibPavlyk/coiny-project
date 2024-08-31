@@ -1,0 +1,21 @@
+﻿@using CoinyProject.Application.DTO.Album
+@model AlbumGetDTO
+
+<div class="card mb-4 shadow-sm">
+    <img src="@(string.IsNullOrEmpty(Model.TitleImageURL) ? "/albums/noimage.jpg" : Model.TitleImageURL)" class="img-fit img-thumbnail" />
+    <div class="card-body">
+        <h3 class="card-title">@Model.Name</h3>
+        <p class="card-text">@(string.IsNullOrEmpty(Model.Description) ? Localizer["Description is not availabe"] : Model.Description)</p>
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="btn-group">
+                <a asp-action="Get" asp-controller="Album" asp-route-id="@Model.Id"
+                   class="btn btn-sm btn-outline-secondary">@Localizer["View details"]</a>
+            </div>
+            <small class="text-muted">
+                <i class="bi bi-star-fill"></i>
+                <span class="like-text">@Localizer["Liked"]</span>
+                | @Model.Rate
+            </small>
+        </div>
+    </div>
+</div>
