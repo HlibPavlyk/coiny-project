@@ -24,6 +24,7 @@ using AutoFixture.Kernel;
 using CoinyProject.Infrastructure.Data.Repositories.Interfaces;
 using CoinyProject.Infrastructure.Data.Repositories.Realization;
 using System.Xml.Linq;
+using CoinyProject.Application.Dto.Album;
 using CoinyProject.Infrastructure.Data.Migrations;
 
 namespace CoinyProject.UnitTests.Servcices
@@ -276,7 +277,7 @@ namespace CoinyProject.UnitTests.Servcices
                     album.Description,
                     album.Rate,
                     album.UserId,
-                    album.Elements.Select(element => new AlbumElementGetDTO(
+                    album.Elements.Select(element => new AlbumElementGetDto(
                         element.Id,
                         element.Name,
                         element.Description,

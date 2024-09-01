@@ -1,12 +1,8 @@
 ﻿using AutoMapper;
+using CoinyProject.Application.Dto.Album;
 using CoinyProject.Application.DTO.Album;
 using CoinyProject.Application.DTO.Discussion;
-using CoinyProject.Core.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using CoinyProject.Domain.Entities;
 
 namespace CoinyProject.Application.AutoMapper
 {
@@ -25,13 +21,13 @@ namespace CoinyProject.Application.AutoMapper
                     opt.MapFrom(src => src.Elements.FirstOrDefault().ImageURL));
             
             CreateMap<Album, AlbumGetByIdDTO>();
-            CreateMap<AlbumElement, AlbumElementGetDTO>();
+            CreateMap<AlbumElement, AlbumElementGetDto>();
             
             CreateMap<Album, AlbumEditDTO>();
             CreateMap<AlbumEditDTO, Album>();
 
-            CreateMap<AlbumElement, AlbumElementEditDTO>();
-            CreateMap<AlbumElementEditDTO, AlbumElement>();
+            CreateMap<AlbumElement, AlbumElementEditDto>();
+            CreateMap<AlbumElementEditDto, AlbumElement>();
 
             CreateMap<DiscussionCreateDTO, Discussion>(); 
 

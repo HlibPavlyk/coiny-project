@@ -1,4 +1,4 @@
-﻿using CoinyProject.Infrastructure.Data;
+﻿using CoinyProject.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
