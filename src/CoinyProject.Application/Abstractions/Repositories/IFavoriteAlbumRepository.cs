@@ -2,8 +2,8 @@
 
 namespace CoinyProject.Application.Abstractions.Repositories
 {
-    public interface IFavoriteAlbumRepository : IBaseRepository<FavoriteAlbums>
+    public interface IFavoriteAlbumRepository : IBaseRepository<FavoriteAlbumElements>
     {
-        Task<FavoriteAlbums?> GetFavoriteAlbumByAlbumId(int? id);
+        Task<FavoriteAlbumElements?> GetFavoriteAlbumByAlbumId(int? id);
     }
 }

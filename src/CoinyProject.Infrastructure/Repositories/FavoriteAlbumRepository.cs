@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CoinyProject.Infrastructure.Repositories
 {
-    public class FavoriteAlbumRepository : BaseRepository<FavoriteAlbums>, IFavoriteAlbumRepository
+    public class FavoriteAlbumRepository : BaseRepository<FavoriteAlbumElements>, IFavoriteAlbumRepository
     {
         private readonly ApplicationDbContext _dBContext;
 
@@ -13,7 +13,7 @@ namespace CoinyProject.Infrastructure.Repositories
             _dBContext = dBContext;
         }
 
-        public async Task<FavoriteAlbums?> GetFavoriteAlbumByAlbumId(int? id)
+        public async Task<FavoriteAlbumElements?> GetFavoriteAlbumByAlbumId(int? id)
         {
             return await _dBContext.FavoriteAlbums
                 .Where(u => u.Id == id)

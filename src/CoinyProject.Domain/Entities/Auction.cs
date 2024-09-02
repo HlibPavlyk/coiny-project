@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
+using CoinyProject.Domain.Enums;
 
 namespace CoinyProject.Domain.Entities
 {
@@ -15,9 +16,9 @@ namespace CoinyProject.Domain.Entities
         public decimal BetDelta { get; set; } 
         public DateTime StartTime { get; set; }
         public DateTime ExpirationTime { get; set; }
-        public bool IsSoldEarlier { get; set; }
+        public AuctionStatus Status { get; set; }
 
-        public virtual AlbumElement AlbumElement { get; set; }
-        public virtual ICollection<AuctionBet> AuctionBets { get; set; }
+        public AlbumElement AlbumElement { get; set; }
+        public ICollection<AuctionBet> AuctionBets { get; set; }
     }
 }

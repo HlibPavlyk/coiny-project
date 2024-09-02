@@ -15,7 +15,7 @@ namespace CoinyProject.Infrastructure
         public DbSet<Discussion> Discussions { get; set; }
         public DbSet<DiscussionMessage> DiscussionMessages { get; set; }
         public DbSet<DiscussionTopic> DiscussionTopics { get; set; }
-        public DbSet<FavoriteAlbums> FavoriteAlbums { get; set; }
+        public DbSet<FavoriteAlbumElements> FavoriteAlbums { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

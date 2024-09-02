@@ -2,16 +2,18 @@
 
 namespace CoinyProject.Domain.Entities
 {
-    public sealed class User : IdentityUser
+    public class User : IdentityUser
     {
         public User(string userName, string email) : base(userName)
         {
             Email = email;
         }
 
+        public int DiscussionRate { get; set; }
+
         public ICollection<Album>? Albums { get; set; }
         public ICollection<AuctionBet>? AuctionBets { get; set; }
-        public ICollection<FavoriteAlbums>? FavoriteAlbums { get; set; }
+        public ICollection<FavoriteAlbumElements>? FavoriteAlbumElements { get; set; }
         public ICollection<Discussion>? Discussions { get; set; }
     }
 }

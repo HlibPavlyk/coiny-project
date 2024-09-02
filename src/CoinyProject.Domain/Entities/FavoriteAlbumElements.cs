@@ -6,14 +6,13 @@ using System.Threading.Tasks;
 
 namespace CoinyProject.Domain.Entities
 {
-    public class DiscussionMessage
+    public class FavoriteAlbumElements
     {
         public Guid Id { get; set; }
-        public string Message { get; set; }
-        public Guid DiscussionId { get; set; }
         public Guid UserId { get; set; }
+        public Guid AlbumElementId { get; set; }
 
-        public User? User { get; set; }
-        public Discussion Discussion { get; set; }
+        public User User { get; set; }
+        public AlbumElement AlbumElement { get; set; } 
     }
 }
