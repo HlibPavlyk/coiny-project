@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace CoinyProject.Infrastructure.Data.EntityTypeConfiguration
+namespace CoinyProject.Infrastructure.EntityTypeConfiguration
 {
     internal class UserConfiguration : IEntityTypeConfiguration<User>
     {
@@ -16,24 +16,21 @@ namespace CoinyProject.Infrastructure.Data.EntityTypeConfiguration
                 .HasMaxLength(50)
                 .IsRequired(true);
 
-            builder.Property(u => u.PasswordHash)
-                .IsRequired(true);
+            builder.Property(u => u.DiscussionRate)
+                .IsRequired(true)
+                .HasDefaultValue(0);
 
             builder.HasMany(u => u.Albums)
-                .WithOne(u => u.User).
-                OnDelete(DeleteBehavior.NoAction);
+                .WithOne(u => u.User).OnDelete(DeleteBehavior.NoAction);
 
             builder.HasMany(u => u.Discussions)
-                .WithOne(u => u.User).
-                OnDelete(DeleteBehavior.NoAction);
+                .WithOne(u => u.User).OnDelete(DeleteBehavior.NoAction);
 
             builder.HasMany(u => u.AuctionBets)
-                .WithOne(u => u.User).
-                OnDelete(DeleteBehavior.Restrict);
+                .WithOne(u => u.User).OnDelete(DeleteBehavior.Restrict);
 
-            builder.HasMany(u => u.FavoriteAlbums)
-                .WithOne(u => u.User).
-                OnDelete(DeleteBehavior.NoAction);
+            builder.HasMany(u => u.FavoriteAlbumElements)
+                .WithOne(u => u.User).OnDelete(DeleteBehavior.NoAction);
         }
     }
 }

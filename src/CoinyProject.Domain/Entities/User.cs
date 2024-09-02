@@ -9,11 +9,12 @@ namespace CoinyProject.Domain.Entities
             Email = email;
         }
 
-        public int DiscussionRate { get; set; }
+        public int DiscussionRate { get; init; }
 
-        public ICollection<Album>? Albums { get; set; }
-        public ICollection<AuctionBet>? AuctionBets { get; set; }
-        public ICollection<FavoriteAlbumElements>? FavoriteAlbumElements { get; set; }
-        public ICollection<Discussion>? Discussions { get; set; }
+        public ICollection<Album>? Albums { get; init; }
+        public ICollection<AuctionBet>? AuctionBets { get; init; }
+        public ICollection<FavoriteAlbumElements>? FavoriteAlbumElements { get; init; }
+        public ICollection<Discussion>? Discussions { get; init; }
+        public ICollection<DiscussionMessage>? DiscussionMessages { get; init; }
     }
 }

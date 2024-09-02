@@ -4,14 +4,13 @@ namespace CoinyProject.Domain.Entities
 {
     public class Discussion
     {
-        public Guid Id { get; set; }
-        public string Name { get; set; }
-        public Guid UserId { get; set; }
-        public DiscussionTopic Topic { get; set; }
-        public DiscussionStatus Status { get; set; }
-        public DiscussionTopic DiscussionTopic { get; set; }
+        public Guid Id { get; init; }
+        public string Name { get; init; }
+        public Guid UserId { get; init; }
+        public DiscussionTopic Topic { get; init; }
+        public DiscussionStatus Status { get; init; }
         
-        public User? User { get; set; }
-        public ICollection<DiscussionMessage>? Messages { get; set; }
+        public User? User { get; init; }
+        public ICollection<DiscussionMessage>? Messages { get; init; }
     }
 }

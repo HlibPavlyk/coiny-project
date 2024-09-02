@@ -11,11 +11,24 @@ namespace CoinyProject.Infrastructure.EntityTypeConfiguration
             builder.HasKey(x => x.Id);
 
             builder.Property(x => x.Name)
-                .HasMaxLength(30)
-                .IsRequired(true);
+                .HasMaxLength(50)
+                .IsRequired();
 
             builder.Property(x => x.Description)
+                .HasMaxLength(200)
                 .IsRequired(false);
+            
+            builder.Property(x => x.Rate)
+                .IsRequired()
+                .HasDefaultValue(0);
+
+            builder.Property(x => x.ImageURL)
+                .IsRequired();
+            
+            builder.HasOne(x => x.Album)
+                .WithMany(x => x.Elements)
+                .HasForeignKey(x => x.AlbumId)
+                .OnDelete(DeleteBehavior.NoAction);
 
         }
     }

@@ -1,12 +1,8 @@
 ﻿using CoinyProject.Domain.Entities;
+using CoinyProject.Domain.Enums;
+using CoinyProject.Infrastructure.Migrations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Emit;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CoinyProject.Infrastructure.EntityTypeConfiguration
 {
@@ -18,14 +14,25 @@ namespace CoinyProject.Infrastructure.EntityTypeConfiguration
 
             builder.Property(x => x.Price)
                 .HasColumnType("decimal(10,2)");
+            
+            builder.Property(x => x.Status)
+                .IsRequired()
+                .HasDefaultValue(AuctionBetStatus.Winning);
 
             builder.HasOne(auctionBet => auctionBet.User)
                .WithMany(user => user.AuctionBets)
                .HasForeignKey(auctionBet => auctionBet.UserId)
                .OnDelete(DeleteBehavior.NoAction);
+            
+            builder.HasOne(x => x.Auction)
+                .WithMany(x => x.AuctionBets)
+                .HasForeignKey(x => x.AuctionId)
+                .OnDelete(DeleteBehavior.NoAction);
 
-
-
+            builder.HasOne(x => x.User)
+                .WithMany(x => x.AuctionBets)
+                .HasForeignKey(x => x.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
 
         }
     }

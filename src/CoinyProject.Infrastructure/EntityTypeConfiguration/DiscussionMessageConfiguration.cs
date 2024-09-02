@@ -1,11 +1,6 @@
 ﻿using CoinyProject.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CoinyProject.Infrastructure.EntityTypeConfiguration
 {
@@ -17,10 +12,18 @@ namespace CoinyProject.Infrastructure.EntityTypeConfiguration
             
             builder.Property(x => x.Message)
                 .IsRequired()
-                .HasMaxLength(200);
+                .HasMaxLength(300);
 
-            builder.Property(x => x.UserId)
-                .IsRequired(false);
+            builder.HasOne(x => x.User)
+                .WithMany(x => x.DiscussionMessages)
+                .HasForeignKey(x => x.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            builder.HasOne(x => x.Discussion)
+                .WithMany(x => x.Messages)
+                .HasForeignKey(x => x.DiscussionId)
+                .OnDelete(DeleteBehavior.NoAction);
+
         }
     }
 }

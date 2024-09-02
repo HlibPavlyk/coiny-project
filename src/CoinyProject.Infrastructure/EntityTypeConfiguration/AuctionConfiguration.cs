@@ -1,11 +1,7 @@
 ﻿using CoinyProject.Domain.Entities;
+using CoinyProject.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CoinyProject.Infrastructure.EntityTypeConfiguration
 {
@@ -17,11 +13,21 @@ namespace CoinyProject.Infrastructure.EntityTypeConfiguration
 
             builder.Property(x => x.StartPrice)
                 .HasColumnType("decimal(10,2)");
+            
             builder.Property(x => x.BetDelta)
                 .HasColumnType("decimal(10,2)");
 
             builder.Property(x => x.StartTime)
                 .HasDefaultValueSql("getdate()");
+            
+            builder.Property(x => x.Status)
+                .IsRequired()
+                .HasDefaultValue(AuctionStatus.Active);
+
+            builder.HasOne(x => x.AlbumElement)
+                .WithOne(x => x.Auction)
+                .HasForeignKey<Auction>(x => x.AlbumElementId)
+                .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }

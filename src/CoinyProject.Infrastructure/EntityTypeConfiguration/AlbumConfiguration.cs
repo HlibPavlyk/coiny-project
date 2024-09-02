@@ -1,4 +1,5 @@
 ﻿using CoinyProject.Domain.Entities;
+using CoinyProject.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -11,17 +12,25 @@ namespace CoinyProject.Infrastructure.EntityTypeConfiguration
             builder.HasKey(al => al.Id);
 
             builder.Property(al => al.Name)
-                .IsRequired(true)
-                .HasMaxLength(30);
+                .IsRequired()
+                .HasMaxLength(50);
 
             builder.Property(al => al.Description)
-                .IsRequired(false);
+                .IsRequired(false)
+                .HasMaxLength(200);
 
-            builder.Property(al => al.Rate).HasDefaultValue(0);
+            builder.Property(al => al.Status)
+                .IsRequired()
+                .HasDefaultValue(AlbumStatus.NotApproved);
 
-            builder.HasMany(u => u.Elements)
-                .WithOne(u => u.Album).
-                OnDelete(DeleteBehavior.Cascade);
+            builder.Property(al => al.Rate)
+                .IsRequired()
+                .HasDefaultValue(0);
+
+            builder.HasOne(al => al.User)
+                .WithMany(u => u.Albums)
+                .HasForeignKey(al => al.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }
