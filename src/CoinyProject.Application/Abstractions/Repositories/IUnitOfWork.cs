@@ -8,7 +8,6 @@
         IFavoriteAlbumRepository FavoriteAlbums { get; }
         IDiscussionRepository Discussions { get; }
         IDiscussionMessageRepository DiscussionMessages { get; }
-        IDiscussionTopicRepository DiscussionTopics { get; }
         Task SaveChangesAsync();
     }
 }

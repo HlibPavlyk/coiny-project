@@ -2,7 +2,7 @@
 
 namespace CoinyProject.Application.Abstractions.Repositories
 {
-    public interface IDiscussionMessageRepository : IBaseRepository<DiscussionMessage>
+    public interface IDiscussionMessageRepository : IGenericRepository<DiscussionMessage>
     {
     }
 }

@@ -11,8 +11,8 @@ namespace CoinyProject.Domain.Entities
         public Guid AlbumId { get; init; }
         public Guid? AuctionId { get; init; }
 
-        public Album? Album { get; init; }
+        public Album Album { get; init; }
         public Auction? Auction { get; init; }
-        public ICollection<FavoriteAlbumElements>? FavoriteAlbumElements { get; init; }
+        public ICollection<FavoriteAlbumElements> FavoriteAlbumElements { get; init; }
     }
 }

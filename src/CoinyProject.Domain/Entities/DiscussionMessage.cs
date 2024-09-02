@@ -8,7 +8,7 @@ namespace CoinyProject.Domain.Entities
         public Guid DiscussionId { get; init; }
         public Guid UserId { get; init; }
 
-        public User? User { get; init; }
+        public User User { get; init; }
         public Discussion Discussion { get; init; }
     }
 }

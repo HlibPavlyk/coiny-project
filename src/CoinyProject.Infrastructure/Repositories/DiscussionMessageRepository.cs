@@ -1,20 +1,10 @@
-﻿using CoinyProject.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CoinyProject.Application.Abstractions.Repositories;
+﻿using CoinyProject.Application.Abstractions.Repositories;
+using CoinyProject.Domain.Entities;
 
-namespace CoinyProject.Infrastructure.Repositories.Realization
+namespace CoinyProject.Infrastructure.Repositories
 {
-    public class DiscussionMessageRepository : BaseRepository<DiscussionMessage>, IDiscussionMessageRepository
+    public class DiscussionMessageRepository : GenericRepository<DiscussionMessage>, IDiscussionMessageRepository
     {
-        private readonly ApplicationDbContext _dBContext;
-
-        public DiscussionMessageRepository(ApplicationDbContext dBContext) : base(dBContext)
-        {
-            _dBContext = dBContext;
-        }
+        public DiscussionMessageRepository(ApplicationDbContext context) : base(context) {}
     }
 }

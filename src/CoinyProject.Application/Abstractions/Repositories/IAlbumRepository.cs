@@ -2,12 +2,11 @@
 
 namespace CoinyProject.Application.Abstractions.Repositories
 {
-    public interface IAlbumRepository : IBaseRepository<Album>
+    public interface IAlbumRepository : IGenericRepository<Album>
     {
-        Task<IEnumerable<Album>?> GetAllAlbumsWithElements(string? userId);
+        Task<IEnumerable<Album>?> GetAllAlbumsWithElementsByUserId(Guid id);
         Task<IEnumerable<Album>?> GetAllAlbumsWithElementsAndFavoritesForView();
-        Task<Album?> GetAlbumWithElementsById(int? id);
-        Task<Album?> GetAlbumWithAuthorCheck(int? id, string? currentUserId);
-        Task<Album?> GetAlbumById(int? id);
+        Task<Album?> GetAlbumWithElementsById(Guid id);
+        Task<Album?> GetAlbumWithAuthorCheck(Guid id, Guid currentUserId);
     }
 }

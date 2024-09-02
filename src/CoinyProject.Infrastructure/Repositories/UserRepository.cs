@@ -1,23 +1,17 @@
 ﻿using CoinyProject.Application.Abstractions.Repositories;
 using CoinyProject.Domain.Entities;
-using CoinyProject.Infrastructure.Repositories.Realization;
 using Microsoft.EntityFrameworkCore;
 
 namespace CoinyProject.Infrastructure.Repositories
 {
-    public class UserRepository : BaseRepository<User>, IUserRepository
+    public class UserRepository : GenericRepository<User>, IUserRepository
     {
-        private readonly ApplicationDbContext _dBContext;
+        public UserRepository(ApplicationDbContext context) : base(context) {}
 
-        public UserRepository(ApplicationDbContext dBContext) : base(dBContext)
+        public async Task<User?> GetUserWithFavoriteAlbumElementsById(Guid id)
         {
-            _dBContext = dBContext;
-        }
-
-        public async Task<User?> GetUserWithFavoriteAlbumsById(string? id)
-        {
-            return await _dBContext.Users
-                .Include(u => u.FavoriteAlbums)
+            return await _context.Users
+                .Include(u => u.FavoriteAlbumElements)
                 .Where(u => u.Id == id)
                 .FirstOrDefaultAsync();
         }

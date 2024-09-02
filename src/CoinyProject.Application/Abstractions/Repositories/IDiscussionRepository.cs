@@ -2,9 +2,9 @@
 
 namespace CoinyProject.Application.Abstractions.Repositories
 {
-    public interface IDiscussionRepository : IBaseRepository<Discussion>
+    public interface IDiscussionRepository : IGenericRepository<Discussion>
     {
-        Task<IEnumerable<Discussion>> GetAllDiscussionsWithUserAndTopic();
-        Task<Discussion> GetDiscussionWithUserAndTopicAndMessagesById(int? discussionId);
+        Task<IEnumerable<Discussion>> GetAllDiscussionsWithUser();
+        Task<Discussion?> GetDiscussionWithUserAndMessagesById(Guid id);
     }
 }

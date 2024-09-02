@@ -1,40 +1,28 @@
-﻿using CoinyProject.Domain.Entities;
+﻿using CoinyProject.Application.Abstractions.Repositories;
+using CoinyProject.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CoinyProject.Application.Abstractions.Repositories;
 
-namespace CoinyProject.Infrastructure.Repositories.Realization
+namespace CoinyProject.Infrastructure.Repositories
 {
-    public class DiscussionRepository : BaseRepository<Discussion>, IDiscussionRepository
+    public class DiscussionRepository : GenericRepository<Discussion>, IDiscussionRepository
     {
-        private readonly ApplicationDbContext _dBContext;
+        public DiscussionRepository(ApplicationDbContext context) : base(context) {}
 
-        public DiscussionRepository(ApplicationDbContext dBContext) : base(dBContext)
+        public async Task<IEnumerable<Discussion>> GetAllDiscussionsWithUser()
         {
-            _dBContext = dBContext;
-        }
-
-        public async Task<IEnumerable<Discussion>> GetAllDiscussionsWithUserAndTopic()
-        {
-            return await _dBContext.Discussions
+            return await _context.Discussions
                 .Include(x => x.User)
-                .Include(x => x.DiscussionTopic)
                 .AsNoTracking()
                 .ToListAsync();
         }
 
-        public async Task<Discussion> GetDiscussionWithUserAndTopicAndMessagesById(int? discussionId)
+        public async Task<Discussion?> GetDiscussionWithUserAndMessagesById(Guid id)
         {
-            return await _dBContext.Discussions
+            return await _context.Discussions
                .Include(x => x.User)
-               .Include(x => x.DiscussionTopic)
                .Include(x => x.Messages)
-               .ThenInclude(x => x.User)
-               .Where(x => x.Id == discussionId)
+                    .ThenInclude(x => x.User)
+               .Where(x => x.Id == id)
                .AsNoTracking()
                .FirstOrDefaultAsync();
         }

@@ -10,7 +10,7 @@ namespace CoinyProject.Domain.Entities
         public DiscussionTopic Topic { get; init; }
         public DiscussionStatus Status { get; init; }
         
-        public User? User { get; init; }
-        public ICollection<DiscussionMessage>? Messages { get; init; }
+        public User User { get; set; }
+        public ICollection<DiscussionMessage> Messages { get; set; }
     }
 }

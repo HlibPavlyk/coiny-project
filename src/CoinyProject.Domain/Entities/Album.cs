@@ -11,7 +11,7 @@ namespace CoinyProject.Domain.Entities
         public int Rate { get; set; }
         public Guid UserId { get; init; }
 
-        public User? User { get; init; }
-        public ICollection<AlbumElement>? Elements { get; init; }
+        public User User { get; init; }
+        public ICollection<AlbumElement> Elements { get; init; }
     }
 }

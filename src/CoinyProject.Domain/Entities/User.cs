@@ -2,7 +2,7 @@
 
 namespace CoinyProject.Domain.Entities
 {
-    public class User : IdentityUser
+    public class User : IdentityUser<Guid>
     {
         public User(string userName, string email) : base(userName)
         {
@@ -11,10 +11,10 @@ namespace CoinyProject.Domain.Entities
 
         public int DiscussionRate { get; init; }
 
-        public ICollection<Album>? Albums { get; init; }
-        public ICollection<AuctionBet>? AuctionBets { get; init; }
-        public ICollection<FavoriteAlbumElements>? FavoriteAlbumElements { get; init; }
-        public ICollection<Discussion>? Discussions { get; init; }
-        public ICollection<DiscussionMessage>? DiscussionMessages { get; init; }
+        public ICollection<Album> Albums { get; init; }
+        public ICollection<AuctionBet> AuctionBets { get; init; }
+        public ICollection<FavoriteAlbumElements> FavoriteAlbumElements { get; init; }
+        public ICollection<Discussion> Discussions { get; init; }
+        public ICollection<DiscussionMessage> DiscussionMessages { get; init; }
     }
 }
