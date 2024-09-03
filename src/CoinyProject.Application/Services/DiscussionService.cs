@@ -1,19 +1,10 @@
 ﻿using AutoMapper;
-using CoinyProject.Application.AlbumServices.Interfaces;
-using CoinyProject.Application.DTO.Album;
-using CoinyProject.Application.DTO.Discussion;
-using CoinyProject.Core.Domain.Entities;
-using CoinyProject.Infrastructure;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Data.Entity;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using CoinyProject.Application.Abstractions.Repositories;
+using CoinyProject.Application.AlbumServices.Interfaces;
+using CoinyProject.Application.DTO.Discussion;
+using CoinyProject.Domain.Entities;
 
-namespace CoinyProject.Application.AlbumServices.Services
+namespace CoinyProject.Application.Services
 {
     public class DiscussionService :IDiscussionService
     {
@@ -29,7 +20,7 @@ namespace CoinyProject.Application.AlbumServices.Services
         public async Task AddDiscussion(DiscussionCreateDTO? discussion, string? userId)
         {
             if(discussion == null || userId == null)
-                throw new ArgumentNullException("discussion or userId is null");
+                throw new ArgumentNullException(nameof(discussion), "discussion or userId is null");
 
             var _discussion = _mapper.Map<Discussion>(discussion);
             _discussion.UserId = userId;

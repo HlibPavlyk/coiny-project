@@ -1,34 +1,23 @@
 ﻿using System.Security.Authentication;
 using CoinyProject.Application.Abstractions.Services;
 using CoinyProject.Application.DTO.Auth;
-using CoinyProject.Core.Domain.Entities;
-using CoinyProject.Infrastructure.Data.Repositories.Interfaces;
+using CoinyProject.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
-using OutOfOfficeApp.Application;
 using OutOfOfficeApp.Application.Services.Interfaces;
 
-namespace CoinyProject.Application.AlbumServices.Services;
+namespace CoinyProject.Application.Services;
 
-public class AuthService(UserManager<User> userManager, ITokenService tokenService, IUnitOfWork unitOfWork) : IAuthService
+public class AuthService(UserManager<User> userManager, ITokenService tokenService) : IAuthService
 {
-    private const string defaultPassword = "password";
-    private const string defaultEmailDomain = "@example.com";
-
-    public async Task CreateUserByEmployee(RegisterDto registerDto)
+    public async Task RegisterUserAsync(RegisterDto registerDto)
     {
-        var email = registerDto.FullName.ToLower().Replace(" ", "") + defaultEmailDomain;
-        var user = new User
-        {
-            UserName = email,
-            Email = email,
-            EmployeeId = registerDto.EmployeeId
-        };
+        var user = new User(registerDto.Username.ToLower(), registerDto.Email.ToLower());
 
-        var result = await userManager.CreateAsync(user, defaultPassword);
+        var result = await userManager.CreateAsync(user, registerDto.Password);
 
         if (result.Succeeded)
         {
-            result = await userManager.AddToRoleAsync(user, registerDto.Position.ToString());
+            result = await userManager.AddToRoleAsync(user, "User");
             if (result.Succeeded)
             {
                 return;
@@ -44,12 +33,6 @@ public class AuthService(UserManager<User> userManager, ITokenService tokenServi
 
         if (identityUser != null)
         {
-            var relatedEmployee = await unitOfWork.Employees.GetByIdAsync(identityUser.EmployeeId);
-            if (relatedEmployee == null || relatedEmployee.Status == ActiveStatus.Inactive)
-            {
-                throw new AuthenticationException("User is inactive");
-            }
-
             var result = await userManager.CheckPasswordAsync(identityUser, login.Password);
 
             if (result)
@@ -57,12 +40,13 @@ public class AuthService(UserManager<User> userManager, ITokenService tokenServi
                 var roles = await userManager.GetRolesAsync(identityUser);
 
 
-                if (identityUser.Email != null)
+                if (identityUser.Email != null && identityUser.UserName != null)
                 {
                     var jwtToken = tokenService.CreateToken(identityUser.Email, roles);
                 
                     return new LoginResponseDto
                     {
+                        Username = identityUser.UserName,
                         Email = login.Email,
                         Roles = roles.ToList(),
                         Token = jwtToken

@@ -1,29 +1,12 @@
 ﻿using AutoMapper;
-using CoinyProject.Application.AlbumServices.Interfaces;
-using CoinyProject.Application.DTO.Album;
-using CoinyProject.Application.DTO.Discussion;
-using CoinyProject.Core.Domain.Entities;
-using CoinyProject.Infrastructure;
-using CoinyProject.Infrastructure.Migrations;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 using CoinyProject.Application.Abstractions.Repositories;
 using CoinyProject.Application.Abstractions.Services;
 using CoinyProject.Application.Dto.Album;
-using static Azure.Core.HttpHeader;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using CoinyProject.Application.DTO.Album;
+using Microsoft.AspNetCore.Http;
+using Microsoft.IdentityModel.Tokens;
 
-namespace CoinyProject.Application.AlbumServices.Services
+namespace CoinyProject.Application.Services
 {
     public class AlbumService : IAlbumService
     {
@@ -42,6 +25,8 @@ namespace CoinyProject.Application.AlbumServices.Services
         }
         protected async Task<string> ConvertToImageUrl(IFormFile image)
         {
+            string imageFolder = Directory.GetCurrentDirectory();
+            
             string folder = imageFolder + Guid.NewGuid().ToString() + "_" + image.FileName;
 
             await image.CopyToAsync(new FileStream(Path.Combine(_webHostEnvironment.WebRootPath, folder), FileMode.Create));

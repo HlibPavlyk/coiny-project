@@ -5,7 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using OutOfOfficeApp.Application.Services.Interfaces;
 
-namespace OutOfOfficeApp.Application.Services;
+namespace CoinyProject.Application.Services;
 
 public class TokenService(IConfiguration configuration) : ITokenService
 {

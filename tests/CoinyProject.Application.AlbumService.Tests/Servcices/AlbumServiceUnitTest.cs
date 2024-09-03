@@ -1,5 +1,4 @@
 using Xunit;
-using CoinyProject.Application.AlbumServices.Services;
 using CoinyProject.Application.DTO.Album;
 using CoinyProject.Core.Domain.Entities;
 using CoinyProject.Infrastructure.Data;
@@ -25,6 +24,7 @@ using CoinyProject.Infrastructure.Data.Repositories.Interfaces;
 using CoinyProject.Infrastructure.Data.Repositories.Realization;
 using System.Xml.Linq;
 using CoinyProject.Application.Dto.Album;
+using CoinyProject.Application.Services;
 using CoinyProject.Infrastructure.Data.Migrations;
 
 namespace CoinyProject.UnitTests.Servcices

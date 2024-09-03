@@ -31,17 +31,14 @@ namespace CoinyProject.Application.AutoMapper
 
             CreateMap<DiscussionCreateDTO, Discussion>(); 
 
-            CreateMap<DiscussionTopic, DiscussionTopicDTO>();
 
             CreateMap<DiscussionMessageCreateDTO, DiscussionMessage>();
 
             CreateMap<Discussion, DiscussionGetForViewDTO>()
-                .ForCtorParam(nameof(DiscussionGetForViewDTO.Topic), opt => opt.MapFrom(src => src.DiscussionTopic.Name))
                 .ForCtorParam(nameof(DiscussionGetForViewDTO.Username), opt => opt.MapFrom(src => src.User.UserName));
 
             CreateMap<Discussion, DiscussionGetByIdDTO>()
-                .ForCtorParam(nameof(DiscussionGetByIdDTO.Username), opt => opt.MapFrom(src => src.User.UserName))
-                .ForCtorParam(nameof(DiscussionGetByIdDTO.Topic), opt => opt.MapFrom(src => src.DiscussionTopic.Name));
+                .ForCtorParam(nameof(DiscussionGetByIdDTO.Username), opt => opt.MapFrom(src => src.User.UserName));
 
             CreateMap<DiscussionMessage, DiscussionMessageGetForViewDTO>()
                 .ForCtorParam(nameof(DiscussionMessageGetForViewDTO.Username), opt => opt.MapFrom(src => src.User.UserName));
