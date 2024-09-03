@@ -69,7 +69,7 @@ namespace CoinyProject.Application.AlbumServices.Services
             if(element == null)
                 throw new ArgumentNullException("Element is null");
 
-            var album = await _unitOfWork.Albums.GetAlbumWithElementsById(element.AlbumId);
+            var album = await _unitOfWork.Albums.GetAlbumWithElementsByIdAsync(element.AlbumId);
                 
             if (album != null)
             {
@@ -123,7 +123,7 @@ namespace CoinyProject.Application.AlbumServices.Services
             if(id == null)
                 throw new ArgumentNullException("id is null");
 
-            var album = await _unitOfWork.Albums.GetAlbumWithElementsById(id);
+            var album = await _unitOfWork.Albums.GetAlbumWithElementsByIdAsync(id);
 
             if (album == null)
                 throw new ArgumentNullException("album is null");
@@ -136,7 +136,7 @@ namespace CoinyProject.Application.AlbumServices.Services
             if (id == null || currentUserId == null)
                 throw new ArgumentNullException("id or currentUserId is null");
 
-            var album = await _unitOfWork.Albums.GetAlbumWithAuthorCheck(id, currentUserId);
+            var album = await _unitOfWork.Albums.GetAlbumWithAuthorCheckAsync(id, currentUserId);
 
             if (album == null)
                 throw new ArgumentNullException("album is null");
@@ -163,7 +163,7 @@ namespace CoinyProject.Application.AlbumServices.Services
             if (id == null || currentUserId == null)
                 throw new ArgumentNullException("id or currentUserId is null");
 
-            var album = await _unitOfWork.Albums.GetAlbumWithAuthorCheck(id, currentUserId);
+            var album = await _unitOfWork.Albums.GetAlbumWithAuthorCheckAsync(id, currentUserId);
 
             if (album == null)
                 throw new ArgumentNullException("album is null");
@@ -241,7 +241,7 @@ namespace CoinyProject.Application.AlbumServices.Services
                 }
                 else
                 {
-                    _unitOfWork.FavoriteAlbums.Delete(user.FavoriteAlbums.FirstOrDefault(a => a.AlbumId == albumId));
+                    _unitOfWork.FavoriteAlbumsElement.Delete(user.FavoriteAlbums.FirstOrDefault(a => a.AlbumId == albumId));
                     album.Rate--;
                 }
 

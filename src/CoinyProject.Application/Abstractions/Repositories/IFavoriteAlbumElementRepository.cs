@@ -2,7 +2,7 @@
 
 namespace CoinyProject.Application.Abstractions.Repositories
 {
-    public interface IFavoriteAlbumRepository : IGenericRepository<FavoriteAlbumElements>
+    public interface IFavoriteAlbumElementRepository : IGenericRepository<FavoriteAlbumElements>
     {
         
     }

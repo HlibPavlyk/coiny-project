@@ -219,7 +219,7 @@ namespace CoinyProject.Infrastructure.Migrations
                     b.ToTable("DiscussionTopics");
                 });
 
-            modelBuilder.Entity("CoinyProject.Domain.Entities.FavoriteAlbums", b =>
+            modelBuilder.Entity("CoinyProject.Domain.Entities.FavoriteAlbumsElement", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -240,7 +240,7 @@ namespace CoinyProject.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("FavoriteAlbums");
+                    b.ToTable("FavoriteAlbumsElement");
                 });
 
             modelBuilder.Entity("CoinyProject.Domain.Entities.User", b =>
@@ -543,16 +543,16 @@ namespace CoinyProject.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("CoinyProject.Domain.Entities.FavoriteAlbums", b =>
+            modelBuilder.Entity("CoinyProject.Domain.Entities.FavoriteAlbumsElement", b =>
                 {
                     b.HasOne("CoinyProject.Domain.Entities.Album", "Album")
-                        .WithMany("FavoriteAlbums")
+                        .WithMany("FavoriteAlbumsElement")
                         .HasForeignKey("AlbumId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("CoinyProject.Domain.Entities.User", "User")
-                        .WithMany("FavoriteAlbums")
+                        .WithMany("FavoriteAlbumsElement")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
@@ -617,7 +617,7 @@ namespace CoinyProject.Infrastructure.Migrations
                 {
                     b.Navigation("Elements");
 
-                    b.Navigation("FavoriteAlbums");
+                    b.Navigation("FavoriteAlbumsElement");
                 });
 
             modelBuilder.Entity("CoinyProject.Domain.Entities.AlbumElement", b =>
@@ -648,7 +648,7 @@ namespace CoinyProject.Infrastructure.Migrations
 
                     b.Navigation("Discussions");
 
-                    b.Navigation("FavoriteAlbums");
+                    b.Navigation("FavoriteAlbumsElement");
                 });
 #pragma warning restore 612, 618
         }

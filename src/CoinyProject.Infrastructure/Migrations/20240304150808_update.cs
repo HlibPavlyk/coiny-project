@@ -158,7 +158,7 @@ namespace CoinyProject.Infrastructure.Migrations
                 column: "Id");
 
             migrationBuilder.CreateTable(
-                name: "FavoriteAlbums",
+                name: "FavoriteAlbumsElement",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -212,12 +212,12 @@ namespace CoinyProject.Infrastructure.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_FavoriteAlbums_AlbumId",
-                table: "FavoriteAlbums",
+                table: "FavoriteAlbumsElement",
                 column: "AlbumId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_FavoriteAlbums_UserId",
-                table: "FavoriteAlbums",
+                table: "FavoriteAlbumsElement",
                 column: "UserId");
 
             migrationBuilder.AddForeignKey(
@@ -307,7 +307,7 @@ namespace CoinyProject.Infrastructure.Migrations
                 table: "Users");
 
             migrationBuilder.DropTable(
-                name: "FavoriteAlbums");
+                name: "FavoriteAlbumsElement");
 
             migrationBuilder.DropIndex(
                 name: "IX_Users_UserRoleId",

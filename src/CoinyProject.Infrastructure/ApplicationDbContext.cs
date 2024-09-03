@@ -9,13 +9,13 @@ namespace CoinyProject.Infrastructure
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
-        public DbSet<Album> Albums { get; set; }
-        public DbSet<AlbumElement> AlbumElements { get; set; }
-        public DbSet<Auction> Auctions { get; set; }
-        public DbSet<AuctionBet> AuctionBets { get; set; }
-        public DbSet<Discussion> Discussions { get; set; }
-        public DbSet<DiscussionMessage> DiscussionMessages { get; set; }
-        public DbSet<FavoriteAlbumElements> FavoriteAlbumElements { get; set; }
+        public DbSet<Album> Albums { get; init; }
+        public DbSet<AlbumElement> AlbumElements { get; init; }
+        public DbSet<Auction> Auctions { get; init; }
+        public DbSet<AuctionBet> AuctionBets { get; init; }
+        public DbSet<Discussion> Discussions { get; init; }
+        public DbSet<DiscussionMessage> DiscussionMessages { get; init; }
+        public DbSet<FavoriteAlbumElements> FavoriteAlbumElements { get; init; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

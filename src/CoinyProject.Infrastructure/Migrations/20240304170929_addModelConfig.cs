@@ -65,7 +65,7 @@ namespace CoinyProject.Infrastructure.Migrations
 
             migrationBuilder.AlterColumn<string>(
                 name: "UserId",
-                table: "FavoriteAlbums",
+                table: "FavoriteAlbumsElement",
                 type: "nvarchar(450)",
                 nullable: false,
                 defaultValue: "",
@@ -155,7 +155,7 @@ namespace CoinyProject.Infrastructure.Migrations
 
             migrationBuilder.AlterColumn<string>(
                 name: "UserId",
-                table: "FavoriteAlbums",
+                table: "FavoriteAlbumsElement",
                 type: "nvarchar(450)",
                 nullable: true,
                 oldClrType: typeof(string),

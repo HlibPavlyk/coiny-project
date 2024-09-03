@@ -4,6 +4,6 @@ namespace CoinyProject.Application.Abstractions.Repositories
 {
     public interface IUserRepository : IGenericRepository<User>
     {
-        Task<User?> GetUserWithFavoriteAlbumElementsById(Guid id);
+        Task<User?> GetUserWithFavoriteAlbumElementsByIdAsync(Guid id);
     }
 }

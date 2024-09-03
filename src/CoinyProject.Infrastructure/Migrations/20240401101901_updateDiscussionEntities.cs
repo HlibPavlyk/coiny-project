@@ -36,7 +36,7 @@ namespace CoinyProject.Infrastructure.Migrations
 
             migrationBuilder.DropForeignKey(
                 name: "FK_FavoriteAlbums_Users_UserId",
-                table: "FavoriteAlbums");
+                table: "FavoriteAlbumsElement");
 
             migrationBuilder.DropForeignKey(
                 name: "FK_Users_UserRoles_UserRoleId",
@@ -399,7 +399,7 @@ namespace CoinyProject.Infrastructure.Migrations
 
             migrationBuilder.AddForeignKey(
                 name: "FK_FavoriteAlbums_AspNetUsers_UserId",
-                table: "FavoriteAlbums",
+                table: "FavoriteAlbumsElement",
                 column: "UserId",
                 principalTable: "AspNetUsers",
                 principalColumn: "Id");
@@ -430,7 +430,7 @@ namespace CoinyProject.Infrastructure.Migrations
 
             migrationBuilder.DropForeignKey(
                 name: "FK_FavoriteAlbums_AspNetUsers_UserId",
-                table: "FavoriteAlbums");
+                table: "FavoriteAlbumsElement");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
@@ -703,7 +703,7 @@ namespace CoinyProject.Infrastructure.Migrations
 
             migrationBuilder.AddForeignKey(
                 name: "FK_FavoriteAlbums_Users_UserId",
-                table: "FavoriteAlbums",
+                table: "FavoriteAlbumsElement",
                 column: "UserId",
                 principalTable: "Users",
                 principalColumn: "Id");

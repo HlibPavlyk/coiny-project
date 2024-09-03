@@ -1,44 +1,51 @@
-﻿using CoinyProject.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CoinyProject.Application.Abstractions.Repositories;
+﻿using CoinyProject.Application.Abstractions.Repositories;
 
-namespace CoinyProject.Infrastructure.Repositories.Realization
+namespace CoinyProject.Infrastructure.Repositories
 {
     public class UnitOfWork : IUnitOfWork
     {
-        private readonly ApplicationDbContext _dBContext;
-        public IAlbumRepository Albums { get; private set; }
-        public IAlbumElementRepository AlbumElements { get; private set; }
-        public IUserRepository Users { get; private set; }
-        public IFavoriteAlbumRepository FavoriteAlbums { get; private set; }
-        public IDiscussionRepository Discussions { get; private set; }
-        public IDiscussionMessageRepository DiscussionMessages { get; private set; }
-        public IDiscussionTopicRepository DiscussionTopics { get; private set; }
+        private readonly ApplicationDbContext _dbContext;
+        private bool _disposed;
 
-        public UnitOfWork(ApplicationDbContext dBContext)
+        public IAlbumRepository Albums { get; }
+        public IAlbumElementRepository AlbumElements { get; }
+        public IUserRepository Users { get; }
+        public IFavoriteAlbumElementRepository FavoriteAlbumElements { get; }
+        public IDiscussionRepository Discussions { get; }
+        public IDiscussionMessageRepository DiscussionMessages { get; }
+
+        public UnitOfWork(ApplicationDbContext dbContext)
         {
-            _dBContext = dBContext;
-            Albums = new AlbumRepository(_dBContext);
-            AlbumElements = new AlbumElementRepository(_dBContext);
-            Users = new UserRepository(_dBContext);
-            FavoriteAlbums = new FavoriteAlbumRepository(_dBContext);
-            Discussions = new DiscussionRepository(_dBContext);
-            DiscussionMessages = new DiscussionMessageRepository(_dBContext);
-            DiscussionTopics = new DiscussionTopicRepository(_dBContext);
+            _dbContext = dbContext;
+            Albums = new AlbumRepository(_dbContext);
+            AlbumElements = new AlbumElementRepository(_dbContext);
+            Users = new UserRepository(_dbContext);
+            FavoriteAlbumElements = new FavoriteAlbumElementRepository(_dbContext);
+            Discussions = new DiscussionRepository(_dbContext);
+            DiscussionMessages = new DiscussionMessageRepository(_dbContext);
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await _dbContext.SaveChangesAsync();
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    _dbContext.Dispose();
+                }
+                _disposed = true;
+            }
         }
 
         public void Dispose()
         {
-            _dBContext.Dispose();
-        }
-
-        public Task SaveChangesAsync()
-        {
-            return _dBContext.SaveChangesAsync();
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }

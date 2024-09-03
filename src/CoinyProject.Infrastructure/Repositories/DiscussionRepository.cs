@@ -1,4 +1,5 @@
 ﻿using CoinyProject.Application.Abstractions.Repositories;
+using CoinyProject.Application.Dto.Other;
 using CoinyProject.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,25 +9,21 @@ namespace CoinyProject.Infrastructure.Repositories
     {
         public DiscussionRepository(ApplicationDbContext context) : base(context) {}
 
-        public async Task<IEnumerable<Discussion>> GetAllDiscussionsWithUser()
+        public async Task<PagedResponse<Discussion>> GetPagedDiscussionsWithUserAsync(int page, int size)
         {
-            return await _context.Discussions
-                .Include(x => x.User)
+            var query = Context.Discussions
                 .AsNoTracking()
-                .ToListAsync();
+                .Include(d => d.User);
+            
+            return await GetPagedEntitiesAsync(query, page, size);
         }
 
-        public async Task<Discussion?> GetDiscussionWithUserAndMessagesById(Guid id)
+        public async Task<Discussion?> GetDiscussionWithUserAndMessagesByIdAsync(Guid id)
         {
-            return await _context.Discussions
-               .Include(x => x.User)
-               .Include(x => x.Messages)
-                    .ThenInclude(x => x.User)
-               .Where(x => x.Id == id)
-               .AsNoTracking()
-               .FirstOrDefaultAsync();
+            return await Context.Discussions
+                .AsNoTracking()
+                .Include(d => d.User)
+                .SingleOrDefaultAsync(d => d.Id == id);
         }
-
-
     }
 }

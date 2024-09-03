@@ -1,6 +1,7 @@
 ﻿using CoinyProject.Application.Abstractions.Repositories;
+using CoinyProject.Application.Dto.Other;
 using CoinyProject.Domain.Entities;
-using CoinyProject.Infrastructure.Repositories.Realization;
+using CoinyProject.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace CoinyProject.Infrastructure.Repositories
@@ -9,43 +10,34 @@ namespace CoinyProject.Infrastructure.Repositories
     {
         public AlbumRepository(ApplicationDbContext context) : base(context) {}
 
-
-        public async Task<Album?> GetAlbumWithElementsById(Guid id)
+        public async Task<Album?> GetAlbumWithElementsByIdAsync(Guid id)
         {
-            return await _context.Albums
-                .Include(x => x.Elements)
-                .Where(x => x.Id == id)
-                .FirstOrDefaultAsync();
-        }
-
-        public async Task<Album?> GetAlbumWithAuthorCheck(Guid id, Guid currentUserId)
-        {
-            return await _context.Albums
-                .Where(x => x.Id == id)
-                .Where(x => x.UserId == currentUserId)
-                .AsNoTracking()
-                .FirstOrDefaultAsync();
-
-        }
-
-        public async Task<IEnumerable<Album>?> GetAllAlbumsWithElementsByUserId(Guid id)
-        {
-            return await _context.Albums
+            return await Context.Albums
                 .Include(x => x.Elements)
                 .AsNoTracking()
+                .SingleOrDefaultAsync(x => x.Id == id);
+        }
+
+        public async Task<PagedResponse<Album>> GetPagedAlbumsWithElementsByUserIdAsync(Guid id, int page, int size)
+        {
+            var query = Context.Albums
+                .Include(x => x.Elements)
                 .Where(x => x.UserId == id)
-                .ToListAsync();
+                .AsNoTracking();
+
+            return await GetPagedEntitiesAsync(query, page, size);
         }
 
-        public async Task<IEnumerable<Album>?> GetAllAlbumsWithElementsAndFavoritesForView()
+        public async Task<PagedResponse<Album>> GetPagedAlbumsWithElementsAndFavoritesForViewAsync(int page, int size)
         {
-            return await _context.Albums
+            var query = Context.Albums
                 .Include(x => x.Elements)
-                    .ThenInclude(x => x.FavoriteAlbumElements)
-                .Where(x => x.Elements.Count > 0)
+                .ThenInclude(e => e.FavoriteAlbumElements)
+                .Where(x => x.Status == AlbumStatus.Active)
                 .OrderByDescending(x => x.Rate)
-                .AsNoTracking()
-                .ToListAsync();
+                .AsNoTracking();
+
+            return await GetPagedEntitiesAsync(query, page, size);
         }
     }
 }
