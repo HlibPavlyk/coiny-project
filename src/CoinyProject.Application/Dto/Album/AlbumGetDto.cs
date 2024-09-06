@@ -6,8 +6,5 @@ using System.Threading.Tasks;
 
 namespace CoinyProject.Application.DTO.Album
 {
-    public record AlbumGetDTO(int Id, string Name, string? Description, int Rate, string? TitleImageURL)
-    {
-  
-    }
+    public record AlbumGetDto(Guid Id, string Name, string? Description, int Rate);
 }

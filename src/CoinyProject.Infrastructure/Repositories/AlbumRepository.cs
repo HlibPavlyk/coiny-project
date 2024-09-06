@@ -10,13 +10,13 @@ namespace CoinyProject.Infrastructure.Repositories
     {
         public AlbumRepository(ApplicationDbContext context) : base(context) {}
 
-        public async Task<Album?> GetAlbumWithElementsByIdAsync(Guid id)
+        /*public async Task<Album?> GetAlbumWithElementsByIdAsync(Guid id)
         {
             return await Context.Albums
                 .Include(x => x.Elements)
                 .AsNoTracking()
-                .SingleOrDefaultAsync(x => x.Id == id);
-        }
+                .SingleOrDefaultAsync(x => x.Id == id)
+        }*/
 
         public async Task<PagedResponse<Album>> GetPagedAlbumsWithElementsByUserIdAsync(Guid id, int page, int size)
         {

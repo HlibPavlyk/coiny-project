@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using CoinyProject.Application.Abstractions.Repositories;
-using CoinyProject.Application.AlbumServices.Interfaces;
+using CoinyProject.Application.Abstractions.Services;
 using CoinyProject.Application.DTO.Discussion;
 using CoinyProject.Domain.Entities;
 
@@ -17,7 +17,7 @@ namespace CoinyProject.Application.Services
             _mapper = mapper;
         }
 
-        public async Task AddDiscussion(DiscussionCreateDTO? discussion, string? userId)
+        /*public async Task AddDiscussion(DiscussionCreateDTO? discussion, string? userId)
         {
             if(discussion == null || userId == null)
                 throw new ArgumentNullException(nameof(discussion), "discussion or userId is null");
@@ -75,7 +75,31 @@ namespace CoinyProject.Application.Services
                 throw new ArgumentNullException("discussion is null");
             
             return _mapper.Map<DiscussionGetByIdDTO>(_discussion);
+        }*/
+
+        public Task AddDiscussion(DiscussionCreateDTO? discussion, string? userId)
+        {
+            throw new NotImplementedException();
         }
 
+        public Task<IEnumerable<DiscussionTopicDTO>> GetAvailableTopics()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<DiscussionGetForViewDTO>> GetAllDiscussionsForView()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task AddDiscussionMessage(DiscussionMessageCreateDTO? message)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<DiscussionGetByIdDTO> GetDiscussionById(int? discussionId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

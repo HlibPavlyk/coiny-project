@@ -21,15 +21,17 @@ namespace CoinyProject.Infrastructure.EntityTypeConfiguration
             builder.Property(x => x.Rate)
                 .IsRequired()
                 .HasDefaultValue(0);
-
-            builder.Property(x => x.ImageURL)
-                .IsRequired();
             
             builder.HasOne(x => x.Album)
                 .WithMany(x => x.Elements)
                 .HasForeignKey(x => x.AlbumId)
                 .OnDelete(DeleteBehavior.NoAction);
-
+            
+            builder.HasMany(x => x.FavoriteAlbumElements)
+                .WithOne(x => x.AlbumElement)
+                .HasForeignKey(x => x.AlbumElementId)
+                .OnDelete(DeleteBehavior.NoAction);
         }
     }
+    
 }

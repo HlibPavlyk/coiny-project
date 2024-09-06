@@ -1,6 +1,5 @@
 ﻿using CoinyProject.Domain.Entities;
 using CoinyProject.Domain.Enums;
-using CoinyProject.Infrastructure.Migrations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

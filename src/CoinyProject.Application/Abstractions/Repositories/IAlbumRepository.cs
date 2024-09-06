@@ -7,6 +7,6 @@ namespace CoinyProject.Application.Abstractions.Repositories
     {
         Task<PagedResponse<Album>> GetPagedAlbumsWithElementsByUserIdAsync(Guid id, int page, int size);
         Task<PagedResponse<Album>> GetPagedAlbumsWithElementsAndFavoritesForViewAsync(int page, int size);
-        Task<Album?> GetAlbumWithElementsByIdAsync(Guid id);
+        //Task<Album?> GetAlbumWithElementsByIdAsync(Guid id);
     }
 }

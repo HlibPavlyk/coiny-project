@@ -1,5 +1,7 @@
 ﻿using CoinyProject.Application.Abstractions.Repositories;
+using CoinyProject.Application.Dto.Other;
 using CoinyProject.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace CoinyProject.Infrastructure.Repositories
 {
@@ -7,5 +9,13 @@ namespace CoinyProject.Infrastructure.Repositories
     {
         public AlbumElementRepository(ApplicationDbContext context) : base(context) {}
 
+        public Task<PagedResponse<AlbumElement>> GetPagedAlbumElementsByAlbumIdAsync(Guid id, int page, int size)
+        {
+            var query = Context.AlbumElements
+                .Where(x => x.AlbumId == id)
+                .AsNoTracking();
+
+            return GetPagedEntitiesAsync(query, page, size);
+        }
     }
 }

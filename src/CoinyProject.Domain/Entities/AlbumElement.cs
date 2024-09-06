@@ -7,10 +7,10 @@ namespace CoinyProject.Domain.Entities
         public string Name { get; set; }
         public string? Description { get; set; }
         public int  Rate { get; init; }
-        public string ImageURL { get; set; }
+        public string ImageUrl { get; set; }
         public Guid AlbumId { get; init; }
         public Guid? AuctionId { get; init; }
-
+        
         public Album Album { get; init; }
         public Auction? Auction { get; init; }
         public ICollection<FavoriteAlbumElements> FavoriteAlbumElements { get; init; }

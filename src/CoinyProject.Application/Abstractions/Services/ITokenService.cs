@@ -1,6 +1,6 @@
-﻿namespace OutOfOfficeApp.Application.Services.Interfaces;
+﻿namespace CoinyProject.Application.Abstractions.Services;
 
 public interface ITokenService
 {
-    string CreateToken(string email, IEnumerable<string> roles);
+    string CreateToken(Guid id, string username, string email, IEnumerable<string> roles);
 }

@@ -1,4 +1,5 @@
-﻿using CoinyProject.Application.Abstractions.Repositories;
+﻿using System.Linq.Expressions;
+using CoinyProject.Application.Abstractions.Repositories;
 using CoinyProject.Application.Dto.Other;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,10 +14,16 @@ namespace CoinyProject.Infrastructure.Repositories
             Context = context;
         }
 
-        public async Task<TEntity?> GetByIdAsync(int id)
+        public async Task<TEntity?> GetByIdAsync(Guid id)
         {
             return await Context.Set<TEntity>()
                 .FindAsync(id);
+        }
+
+        public Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate)
+        {
+            return Context.Set<TEntity>()
+                .AnyAsync(predicate);
         }
 
         public async Task<IEnumerable<TEntity>?> GetAllAsync()

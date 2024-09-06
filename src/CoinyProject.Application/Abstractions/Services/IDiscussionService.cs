@@ -1,12 +1,6 @@
-﻿using CoinyProject.Application.DTO.Album;
-using CoinyProject.Application.DTO.Discussion;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CoinyProject.Application.DTO.Discussion;
 
-namespace CoinyProject.Application.AlbumServices.Interfaces
+namespace CoinyProject.Application.Abstractions.Services
 {
     public interface IDiscussionService
     {

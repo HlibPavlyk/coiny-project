@@ -1,7 +1,8 @@
 ﻿using AutoMapper;
+using CoinyProject.Application.AutoMapper.Resolvers;
 using CoinyProject.Application.Dto.Album;
 using CoinyProject.Application.DTO.Album;
-using CoinyProject.Application.DTO.Discussion;
+using CoinyProject.Application.Dto.Other;
 using CoinyProject.Domain.Entities;
 
 namespace CoinyProject.Application.AutoMapper
@@ -10,26 +11,41 @@ namespace CoinyProject.Application.AutoMapper
     {
         public AutoMapperProfile()
         {
-            CreateMap<AlbumCreating, Album>();
+            CreateMap(typeof(PagedResponse<>), typeof(PagedResponse<>));
+            
+            CreateMap<AlbumPostDto, Album>();
+            CreateMap<AlbumElementPostDto, AlbumElement>()
+                .ForMember(dest => dest.ImageUrl, opt => opt.Ignore());
 
-            CreateMap<Album, AlbumGetForViewDTO>()
+            CreateMap<Album, AlbumWithElementsGetDto>();
+            CreateMap<AlbumElement, AlbumElementGetDto>()
+                .ForMember(dest => dest.ImageUrl, src => src.MapFrom<ImageUrlResolver>());
+
+            
+
+            /*CreateMap<Album, AlbumGetForViewDTO>()
                 .ForMember(x => x.TitleImageURL,  opt =>
                     opt.MapFrom(src => src.Elements.FirstOrDefault().ImageURL));
 
-            CreateMap<Album, AlbumGetDTO>()
+            CreateMap<Album, AlbumGetDto>()
                 .ForCtorParam(nameof(AlbumGetForViewDTO.TitleImageURL), opt => 
-                    opt.MapFrom(src => src.Elements.FirstOrDefault().ImageURL));
+                    opt.MapFrom(src => src.Elements.FirstOrDefault().ImageURL));*/
             
-            CreateMap<Album, AlbumGetByIdDTO>();
-            CreateMap<AlbumElement, AlbumElementGetDto>();
             
-            CreateMap<Album, AlbumEditDTO>();
+            /*
+            CreateMap<AlbumElement, AlbumElementGetDto>()
+                .ForMember(dest => dest.ImageUrl, opt => 
+                    opt.MapFrom<AlbumElement>((src, dest, destMember, context) => 
+                        context.Options.ServiceProvider.GetService<IFileService>().TransformName(src.Name)));*/
+
+           // CreateMap(typeof(PagedResponse<>), typeof(PagedResponse<>));
+            /*CreateMap<Album, AlbumEditDTO>();
             CreateMap<AlbumEditDTO, Album>();
 
             CreateMap<AlbumElement, AlbumElementEditDto>();
             CreateMap<AlbumElementEditDto, AlbumElement>();
 
-            CreateMap<DiscussionCreateDTO, Discussion>(); 
+            CreateMap<DiscussionCreateDTO, Discussion>();
 
 
             CreateMap<DiscussionMessageCreateDTO, DiscussionMessage>();
@@ -41,7 +57,7 @@ namespace CoinyProject.Application.AutoMapper
                 .ForCtorParam(nameof(DiscussionGetByIdDTO.Username), opt => opt.MapFrom(src => src.User.UserName));
 
             CreateMap<DiscussionMessage, DiscussionMessageGetForViewDTO>()
-                .ForCtorParam(nameof(DiscussionMessageGetForViewDTO.Username), opt => opt.MapFrom(src => src.User.UserName));
+                .ForCtorParam(nameof(DiscussionMessageGetForViewDTO.Username), opt => opt.MapFrom(src => src.User.UserName));*/
         }
     }
 }

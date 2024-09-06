@@ -1,3 +1,11 @@
+using CoinyProject.Application.Abstractions.DataServices;
+using CoinyProject.Application.Abstractions.Repositories;
+using CoinyProject.Application.Abstractions.Services;
+using CoinyProject.Application.AutoMapper;
+using CoinyProject.Application.AutoMapper.Resolvers;
+using CoinyProject.Application.Services;
+using CoinyProject.Infrastructure.DataService;
+using CoinyProject.Infrastructure.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -8,17 +16,20 @@ public static class DependencyContainerExtension
     public static void AddDependencies(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddDbEfConnection(configuration);
-        
-        /*builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-        builder.Services.AddScoped<IEmployeeService, EmployeeService>();
-        builder.Services.AddScoped<ILeaveRequestService, LeaveRequestService>();
-        builder.Services.AddScoped<IApprovalRequestService, ApprovalRequestService>();
-        builder.Services.AddScoped<IProjectService, ProjectService>();
-        builder.Services.AddScoped<IAuthService, AuthService>();
-        builder.Services.AddScoped<ITokenService, TokenService>();
+        services.AddHttpContextAccessor();
 
-        builder.Services.AddIdentityUser();
-        builder.Services.ConfigurateIdentityOptions();
-        services.AddJwtAuthentication(configuration.Configuration);*/
+        services.AddScoped<IFileService, FileService>();
+        services.AddTransient<ImageUrlResolver>();
+        services.AddAutoMapperService();
+
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<IAlbumService, AlbumService>();
+        services.AddScoped<IAlbumElementService, AlbumElementService>();
+        services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<ITokenService, TokenService>();
+
+        services.AddIdentityUser();
+        services.ConfigurateIdentityOptions();
+        services.AddJwtAuthentication(configuration);
     }
 }

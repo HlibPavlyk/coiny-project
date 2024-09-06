@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.8" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.2" />
@@ -24,12 +25,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CoinyProject.Application\CoinyProject.Application.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="Migrations\20240401101901_updateDiscussionEntities.Designer.cs">
-      <DependentUpon>20240304170929_addModelConfig.cs</DependentUpon>
-    </Compile>
   </ItemGroup>
 
 </Project>

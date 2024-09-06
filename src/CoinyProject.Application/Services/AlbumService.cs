@@ -1,29 +1,62 @@
-﻿using AutoMapper;
+﻿using System.Security.Claims;
+using AutoMapper;
 using CoinyProject.Application.Abstractions.Repositories;
 using CoinyProject.Application.Abstractions.Services;
 using CoinyProject.Application.Dto.Album;
 using CoinyProject.Application.DTO.Album;
-using Microsoft.AspNetCore.Http;
+using CoinyProject.Domain.Entities;
+using CoinyProject.Domain.Exceptions;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+
 
 namespace CoinyProject.Application.Services
 {
     public class AlbumService : IAlbumService
     {
-        private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IMapper _mapper;
-
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IHostingEnvironment _hostingEnvironment;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        private readonly string imageFolder = "albums/elements/";
+       // private readonly string imageFolder = "albums/elements/";
 
-        public AlbumService(IWebHostEnvironment webHostEnvironment, IMapper mapper, IUnitOfWork unitOfWork)
+       public AlbumService(IMapper mapper, IUnitOfWork unitOfWork, IHostingEnvironment hostingEnvironment,
+           IHttpContextAccessor httpContextAccessor)
+       {
+           _mapper = mapper;
+           _unitOfWork = unitOfWork;
+           _hostingEnvironment = hostingEnvironment;
+           _httpContextAccessor = httpContextAccessor;
+       }
+        
+        /*protected async Task<int> SaveImageAsync(IFormFile photo, int userId)
         {
-            _webHostEnvironment = webHostEnvironment;
-            _mapper = mapper;
-            _unitOfWork = unitOfWork;
-        }
-        protected async Task<string> ConvertToImageUrl(IFormFile image)
+            using (var memoryStream = new MemoryStream())
+            {
+                await photo.CopyToAsync(memoryStream);
+
+                var imageEntity = new ImageEntity
+                {
+                    FileName = photo.FileName,
+                    ContentType = photo.ContentType,
+                    Data = memoryStream.ToArray(),
+                    UserId = userId
+                };
+
+                using (var context = new ApplicationDbContext(/* options here #1#))
+                {
+                    context.Images.Add(imageEntity);
+                    await context.SaveChangesAsync();
+                }
+
+                return imageEntity.Id;
+            }
+        }*/
+        
+        /*protected async Task<string> ConvertToImageUrl(IFormFile image)
         {
             string imageFolder = Directory.GetCurrentDirectory();
             
@@ -32,46 +65,40 @@ namespace CoinyProject.Application.Services
             await image.CopyToAsync(new FileStream(Path.Combine(_webHostEnvironment.WebRootPath, folder), FileMode.Create));
 
             return "/" + folder;
-        }
-
-        public async Task<int> AddAlbum(AlbumCreating? album, string? userId)
+        }*/
+        public async Task<Guid> AddAlbumAsync(AlbumPostDto album)
         {
-            if (album == null || userId.IsNullOrEmpty())
-                throw new ArgumentNullException("Album or userId is null");
+            var user = _httpContextAccessor.HttpContext?.User;
+            if (user == null || !(user.Identity is { IsAuthenticated: true }))
+            {
+                throw new SecurityTokenException("User is not authenticated.");
+            }
+            
+            var entity = _mapper.Map<Album>(album);
+            if (!Guid.TryParse(user.FindFirstValue(ClaimTypes.NameIdentifier), out Guid guidUserId))
+                throw new InvalidOperationException("User ID is not a valid GUID.");
+            
+            entity.UserId = guidUserId;
 
-            var _album = _mapper.Map<Album>(album);
-            _album.UserId = userId;
-
-            await _unitOfWork.Albums.InsertAsync(_album);
+            await _unitOfWork.Albums.AddAsync(entity);
             await _unitOfWork.SaveChangesAsync();
 
-            return _album.Id;
+            return entity.Id;
         }
 
-
-        public async Task AddAlbumElement(AlbumElementCreating? element)
+        public async Task<AlbumWithElementsGetDto> GetAlbumById(Guid id)
         {
-            if(element == null)
-                throw new ArgumentNullException("Element is null");
+            var album = await _unitOfWork.Albums.GetByIdAsync(id);
 
-            var album = await _unitOfWork.Albums.GetAlbumWithElementsByIdAsync(element.AlbumId);
-                
-            if (album != null)
-            {
-                AlbumElement _albumElement = new AlbumElement()
-                {
-                    Name = element.Name,
-                    Description = element.Description,
-                    ImageURL = await ConvertToImageUrl(element.Image),
-                };
-
-                album.Elements.Add(_albumElement);
-                await _unitOfWork.SaveChangesAsync();
-            }
-           
+            if (album == null)
+                throw new NotFoundException("Album not found.");
+            
+            return _mapper.Map<AlbumWithElementsGetDto>(album);
         }
 
-        public async Task<IEnumerable<AlbumGetDTO>> GetAllAlbumsDTO(string? userId)
+
+        /*
+        public async Task<IEnumerable<AlbumGetDto>> GetAllAlbumsDTO(string? userId)
         {
             if (userId == null)
                 throw new ArgumentNullException("userId is null");
@@ -81,7 +108,7 @@ namespace CoinyProject.Application.Services
             if (albums == null)
                 throw new ArgumentNullException("albums is null");
 
-            return _mapper.Map<List<AlbumGetDTO>>(albums);
+            return _mapper.Map<List<AlbumGetDto>>(albums);
         }
 
         public async Task<IEnumerable<AlbumGetForViewDTO>> GetAllAlbumsForView(string? userId)
@@ -103,7 +130,7 @@ namespace CoinyProject.Application.Services
 
         }
 
-        public async Task<AlbumGetByIdDTO> GetAlbumById(int? id)
+        public async Task<AlbumWithElementsGetDto> GetAlbumById(int? id)
         {
             if(id == null)
                 throw new ArgumentNullException("id is null");
@@ -113,7 +140,7 @@ namespace CoinyProject.Application.Services
             if (album == null)
                 throw new ArgumentNullException("album is null");
 
-            return _mapper.Map<AlbumGetByIdDTO>(album);
+            return _mapper.Map<AlbumWithElementsGetDto>(album);
         }
 
         public async Task<AlbumEditDTO> GetAlbumForEdit(int? id, string? currentUserId)
@@ -234,6 +261,6 @@ namespace CoinyProject.Application.Services
 
             }
 
-        }
+        }*/
     }
 }

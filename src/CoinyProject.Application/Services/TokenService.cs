@@ -1,18 +1,20 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using CoinyProject.Application.Abstractions.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using OutOfOfficeApp.Application.Services.Interfaces;
 
 namespace CoinyProject.Application.Services;
 
 public class TokenService(IConfiguration configuration) : ITokenService
 {
-    public string CreateToken(string email, IEnumerable<string> roles)
+    public string CreateToken(Guid id, string username, string email, IEnumerable<string> roles)
     {
         var claims = new List<Claim>
         {
+            new Claim(ClaimTypes.NameIdentifier, id.ToString()),
+            new Claim(ClaimTypes.Name, username),
             new Claim(ClaimTypes.Email, email)
         };
         
@@ -31,4 +33,5 @@ public class TokenService(IConfiguration configuration) : ITokenService
         
         return new JwtSecurityTokenHandler().WriteToken(token); 
     }
+
 }

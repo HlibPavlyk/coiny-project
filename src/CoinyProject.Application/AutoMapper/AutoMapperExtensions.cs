@@ -6,8 +6,10 @@ namespace CoinyProject.Application.AutoMapper
     {
         public static void AddAutoMapperService(this IServiceCollection service)
         {
-            IServiceCollection serviceCollection = service.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
-
+            service.AddAutoMapper(cfg =>
+            {
+                cfg.AddProfile<AutoMapperProfile>();
+            });
         }
     }
 }

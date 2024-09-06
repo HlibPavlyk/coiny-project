@@ -9,9 +9,9 @@ namespace CoinyProject.Domain.Entities
         public string? Description { get; init; }
         public AlbumStatus Status { get; init; }
         public int Rate { get; set; }
-        public Guid UserId { get; init; }
+        public Guid UserId { get; set; }
 
         public User User { get; init; }
-        public ICollection<AlbumElement> Elements { get; init; }
+        public ICollection<AlbumElement> Elements { get; set; }
     }
 }

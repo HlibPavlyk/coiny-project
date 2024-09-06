@@ -30,7 +30,9 @@ namespace CoinyProject.Infrastructure.EntityTypeConfiguration
                 .WithOne(u => u.User).OnDelete(DeleteBehavior.Restrict);
 
             builder.HasMany(u => u.FavoriteAlbumElements)
-                .WithOne(u => u.User).OnDelete(DeleteBehavior.NoAction);
+                .WithOne(u => u.User)
+                .HasForeignKey(u => u.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }
