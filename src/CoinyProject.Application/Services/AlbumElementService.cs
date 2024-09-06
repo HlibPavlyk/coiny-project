@@ -4,6 +4,7 @@ using CoinyProject.Application.Abstractions.Repositories;
 using CoinyProject.Application.Abstractions.Services;
 using CoinyProject.Application.Dto.Album;
 using CoinyProject.Application.DTO.Album;
+using CoinyProject.Application.Dto.AlbumElement;
 using CoinyProject.Application.Dto.Other;
 using CoinyProject.Domain.Entities;
 using CoinyProject.Domain.Exceptions;
@@ -44,10 +45,31 @@ public class AlbumElementService : IAlbumElementService
 
         var elements = await _unitOfWork.AlbumElements.GetPagedAlbumElementsByAlbumIdAsync(id, page, size);
         if (elements.TotalPages == 0)
-        {
             throw new NotFoundException("No elements found for this album");
-        }
         
         return _mapper.Map<PagedResponse<AlbumElementGetDto>>(elements);
+    }
+
+    public async Task<AlbumElementGetDto> GetAlbumElementByIdAsync(Guid id)
+    {
+        var element = await _unitOfWork.AlbumElements.GetByIdAsync(id);
+        if (element == null)
+            throw new NotFoundException("Element not found");
+        
+        return _mapper.Map<AlbumElementGetDto>(element);
+    }
+
+    public async Task<Guid> UpdateAlbumElementAsync(Guid id, AlbumElementPatchDto element)
+    {
+        var oldElement = await _unitOfWork.AlbumElements.GetByIdAsync(id);
+        if (oldElement == null)
+            throw new NotFoundException("Element not found");
+        
+        _mapper.Map(element, oldElement);
+        if (element.Photo != null)
+            oldElement.ImageUrl = await _fileService.SaveImageAsync(element.Photo);
+        
+        await _unitOfWork.SaveChangesAsync();
+        return id;
     }
 }

@@ -1,15 +1,16 @@
 using AutoMapper;
 using CoinyProject.Application.Abstractions.DataServices;
 using CoinyProject.Application.DTO.Album;
+using CoinyProject.Application.Dto.AlbumElement;
 using CoinyProject.Domain.Entities;
 
 namespace CoinyProject.Application.AutoMapper.Resolvers;
 
-public class ImageUrlResolver : IValueResolver<AlbumElement, AlbumElementGetDto, string>
+public class GetImageUrlResolver : IValueResolver<AlbumElement, AlbumElementGetDto, string>
 {
     private readonly IFileService _fileService;
 
-    public ImageUrlResolver(IFileService fileService)
+    public GetImageUrlResolver(IFileService fileService)
     {
         _fileService = fileService;
     }

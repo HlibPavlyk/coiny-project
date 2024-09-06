@@ -7,9 +7,7 @@ using CoinyProject.Application.DTO.Album;
 using CoinyProject.Domain.Entities;
 using CoinyProject.Domain.Exceptions;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 
 
 namespace CoinyProject.Application.Services
@@ -18,17 +16,14 @@ namespace CoinyProject.Application.Services
     {
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IHostingEnvironment _hostingEnvironment;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
        // private readonly string imageFolder = "albums/elements/";
 
-       public AlbumService(IMapper mapper, IUnitOfWork unitOfWork, IHostingEnvironment hostingEnvironment,
-           IHttpContextAccessor httpContextAccessor)
+       public AlbumService(IMapper mapper, IUnitOfWork unitOfWork, IHttpContextAccessor httpContextAccessor)
        {
            _mapper = mapper;
            _unitOfWork = unitOfWork;
-           _hostingEnvironment = hostingEnvironment;
            _httpContextAccessor = httpContextAccessor;
        }
         
@@ -86,14 +81,27 @@ namespace CoinyProject.Application.Services
             return entity.Id;
         }
 
-        public async Task<AlbumWithElementsGetDto> GetAlbumById(Guid id)
+        public async Task<AlbumGetDto> GetAlbumById(Guid id)
         {
             var album = await _unitOfWork.Albums.GetByIdAsync(id);
 
             if (album == null)
                 throw new NotFoundException("Album not found.");
             
-            return _mapper.Map<AlbumWithElementsGetDto>(album);
+            return _mapper.Map<AlbumGetDto>(album);
+        }
+
+        public async Task<Guid> UpdateAlbumAsync(Guid id, AlbumPatchDto album)
+        {
+            var oldAlbum = await _unitOfWork.Albums.GetByIdAsync(id);
+            if (oldAlbum == null)
+                throw new NotFoundException("Album not found.");
+
+            _mapper.Map(album, oldAlbum);
+            await _unitOfWork.SaveChangesAsync();
+            
+            return id;
+
         }
 
 

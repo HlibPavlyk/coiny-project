@@ -19,7 +19,7 @@ public static class DependencyContainerExtension
         services.AddHttpContextAccessor();
 
         services.AddScoped<IFileService, FileService>();
-        services.AddTransient<ImageUrlResolver>();
+        services.AddTransient<GetImageUrlResolver>();
         services.AddAutoMapperService();
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();

@@ -6,7 +6,8 @@ namespace CoinyProject.Application.Abstractions.Services
     public interface IAlbumService
     {
         Task<Guid> AddAlbumAsync(AlbumPostDto album);
-        Task<AlbumWithElementsGetDto> GetAlbumById(Guid id);
+        Task<AlbumGetDto> GetAlbumById(Guid id);
+        Task<Guid> UpdateAlbumAsync(Guid id, AlbumPatchDto album);
         /*Task AddAlbumElement(AlbumElementPostDto? albumElement);
         Task<IEnumerable<AlbumGetDto>> GetAllAlbumsDTO(string? userId);
         Task<IEnumerable<AlbumGetForViewDTO>> GetAllAlbumsForView(string? userId);

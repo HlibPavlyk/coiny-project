@@ -2,6 +2,7 @@
 using CoinyProject.Application.AutoMapper.Resolvers;
 using CoinyProject.Application.Dto.Album;
 using CoinyProject.Application.DTO.Album;
+using CoinyProject.Application.Dto.AlbumElement;
 using CoinyProject.Application.Dto.Other;
 using CoinyProject.Domain.Entities;
 
@@ -15,11 +16,16 @@ namespace CoinyProject.Application.AutoMapper
             
             CreateMap<AlbumPostDto, Album>();
             CreateMap<AlbumElementPostDto, AlbumElement>()
-                .ForMember(dest => dest.ImageUrl, opt => opt.Ignore());
+                .ForMember(dest => dest.ImageUrl, src => src.Ignore());
 
-            CreateMap<Album, AlbumWithElementsGetDto>();
+            CreateMap<Album, AlbumGetDto>();
             CreateMap<AlbumElement, AlbumElementGetDto>()
-                .ForMember(dest => dest.ImageUrl, src => src.MapFrom<ImageUrlResolver>());
+                .ForMember(dest => dest.ImageUrl, src => src.MapFrom<GetImageUrlResolver>());
+            
+            CreateMap<AlbumPatchDto, Album>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<AlbumElementPatchDto, AlbumElement>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             
 

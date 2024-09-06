@@ -1,5 +1,5 @@
 ﻿
-namespace CoinyProject.Application.DTO.Album
+namespace CoinyProject.Application.Dto.AlbumElement
 {
     public class AlbumElementGetDto
     {

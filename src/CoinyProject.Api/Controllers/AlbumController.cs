@@ -25,7 +25,7 @@ public class AlbumController : Controller
         try
         {
             var id = await _albumService.AddAlbumAsync(album);
-            return Created($"/api/albums/{id}", id);
+            return CreatedAtAction(nameof(GetAlbumById), new { id }, await _albumService.GetAlbumById(id));
         }
         catch (ArgumentNullException e)
         {
@@ -44,6 +44,21 @@ public class AlbumController : Controller
         {
             var album = await _albumService.GetAlbumById(id);
             return Ok(album);
+        }
+        catch (NotFoundException e)
+        {
+            return NotFound(e.Message);
+        }
+    }
+    
+    [HttpPatch("{id:guid}")]
+    [Authorize]
+    public async Task<IActionResult> UpdateAlbum([FromRoute] Guid id, [FromBody] AlbumPatchDto album)
+    {
+        try
+        {
+            await _albumService.UpdateAlbumAsync(id, album);
+            return Ok(await _albumService.GetAlbumById(id));
         }
         catch (NotFoundException e)
         {
