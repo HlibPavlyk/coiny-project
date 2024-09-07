@@ -7,7 +7,7 @@ namespace CoinyProject.Domain.Entities
         public Guid Id { get; init; }
         public string Name { get; init; }
         public string? Description { get; init; }
-        public AlbumStatus Status { get; init; }
+        public AlbumStatus Status { get; set; }
         public int Rate { get; set; }
         public Guid UserId { get; set; }
 

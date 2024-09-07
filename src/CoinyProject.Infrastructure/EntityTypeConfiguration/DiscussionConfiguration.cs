@@ -20,6 +20,7 @@ namespace CoinyProject.Infrastructure.EntityTypeConfiguration
             
             builder.Property(x => x.Status)
                 .IsRequired()
+                .HasConversion<string>()
                 .HasDefaultValue(DiscussionStatus.Active);
 
             builder.HasMany(u => u.Messages)

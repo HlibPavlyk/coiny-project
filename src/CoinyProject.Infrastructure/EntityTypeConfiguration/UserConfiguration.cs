@@ -10,14 +10,17 @@ namespace CoinyProject.Infrastructure.EntityTypeConfiguration
         {
             builder.Property(u => u.Email)
                 .HasMaxLength(50)
-                .IsRequired(true);
+                .IsRequired();
+            
+            builder.HasIndex(u => u.Email)
+                .IsUnique();
 
             builder.Property(u => u.UserName)
                 .HasMaxLength(50)
-                .IsRequired(true);
+                .IsRequired();
 
             builder.Property(u => u.DiscussionRate)
-                .IsRequired(true)
+                .IsRequired()
                 .HasDefaultValue(0);
 
             builder.HasMany(u => u.Albums)

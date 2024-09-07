@@ -22,6 +22,7 @@ namespace CoinyProject.Infrastructure.EntityTypeConfiguration
             
             builder.Property(x => x.Status)
                 .IsRequired()
+                .HasConversion<string>()
                 .HasDefaultValue(AuctionStatus.Active);
 
             builder.HasOne(x => x.AlbumElement)

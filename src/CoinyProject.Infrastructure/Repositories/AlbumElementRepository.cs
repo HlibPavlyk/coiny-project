@@ -13,6 +13,7 @@ namespace CoinyProject.Infrastructure.Repositories
         {
             var query = Context.AlbumElements
                 .Where(x => x.AlbumId == id)
+                .OrderByDescending(x => x.Rate)
                 .AsNoTracking();
 
             return GetPagedEntitiesAsync(query, page, size);

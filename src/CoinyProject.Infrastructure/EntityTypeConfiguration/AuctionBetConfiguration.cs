@@ -16,6 +16,7 @@ namespace CoinyProject.Infrastructure.EntityTypeConfiguration
             
             builder.Property(x => x.Status)
                 .IsRequired()
+                .HasConversion<string>()
                 .HasDefaultValue(AuctionBetStatus.Winning);
 
             builder.HasOne(auctionBet => auctionBet.User)

@@ -18,11 +18,12 @@ namespace CoinyProject.Infrastructure.Repositories
                 .SingleOrDefaultAsync(x => x.Id == id)
         }*/
 
-        public async Task<PagedResponse<Album>> GetPagedAlbumsWithElementsByUserIdAsync(Guid id, int page, int size)
+        public async Task<PagedResponse<Album>> GetPagedActiveAlbumsWithElementsAsync(int page, int size)
         {
             var query = Context.Albums
                 .Include(x => x.Elements)
-                .Where(x => x.UserId == id)
+                .OrderByDescending(x => x.Rate)
+                .Where(x => x.Status == AlbumStatus.Active)
                 .AsNoTracking();
 
             return await GetPagedEntitiesAsync(query, page, size);
