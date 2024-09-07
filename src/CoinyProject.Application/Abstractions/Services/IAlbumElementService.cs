@@ -11,5 +11,6 @@ public interface IAlbumElementService
     Task<PagedResponse<AlbumElementGetDto> > GetPagedAlbumElementsByAlbumIdAsync(Guid id, int page, int size);
     Task<AlbumElementGetDto> GetAlbumElementByIdAsync(Guid id);
     Task<Guid> UpdateAlbumElementAsync(Guid id, AlbumElementPatchDto element);
+    Task DeleteAlbumElementAsync(Guid id);
     
 }

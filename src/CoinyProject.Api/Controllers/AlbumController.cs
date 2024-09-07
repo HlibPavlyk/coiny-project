@@ -1,9 +1,9 @@
+using CoinyProject.Api.Responses;
 using CoinyProject.Application.Abstractions.Services;
 using CoinyProject.Application.Dto.Album;
 using CoinyProject.Domain.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 
 namespace CoinyProject.Api.Controllers;
 
@@ -27,13 +27,27 @@ public class AlbumController : Controller
             var id = await _albumService.AddAlbumAsync(album);
             return CreatedAtAction(nameof(GetAlbumById), new { id }, await _albumService.GetAlbumById(id));
         }
+        catch (UnauthorizedAccessException e)
+        {
+            return new CustomForbidResult(e.Message);
+        }
         catch (ArgumentNullException e)
         {
             return BadRequest(e.Message);
         }
-        catch (SecurityTokenException e)
+    }
+    
+    [HttpGet]
+    public async Task<IActionResult> GetPagedAlbums([FromQuery] int page = 1, [FromQuery] int size = 10)
+    {
+        try
         {
-            return Unauthorized(new { Message = "Invalid or expired token." });
+            var albums = await _albumService.GetPagedAlbumsAsync(page, size);
+            return Ok(albums);
+        }
+        catch (NotFoundException e)
+        {
+            return NotFound(e.Message);
         }
     }
     
@@ -44,6 +58,10 @@ public class AlbumController : Controller
         {
             var album = await _albumService.GetAlbumById(id);
             return Ok(album);
+        }
+        catch (UnauthorizedAccessException e)
+        {
+            return new CustomForbidResult(e.Message);
         }
         catch (NotFoundException e)
         {
@@ -59,6 +77,70 @@ public class AlbumController : Controller
         {
             await _albumService.UpdateAlbumAsync(id, album);
             return Ok(await _albumService.GetAlbumById(id));
+        }
+        catch (UnauthorizedAccessException e)
+        {
+            return new CustomForbidResult(e.Message);
+        }
+        catch (NotFoundException e)
+        {
+            return NotFound(e.Message);
+        }
+    }
+    
+    [HttpPost("{id:guid}/deactivate")]
+    [Authorize]
+    public async Task<IActionResult> DeactivateAlbum([FromRoute] Guid id)
+    {
+        try
+        {
+            await _albumService.DeactivateAlbumAsync(id);
+            return NoContent();
+        }
+        catch (UnauthorizedAccessException e)
+        {
+            return new CustomForbidResult(e.Message);
+        }
+        catch (NotFoundException e)
+        {
+            return NotFound(e.Message);
+        }
+    }
+    
+    [HttpPost("{id:guid}/activate")]
+    [Authorize]
+    public async Task<IActionResult> ActivateAlbum([FromRoute] Guid id)
+    {
+        try
+        {
+            await _albumService.ActivateAlbumAsync(id);
+            return NoContent();
+        }
+        catch (UnauthorizedAccessException e)
+        {
+            return new CustomForbidResult(e.Message);
+        }
+        catch (NotFoundException e)
+        {
+            return NotFound(e.Message);
+        }
+        catch (InvalidOperationException e)
+        {
+            return BadRequest(e.Message);
+        }
+    }
+    
+    [HttpPost("{id:guid}/approve")]
+    public async Task<IActionResult> ApproveAlbum([FromRoute] Guid id)
+    {
+        try
+        {
+            await _albumService.ApproveAlbumAsync(id);
+            return NoContent();
+        }
+        catch (UnauthorizedAccessException e)
+        {
+            return new CustomForbidResult(e.Message);
         }
         catch (NotFoundException e)
         {

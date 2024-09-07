@@ -1,6 +1,5 @@
 using AutoMapper;
 using CoinyProject.Application.Abstractions.DataServices;
-using CoinyProject.Application.DTO.Album;
 using CoinyProject.Application.Dto.AlbumElement;
 using CoinyProject.Domain.Entities;
 
