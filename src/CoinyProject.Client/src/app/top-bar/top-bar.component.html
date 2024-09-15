@@ -36,9 +36,10 @@
         </div>
 
         <!-- Information Icon -->
-        <a href="#" class="hover:text-gray-400 transition duration-200">
+        <button (click)="navigateTo('Info')" class="hover:text-gray-400 transition duration-200 cursor-pointer">
           <i class="fas fa-info-circle"></i>
-        </a>
+        </button>
+
       </div>
     </div>
   </div>
@@ -58,12 +59,12 @@
           Home
         </a>
 
-        <a href="#"
+        <button
            (click)="navigateTo('Albums')"
            [ngClass]="{'text-yellow-400 font-semibold': activePage === 'Albums', 'text-gray-300': activePage !== 'Albums'}"
            class="hover:text-yellow-500 transition duration-200">
           Albums
-        </a>
+        </button>
 
         <a href="#"
            (click)="navigateTo('Community')"

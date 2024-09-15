@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import {NgClass, NgForOf, NgIf, NgOptimizedImage} from "@angular/common";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-top-bar',
@@ -27,7 +28,7 @@ export class TopBarComponent {
   // Array of available languages
   availableLanguages: string[] = ['UA', 'EN'];
 
-  constructor() {}
+  constructor(private router: Router) {}
 
   // Toggle the language dropdown
   toggleLanguageDropdown() {
@@ -53,7 +54,9 @@ export class TopBarComponent {
   // Method to handle navigation clicks (for Home, Albums, etc.)
   navigateTo(page: string) {
     this.activePage = page;
-    console.log(`Navigating to ${page}`);
+    this.router.navigate([`/${page.toLowerCase()}`])
+      .then(r => console.log('Navigating to Home'));
+
   }
 
 }
