@@ -1,0 +1,62 @@
+<div class="container mx-auto px-4 py-6">
+  <!-- Sorting and Search Section -->
+  <div class="flex justify-between items-center mb-6">
+    <!-- Sort by Buttons -->
+    <div class="flex space-x-4">
+      <button (click)="setSort('popularity')"
+              [ngClass]="{'bg-yellow-500 text-white': sortType === 'popularity', 'bg-gray-200': sortType !== 'popularity'}"
+              class="px-4 py-2 rounded-md transition">
+        Popularity
+      </button>
+      <button (click)="setSort('newest')"
+              [ngClass]="{'bg-yellow-500 text-white': sortType === 'newest', 'bg-gray-200': sortType !== 'newest'}"
+              class="px-4 py-2 rounded-md transition">
+        Newest
+      </button>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="w-1/2">
+      <input type="text" [(ngModel)]="searchQuery" (input)="searchAlbums()"
+             class="w-full p-2 border rounded-md"
+             placeholder="Search albums..." />
+    </div>
+  </div>
+
+  <!-- Album List Section -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div *ngFor="let album of filteredAlbums" class="bg-white shadow-md rounded-lg overflow-hidden flex flex-col">
+
+      <!-- Album Image (Square) -->
+      <!-- Album Image (Square) with padding -->
+      <div class="w-full aspect-square bg-pastel-red-light p-4"> <!-- Padding around the image -->
+        <img [src]="album.imagesUrls[0]" alt="Album Image" class="h-full w-full object-cover rounded-lg">
+      </div>
+
+
+      <!-- Album Details Below Image -->
+      <div class="p-4 flex-grow bg-pastel-red-light">
+        <h2 class="text-lg font-bold mb-2 truncate">{{ album.name }}</h2>
+
+        <!-- Description with more space and handling for longer text -->
+        <p class="text-gray-600 mb-4 max-h-24 overflow-hidden text-ellipsis">
+          {{ album.description || 'No description available' }}
+        </p>
+
+        <!-- Rating section -->
+        <div class="flex items-center mb-4">
+          <span class="font-bold text-yellow-500">Rate:</span>
+          <span class="ml-2">{{ album.rate }}</span>
+        </div>
+
+        <!-- View Album Button -->
+        <button class="w-full py-3 bg-blue-500 text-white rounded hover:bg-blue-600 transition">
+          View Album
+        </button>
+      </div>
+
+
+    </div>
+  </div>
+
+</div>
