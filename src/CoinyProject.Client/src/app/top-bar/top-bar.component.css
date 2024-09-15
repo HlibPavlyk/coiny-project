@@ -1,0 +1,17 @@
+.nav-link {
+  padding: 10px 20px; /* Consistent padding */
+  min-width: 100px; /* Minimum width to accommodate text */
+  text-align: center; /* Center the text */
+  border: 2px solid transparent; /* Invisible border by default */
+  border-radius: 8px; /* Rounded corners */
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s; /* Smooth transitions */
+}
+.nav-link:hover {
+  background-color: #1a202c; /* Darker background on hover */
+  color: #cbd5e0; /* Lighter text on hover */
+}
+.nav-link.active {
+  background-color: #2b6cb0; /* Active background color */
+  color: white; /* White text for active links */
+  border-color: #2b6cb0; /* Matching border color */
+}

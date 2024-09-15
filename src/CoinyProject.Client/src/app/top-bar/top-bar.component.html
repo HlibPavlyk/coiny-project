@@ -1,26 +1,44 @@
 <!-- Main Navigation Bar -->
-
-<nav class="bg-gray-800 text-gray-100 shadow-md">
+<nav class="bg-gray-900 text-gray-100 shadow-md">
   <div class="container mx-auto px-6">
-    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+    <div class="container mx-auto px-20 py-3 flex justify-between items-center">
 
-      <!-- Left Side (Logo and Links) -->
-      <div class="flex items-center space-x-8">
-
+      <div class="flex items-center space-x-4">
         <!-- Logo -->
         <div class="flex items-center space-x-2">
-          <img src="logo.png" alt="Logo" class="h-8 w-auto"> <!-- Replace with the actual logo path -->
-          <span class="font-bold text-xl text-yellow-400">COINY</span>
+          <img src="logo.png" alt="Logo" class="h-8 w-auto">
+          <span class="font-bold text-xl text-yellow-500">COINY</span>
         </div>
       </div>
 
       <!-- Right Side (Icons and Actions) -->
-      <div class="flex items-center space-x-6">
-        <a href="#" class="hover:text-gray-400 transition duration-200">Розділи</a>
-        <a href="#" class="hover:text-gray-400 transition duration-200"><i class="fas fa-sign-in-alt"></i></a>
-        <a href="#" class="hover:text-gray-400 transition duration-200"><i class="fas fa-globe"></i> UA</a>
-        <a href="#" class="hover:text-gray-400 transition duration-200"><i class="fas fa-info-circle"></i></a>
-        <a href="#" class="hover:text-gray-400 transition duration-200"><i class="fas fa-search"></i></a>
+      <div class="flex items-center space-x-4">
+
+        <!-- Login Icon -->
+        <a href="#" (click)="handleLoginClick()" class="hover:text-gray-400 transition duration-200">
+          <i class="fas fa-sign-in-alt"></i>
+        </a>
+
+        <!-- Separator -->
+        <span>|</span>
+
+        <!-- Language Dropdown -->
+        <div class="relative">
+          <button (click)="toggleLanguageDropdown()" class="flex items-center hover:text-gray-400 transition duration-200">
+            <i class="fas fa-globe"></i>
+            <span class="ml-1">{{ currentLanguage }}</span>
+          </button>
+          <div *ngIf="isLanguageDropdownOpen" class="absolute right-0 mt-2 w-24 bg-white text-gray-700 rounded shadow-lg">
+            <a *ngFor="let language of availableLanguages" (click)="selectLanguage(language)" href="#" class="block px-4 py-2 hover:bg-gray-200">
+              {{ language }}
+            </a>
+          </div>
+        </div>
+
+        <!-- Information Icon -->
+        <a href="#" class="hover:text-gray-400 transition duration-200">
+          <i class="fas fa-info-circle"></i>
+        </a>
       </div>
     </div>
   </div>
@@ -28,21 +46,46 @@
 
 <!-- Sub Navigation Bar -->
 <div class="bg-gray-700 text-gray-200 shadow-sm">
-<div class="container mx-auto px-6">
-  <div class="container mx-auto px-4 py-2 flex justify-between items-center">
+  <div class="container mx-auto px-20">
+    <div class="container mx-auto px-4 py-2 flex justify-between items-center">
 
-    <!-- Left Section -->
-    <div class="flex items-center space-x-6">
-      <a href="#" class="text-yellow-400 hover:text-yellow-500 font-semibold transition duration-200">Маркет</a>
-      <a href="#" class="text-gray-300 hover:text-gray-400 transition duration-200">Спільнота</a>
-      <a href="#" class="text-gray-300 hover:text-gray-400 transition duration-200">Журнал</a>
+      <!-- Left Section -->
+      <div class="flex items-center space-x-6">
+        <a href="#"
+           (click)="navigateTo('Home')"
+           [ngClass]="{'text-yellow-400 font-semibold': activePage === 'Home', 'text-gray-300': activePage !== 'Home'}"
+           class="hover:text-yellow-500 transition duration-200">
+          Home
+        </a>
+
+        <a href="#"
+           (click)="navigateTo('Albums')"
+           [ngClass]="{'text-yellow-400 font-semibold': activePage === 'Albums', 'text-gray-300': activePage !== 'Albums'}"
+           class="hover:text-yellow-500 transition duration-200">
+          Albums
+        </a>
+
+        <a href="#"
+           (click)="navigateTo('Community')"
+           [ngClass]="{'text-yellow-400 font-semibold': activePage === 'Community', 'text-gray-300': activePage !== 'Community'}"
+           class="hover:text-yellow-500 transition duration-200">
+          Community
+        </a>
+
+        <a href="#"
+           (click)="navigateTo('Auctions')"
+           [ngClass]="{'text-yellow-400 font-semibold': activePage === 'Auctions', 'text-gray-300': activePage !== 'Auctions'}"
+           class="hover:text-yellow-500 transition duration-200">
+          Auctions
+        </a>
+      </div>
+
+
+      <!-- Create Listing Button -->
+      <a href="#" (click)="handleCreateAlbumClick()" class="flex items-center space-x-2 bg-transparent border border-yellow-400 text-yellow-400 rounded-md px-4 py-2 hover:bg-yellow-400 hover:text-white transition duration-200">
+        <span class="font-semibold">+</span>
+        <span>Create Album</span>
+      </a>
     </div>
-
-    <!-- Create Listing Button -->
-    <a href="#" class="flex items-center space-x-2 bg-transparent border border-yellow-400 text-yellow-400 rounded-md px-4 py-2 hover:bg-yellow-400 hover:text-white transition duration-200">
-      <span class="font-semibold">+</span>
-      <span>Створити лот</span>
-    </a>
   </div>
-</div>
 </div>
