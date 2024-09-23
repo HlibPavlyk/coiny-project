@@ -41,9 +41,9 @@ namespace CoinyProject.Application.Services
             return entity.Id;
         }
 
-        public async Task<PagedResponse<AlbumGetDto>> GetPagedAlbumsAsync(int page, int size)
+        public async Task<PagedResponse<AlbumGetDto>> GetPagedAlbumsAsync(PageQueryDto pageQuery, SortByItemQueryDto? sortQuery)
         {
-            var albums = await _unitOfWork.Albums.GetPagedActiveAlbumsWithElementsAsync(page, size);
+            var albums = await _unitOfWork.Albums.GetPagedActiveAlbumsWithElementsAsync(pageQuery,sortQuery);
             if (albums.TotalPages == 0)
                 throw new NotFoundException("Any active album not found.");
            

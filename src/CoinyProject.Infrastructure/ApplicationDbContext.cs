@@ -1,4 +1,5 @@
-﻿using CoinyProject.Domain.Entities;
+﻿using CoinyProject.Domain.Abstractions;
+using CoinyProject.Domain.Entities;
 using CoinyProject.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -30,6 +31,29 @@ namespace CoinyProject.Infrastructure
                 new ApplicationRole { Id = Guid.NewGuid(), Name = "Administrator", NormalizedName = "ADMINISTRATOR" }
             );
         }
+        
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            var currentDateTime = DateTime.Now;
+            var entries = ChangeTracker.Entries().ToList();
+
+            var updatedEntries = entries.Where(e => e is { Entity: IUpdateable, State: EntityState.Modified }).ToList();
+
+            updatedEntries.ForEach(e =>
+            {
+                ((IUpdateable)e.Entity).UpdatedAt = currentDateTime;
+
+                if (e.Entity is AlbumElement albumItem)
+                {
+                    var album = albumItem.Album;
+                    album.UpdatedAt = currentDateTime;
+                    Entry(album).State = EntityState.Modified;
+                }
+            });
+
+            return await base.SaveChangesAsync(cancellationToken);
+        }
+
 
     }
 }

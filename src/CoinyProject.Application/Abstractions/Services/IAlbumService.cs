@@ -7,7 +7,7 @@ namespace CoinyProject.Application.Abstractions.Services
     public interface IAlbumService
     {
         Task<Guid> AddAlbumAsync(AlbumPostDto album);
-        Task<PagedResponse<AlbumGetDto>> GetPagedAlbumsAsync(int page, int size);
+        Task<PagedResponse<AlbumGetDto>> GetPagedAlbumsAsync(PageQueryDto pageQuery, SortByItemQueryDto? sortQuery);
         Task<AlbumGetDto> GetAlbumById(Guid id);
         Task<Guid> UpdateAlbumAsync(Guid id, AlbumPatchDto album);
         Task DeactivateAlbumAsync(Guid id);

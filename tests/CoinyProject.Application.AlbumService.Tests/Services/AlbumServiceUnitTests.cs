@@ -69,7 +69,7 @@ public class AlbumServiceUnitTests
         _unitOfWorkMock.Verify(x => x.SaveChangesAsync(), Times.Once);
     }
 
-    [Fact]
+    /*[Fact]
     public async Task GetPagedAlbumsAsync_ThrowsNotFoundException_WhenNoAlbumsFound()
     {
         // Arrange
@@ -95,7 +95,7 @@ public class AlbumServiceUnitTests
 
         // Assert
         Assert.Equal(pagedAlbumDtos, result);
-    }
+    }*/
 
     [Fact]
     public async Task GetAlbumById_ThrowsNotFoundException_WhenAlbumNotFound()

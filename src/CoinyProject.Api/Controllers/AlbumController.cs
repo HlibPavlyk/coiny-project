@@ -1,6 +1,7 @@
 using CoinyProject.Api.Responses;
 using CoinyProject.Application.Abstractions.Services;
 using CoinyProject.Application.Dto.Album;
+using CoinyProject.Application.Dto.Other;
 using CoinyProject.Domain.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -38,11 +39,12 @@ public class AlbumController : Controller
     }
     
     [HttpGet]
-    public async Task<IActionResult> GetPagedAlbums([FromQuery] int page = 1, [FromQuery] int size = 10)
+    public async Task<IActionResult> GetPagedAlbums([FromQuery] int page = 1,[FromQuery] int size = 10,
+        [FromQuery] string sortItem = "time", [FromQuery] bool isAscending = false)
     {
         try
         {
-            var albums = await _albumService.GetPagedAlbumsAsync(page, size);
+            var albums = await _albumService.GetPagedAlbumsAsync(new PageQueryDto(page, size), new SortByItemQueryDto(sortItem, isAscending));
             return Ok(albums);
         }
         catch (NotFoundException e)

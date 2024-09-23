@@ -18,15 +18,28 @@ namespace CoinyProject.Infrastructure.Repositories
                 .SingleOrDefaultAsync(x => x.Id == id)
         }*/
 
-        public async Task<PagedResponse<Album>> GetPagedActiveAlbumsWithElementsAsync(int page, int size)
+        public async Task<PagedResponse<Album>> GetPagedActiveAlbumsWithElementsAsync(PageQueryDto pageQuery, SortByItemQueryDto? sortQuery)
         {
             var query = Context.Albums
                 .Include(x => x.Elements)
-                .OrderByDescending(x => x.Rate)
                 .Where(x => x.Status == AlbumStatus.Active)
                 .AsNoTracking();
 
-            return await GetPagedEntitiesAsync(query, page, size);
+            if (sortQuery != null)
+            {
+                query = sortQuery.SortItem switch
+                {
+                    "rate" => sortQuery.IsAscending
+                        ? query.OrderBy(x => x.Rate)
+                        : query.OrderByDescending(x => x.Rate),
+                    "time" => sortQuery.IsAscending
+                        ? query.OrderBy(x => x.UpdatedAt)
+                        : query.OrderByDescending(x => x.UpdatedAt),
+                    _ => query
+                };
+            }
+
+            return await GetPagedEntitiesAsync(query, pageQuery.Page, pageQuery.PageSize);
         }
 
         public async Task<PagedResponse<Album>> GetPagedAlbumsWithElementsAndFavoritesForViewAsync(int page, int size)

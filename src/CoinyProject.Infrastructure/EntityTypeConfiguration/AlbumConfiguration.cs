@@ -1,6 +1,7 @@
 ﻿using CoinyProject.Domain.Entities;
 using CoinyProject.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace CoinyProject.Infrastructure.EntityTypeConfiguration
@@ -27,6 +28,16 @@ namespace CoinyProject.Infrastructure.EntityTypeConfiguration
             builder.Property(al => al.Rate)
                 .IsRequired()
                 .HasDefaultValue(0);
+            
+            builder.Property(t => t.CreatedAt)
+                .HasDefaultValueSql("SYSDATETIMEOFFSET()");
+
+            builder.Property(t => t.UpdatedAt)
+                .IsRequired()
+                .ValueGeneratedOnAddOrUpdate()
+                .HasDefaultValueSql("SYSDATETIMEOFFSET()")
+                .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Save);
+
 
             builder.HasOne(al => al.User)
                 .WithMany(u => u.Albums)
