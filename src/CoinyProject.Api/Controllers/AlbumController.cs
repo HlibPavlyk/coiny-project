@@ -51,6 +51,10 @@ public class AlbumController : Controller
         {
             return NotFound(e.Message);
         }
+        catch (ArgumentException e)
+        {
+            return BadRequest(e.Message);
+        }
     }
     
     [HttpGet("{id:guid}")]

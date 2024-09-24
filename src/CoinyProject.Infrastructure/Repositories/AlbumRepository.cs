@@ -35,7 +35,7 @@ namespace CoinyProject.Infrastructure.Repositories
                     "time" => sortQuery.IsAscending
                         ? query.OrderBy(x => x.UpdatedAt)
                         : query.OrderByDescending(x => x.UpdatedAt),
-                    _ => query
+                    _ => throw new ArgumentException("Invalid sort item.")
                 };
             }
 

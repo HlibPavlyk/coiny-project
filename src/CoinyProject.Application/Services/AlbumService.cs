@@ -41,13 +41,13 @@ namespace CoinyProject.Application.Services
             return entity.Id;
         }
 
-        public async Task<PagedResponse<AlbumGetDto>> GetPagedAlbumsAsync(PageQueryDto pageQuery, SortByItemQueryDto? sortQuery)
+        public async Task<PagedResponse<AlbumViewGetDto>> GetPagedAlbumsAsync(PageQueryDto pageQuery, SortByItemQueryDto? sortQuery)
         {
             var albums = await _unitOfWork.Albums.GetPagedActiveAlbumsWithElementsAsync(pageQuery,sortQuery);
             if (albums.TotalPages == 0)
                 throw new NotFoundException("Any active album not found.");
            
-            return _mapper.Map<PagedResponse<AlbumGetDto>>(albums);
+            return _mapper.Map<PagedResponse<AlbumViewGetDto>>(albums);
         }
 
         public async Task<AlbumGetDto> GetAlbumById(Guid id)

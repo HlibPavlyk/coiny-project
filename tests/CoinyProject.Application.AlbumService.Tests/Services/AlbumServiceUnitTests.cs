@@ -85,10 +85,10 @@ public class AlbumServiceUnitTests
     {
         // Arrange
         var pagedAlbums = new PagedResponse<Album> { TotalPages = 1, Items = new[] { new Album() } };
-        var pagedAlbumDtos = new PagedResponse<AlbumGetDto>();
+        var pagedAlbumDtos = new PagedResponse<AlbumViewGetDto>();
 
         _unitOfWorkMock.Setup(x => x.Albums.GetPagedActiveAlbumsWithElementsAsync(It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(pagedAlbums);
-        _mapperMock.Setup(x => x.Map<PagedResponse<AlbumGetDto>>(pagedAlbums)).Returns(pagedAlbumDtos);
+        _mapperMock.Setup(x => x.Map<PagedResponse<AlbumViewGetDto>>(pagedAlbums)).Returns(pagedAlbumDtos);
 
         // Act
         var result = await _albumService.GetPagedAlbumsAsync(1, 10);

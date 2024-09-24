@@ -5,7 +5,7 @@ using CoinyProject.Domain.Entities;
 
 namespace CoinyProject.Application.AutoMapper.Resolvers;
 
-public class GetISeveralImageUrlsResolver : IValueResolver<Album, AlbumGetDto, IEnumerable<string>>
+public class GetISeveralImageUrlsResolver : IValueResolver<Album, AlbumViewGetDto, IEnumerable<string>>
 {
     private readonly IFileService _fileService;
 
@@ -14,7 +14,7 @@ public class GetISeveralImageUrlsResolver : IValueResolver<Album, AlbumGetDto, I
         _fileService = fileService;
     }
 
-    public IEnumerable<string> Resolve(Album source, AlbumGetDto destination, IEnumerable<string> destMember, ResolutionContext context)
+    public IEnumerable<string> Resolve(Album source, AlbumViewGetDto destination, IEnumerable<string> destMember, ResolutionContext context)
     {
         return source.Elements.Select(e => _fileService.GetImageUrl(e.ImageUrl))
             .Take(4).ToList();
