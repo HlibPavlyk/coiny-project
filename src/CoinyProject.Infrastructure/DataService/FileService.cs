@@ -58,7 +58,7 @@ public class FileService : IFileService
 
     public string GetImageUrl(string fileName)
     {
-        return $"/{_imageDirectory}/{fileName}";
+        return $"photos/{fileName}";
     }
 
     public async Task<byte[]> DownloadImageAsync(string fileName)

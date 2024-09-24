@@ -1,80 +1,74 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit} from "@angular/core";
+import {AlbumService} from "../../services/album.service";
+import {AlbumViewGetDto} from "./album-get.model";
+import {DatePipe, NgClass, NgForOf} from "@angular/common";
 import {FormsModule} from "@angular/forms";
-import {NgClass, NgForOf, NgOptimizedImage} from "@angular/common";
-import {AlbumGetDto} from "./album-get.model";
 
 @Component({
   selector: 'app-album-view',
+  templateUrl: './album-view.component.html',
   standalone: true,
   imports: [
+    NgClass,
     FormsModule,
     NgForOf,
-    NgOptimizedImage,
-    NgClass
+    DatePipe
   ],
-  templateUrl: './album-view.component.html',
-  styleUrl: './album-view.component.css'
+  styleUrls: ['./album-view.component.css']
 })
 export class AlbumViewComponent implements OnInit {
-  albums: AlbumGetDto[] = [
-    {
-      id: '1',
-      name: 'Album 1',
-      description: 'This is the first album-view description.',
-      rate: 5,
-      imagesUrls: ['photos/798ca71f-c09b-a237-1b53-02e7cf89e91a.png'],
-    },
-    {
-      id: '2',
-      name: 'Album 2',
-      description: 'This is the second album-view descripііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііііon.',
-      rate: 4,
-      imagesUrls: ['https://via.placeholder.com/150'],
-    },{
-      id: '1',
-      name: 'Album 1',
-      description: 'This is the first album-view descriptionфівввввввввввввввввіфвфііііііііііііііііііііііііііііііііііііііііііііііііі.',
-      rate: 5,
-      imagesUrls: ['photos/798ca71f-c09b-a237-1b53-02e7cf89e91a.png'],
-    },{
-      id: '1',
-      name: 'Album 1',
-      description: 'This is the first album-view descriptionфівввввввввввввввввввввввввввввввввввв.',
-      rate: 5,
-      imagesUrls: ['photos/798ca71f-c09b-a237-1b53-02e7cf89e91a.png'],
-    },
-    // Додаємо більше альбомів
-  ];
-
-  filteredAlbums: AlbumGetDto[] = [];
+  albums: AlbumViewGetDto[] = [];
+  filteredAlbums: AlbumViewGetDto[] = [];
+  page: number = 1;
+  size: number = 10;
+  sortItem: string = 'time';
+  isAscending: boolean = false;
   searchQuery: string = '';
-  sortType: string = 'popularity'; // Default sorting by popularity
 
-  ngOnInit() {
-    this.filteredAlbums = [...this.albums]; // Ініціалізація зі всіма альбомами
+  constructor(private albumService: AlbumService) {}
+
+  ngOnInit(): void {
+    this.getPagedAlbums();
   }
 
-  setSort(sortType: string) {
-    this.sortType = sortType;
-    this.sortAlbums();
+  getPagedAlbums(): void {
+    this.albumService.getPagedAlbums(this.page, this.size, this.sortItem, this.isAscending)
+      .subscribe((response) => {
+        this.albums = response.items.map(album => {
+          album.currentImageIndex = 0;
+          return album;
+        });
+
+        this.filteredAlbums = this.albums;
+      });
   }
 
-  searchAlbums() {
-    // Фільтрація альбомів за пошуковим запитом
-    this.filteredAlbums = this.albums.filter((album) =>
-      album.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-      (album.description && album.description.toLowerCase().includes(this.searchQuery.toLowerCase()))
-    );
-    this.sortAlbums(); // Оновлюємо сортування після пошуку
+  setSort(sortType: string, isAscending: boolean): void {
+    this.sortItem = sortType === 'rate' ? 'rate' : 'time';
+    this.isAscending  = isAscending;
+    this.getPagedAlbums();
   }
 
-  sortAlbums() {
-    // Сортування альбомів залежно від обраного типу сортування
-    if (this.sortType === 'popularity') {
-      this.filteredAlbums.sort((a, b) => b.rate - a.rate);
-    } else if (this.sortType === 'newest') {
-      // Якщо у вас є дата релізу альбому, можна реалізувати сортування за новизною
-      // this.filteredAlbums.sort((a, b) => new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime());
+  searchAlbums(): void {
+    this.filteredAlbums = this.albums.filter(album =>
+      album.name.toLowerCase().includes(this.searchQuery.toLowerCase()));
+  }
+
+  getPreviousImage(album: any) {
+    album.currentImageIndex = (album.currentImageIndex > 0)
+      ? album.currentImageIndex - 1
+      : album.imagesUrls.length - 1;
+  }
+
+  getNextImage(album: any) {
+    album.currentImageIndex = (album.currentImageIndex < album.imagesUrls.length - 1)
+      ? album.currentImageIndex + 1
+      : 0;
+  }
+
+  goToImage(album: any, index: number) {
+    if (index >= 0 && index < album.imagesUrls.length) {
+      album.currentImageIndex = index;
     }
   }
 }
