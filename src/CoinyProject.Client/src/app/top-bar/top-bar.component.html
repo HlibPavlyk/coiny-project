@@ -21,7 +21,7 @@
             <span class="font-semibold  text-yellow-500">Hello, {{ user.username }}</span>
 
             <!-- Logout button -->
-            <button (click)="onLogout()" class="hover:text-gray-400 transition duration-200">
+            <button (click)="onLogout()" class="hover:text-yellow-500 transition duration-200">
               <i class="fas fa-sign-out-alt"></i> Logout
             </button>
           </ng-container>
@@ -29,7 +29,7 @@
           <!-- Login button template -->
           <ng-template #loginTemplate>
             <!-- Login Icon -->
-            <button (click)="navigateTo('Login')" class="hover:text-gray-400 transition duration-200">
+            <button (click)="navigateTo('Login')" class="hover:text-yellow-500 transition duration-200">
               <i class="fas fa-sign-in-alt"></i> Login
             </button>
           </ng-template>
@@ -40,7 +40,7 @@
 
         <!-- Language Dropdown -->
         <div class="relative">
-          <button (click)="toggleLanguageDropdown()" class="flex items-center hover:text-gray-400 transition duration-200">
+          <button (click)="toggleLanguageDropdown()" class="flex items-center hover:text-yellow-500 transition duration-200">
             <i class="fas fa-globe"></i>
             <span class="ml-1">{{ currentLanguage }}</span>
           </button>
@@ -52,7 +52,7 @@
         </div>
 
         <!-- Information Icon -->
-        <button (click)="navigateTo('Info')" class="hover:text-gray-400 transition duration-200 cursor-pointer">
+        <button (click)="navigateTo('Info')" class="hover:text-yellow-500 transition duration-200 cursor-pointer">
           <i class="fas fa-info-circle"></i>
         </button>
 
@@ -99,10 +99,10 @@
 
 
       <!-- Create Listing Button -->
-      <a href="#" (click)="handleCreateAlbumClick()" class="flex items-center space-x-2 bg-transparent border border-yellow-400 text-yellow-400 rounded-md px-4 py-2 hover:bg-yellow-400 hover:text-white transition duration-200">
+      <button (click)="navigateTo('Album-Create')" class="flex items-center space-x-2 bg-transparent border border-yellow-400 text-yellow-400 rounded-md px-4 py-2 hover:bg-yellow-400 hover:text-white transition duration-200">
         <span class="font-semibold">+</span>
         <span>Create Album</span>
-      </a>
+      </button>
     </div>
   </div>
 </div>

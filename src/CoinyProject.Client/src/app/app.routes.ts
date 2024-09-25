@@ -3,6 +3,7 @@ import {InfoComponent} from "./info/info.component";
 import {AlbumComponent} from "./album/album.component";
 import {LoginComponent} from "./login/login.component";
 import {RegisterComponent} from "./register/register.component";
+import {AlbumFormComponent} from "./album/album-form/album-form.component";
 
 export const routes: Routes = [
   //{ path: '', redirectTo: 'albums', pathMatch: 'full' },
@@ -10,6 +11,8 @@ export const routes: Routes = [
   { path: 'info', component: InfoComponent },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
+  { path: 'album-create', component: AlbumFormComponent },
+  { path: 'album-edit', component: AlbumFormComponent },
   /*{
     path: 'employees',
     component: EmployeeComponent,

@@ -21,4 +21,18 @@ export class AlbumService {
     };
     return this.http.get<PagedResponse<AlbumViewGetDto>>(this.baseUrl, { params });
   }
+  // Create a new album
+  addAlbum(album: any): Observable<any> {
+    return this.http.post(this.baseUrl, album);
+  }
+
+  // Update an existing album
+  updateAlbum(id: string, album: any): Observable<any> {
+    return this.http.patch(`${this.baseUrl}/${id}`, album);
+  }
+
+  // Get album by ID
+  getAlbumById(id: string): Observable<any> {
+    return this.http.get(`${this.baseUrl}/${id}`);
+  }
 }

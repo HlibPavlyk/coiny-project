@@ -1,0 +1,45 @@
+<div class="flex justify-center items-center h-screen bg-yellow-100">
+  <div class="w-full max-w-4xl bg-white shadow-lg rounded-lg p-8">
+    <h2 class="text-3xl font-bold mb-6 text-center text-yellow-600">{{ isEditMode ? 'Edit Album' : 'Create Album' }}</h2>
+
+    <form (ngSubmit)="onSubmit()" class="space-y-6">
+      <!-- Album Name -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
+        <div>
+          <label class="block text-sm text-gray-700 font-medium mb-1">Album Name</label>
+          <input type="text" [(ngModel)]="album.name" name="name"
+                 class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none"
+                 placeholder="Enter album name" required>
+        </div>
+        <div class="col-span-2 text-gray-500 text-sm">
+          <p class="text-center">Please provide a clear and concise name for your album.</p>
+        </div>
+      </div>
+
+      <!-- Album Description -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
+        <div>
+          <label class="block text-sm text-gray-700 font-medium mb-1">Description</label>
+          <textarea [(ngModel)]="album.description" name="description"
+                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none"
+                    placeholder="Enter album description"></textarea>
+        </div>
+        <div class="col-span-2 text-gray-500 text-sm">
+          <p class="text-center">Provide a detailed description of the album, including any important details or highlights.</p>
+        </div>
+      </div>
+
+      <!-- Buttons -->
+      <div class="flex justify-between items-center mt-6">
+        <button (click)="onCancel()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition">Cancel</button>
+        <div class="space-x-2">
+          <button type="submit" class="px-4 py-3 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-600 transition">
+            {{ isEditMode ? 'Update Album' : 'Create Album' }}
+          </button>
+          <button type="button" class="px-4 py-3 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-600 transition"
+                  (click)="onCreateAndAdd()">Create and Add</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
