@@ -14,13 +14,29 @@
       <!-- Right Side (Icons and Actions) -->
       <div class="flex items-center space-x-4">
 
-        <!-- Login Icon -->
-        <a href="#" (click)="handleLoginClick()" class="hover:text-gray-400 transition duration-200">
-          <i class="fas fa-sign-in-alt"></i>
-        </a>
+        <div class="flex items-center space-x-4">
+          <!-- Check if the user is logged in -->
+          <ng-container *ngIf="isUserLoggedIn(); else loginTemplate">
+            <!-- Display the user's name -->
+            <span class="font-semibold text-gray-600">Hello, {{ userName }}</span>
 
-        <!-- Separator -->
-        <span>|</span>
+            <!-- Logout button -->
+            <button (click)="logout()" class="hover:text-gray-400 transition duration-200">
+              <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+          </ng-container>
+
+          <!-- Login button template -->
+          <ng-template #loginTemplate>
+            <!-- Login Icon -->
+            <button (click)="navigateTo('Login')" class="hover:text-gray-400 transition duration-200">
+              <i class="fas fa-sign-in-alt"></i> Login
+            </button>
+          </ng-template>
+
+          <!-- Separator -->
+          <span>|</span>
+        </div>
 
         <!-- Language Dropdown -->
         <div class="relative">
