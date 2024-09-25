@@ -3,6 +3,7 @@ import {Router} from "@angular/router";
 import {AuthService} from "../services/auth.service";
 import {FormsModule} from "@angular/forms";
 import {LoginRequestDto} from "./login-request.module";
+import {CookieService} from "ngx-cookie-service";
 
 @Component({
   selector: 'app-login',
@@ -15,24 +16,35 @@ import {LoginRequestDto} from "./login-request.module";
 })
 export class LoginComponent  {
   loginDto: LoginRequestDto = {
-    emailOrName: '',
+    emailOrUsername: '',
     password: ''
   };
+  errorMessage = '';
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService, private cookieService: CookieService, private router: Router) {}
 
-  onSubmit() {
-    this.authService.login(this.loginDto).subscribe(
-      (token: string) => {
-        // Save token in localStorage or some other place
-        localStorage.setItem('authToken', token);
-        this.router.navigate(['/home']); // Navigate to home or some other page
-      },
-      (error) => {
-        alert('Login failed: ' + error.error); // Show error message
-      }
-    );
+  onLoginFormSubmit() {
+    this.authService.login(this.loginDto)
+      .subscribe({
+        next: (response) => {
+          console.log(response);
+          this.cookieService.set('Authorization', `Bearer  ${response.token}`,
+            undefined, '/', undefined, true, 'Strict');
+          this.authService.setUser({
+            username: response.username,
+            email: response.email,
+            roles: response.roles
+          });
+
+          this.router.navigate(['']);
+        },
+        error: (err) => {
+          this.errorMessage = `Incorrect login or password (${err.status})`;
+          console.error(`${this.errorMessage} - ${err.message}`);
+        }
+      });
   }
+
 
   goToRegister() {
     this.router.navigate(['/register']); // Навігація на сторінку реєстрації

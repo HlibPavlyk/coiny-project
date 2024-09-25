@@ -28,7 +28,7 @@ public class AuthService(UserManager<User> userManager, ITokenService tokenServi
     
     public async Task<LoginResponseDto> LoginAsync(LoginRequestDto login)
     {
-        var identityUser = await userManager.FindByEmailAsync(login.Email);
+        var identityUser = await userManager.FindByEmailAsync(login.EmailOrUsername);
 
         if (identityUser != null)
         {
@@ -47,7 +47,7 @@ public class AuthService(UserManager<User> userManager, ITokenService tokenServi
                     return new LoginResponseDto
                     {
                         Username = identityUser.UserName,
-                        Email = login.Email,
+                        Email = login.EmailOrUsername,
                         Roles = roles.ToList(),
                         Token = jwtToken
                     };

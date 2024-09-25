@@ -3,11 +3,11 @@
   <div class="w-full max-w-md bg-white shadow-lg rounded-lg p-8">
     <h2 class="text-3xl font-bold mb-6 text-center text-yellow-600">Login</h2>
 
-    <form (ngSubmit)="onSubmit()" class="space-y-6">
+    <form (ngSubmit)="onLoginFormSubmit()" class="space-y-6">
       <!-- Email or Username -->
       <div>
         <label class="block text-gray-700 font-medium mb-2">Email or Username</label>
-        <input type="text" [(ngModel)]="loginDto.emailOrName" name="emailOrName"
+        <input type="text" [(ngModel)]="loginDto.emailOrUsername" name="emailOrName"
                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none"
                placeholder="Enter your email or username" required>
       </div>

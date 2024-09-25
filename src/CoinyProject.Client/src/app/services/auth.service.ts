@@ -5,6 +5,7 @@ import {RegisterDto} from "../register/register.module";
 import {LoginRequestDto} from "../login/login-request.module";
 import {CookieService} from "ngx-cookie-service";
 import {UserModel} from "./user.module";
+import {LoginResponseModel} from "../login/login-response.module";
 
 @Injectable({
   providedIn: 'root'
@@ -21,8 +22,8 @@ export class AuthService {
     return this.http.post(`${this.apiUrl}/register`, registerDto);
   }
 
-  login(loginDto: LoginRequestDto): Observable<any> {
-    return this.http.post(`${this.apiUrl}/login`, loginDto, { responseType: 'text' });
+  login(loginDto: LoginRequestDto): Observable<LoginResponseModel> {
+    return this.http.post<LoginResponseModel>(`${this.apiUrl}/login`, loginDto);
   }
 
   setUser(user: UserModel): void {

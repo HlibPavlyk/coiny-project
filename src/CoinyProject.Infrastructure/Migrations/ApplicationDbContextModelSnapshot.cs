@@ -267,7 +267,7 @@ namespace CoinyProject.Infrastructure.Migrations
                         .HasColumnType("int")
                         .HasDefaultValue(0);
 
-                    b.Property<string>("Email")
+                    b.Property<string>("EmailOrUsername")
                         .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -311,7 +311,7 @@ namespace CoinyProject.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Email")
+                    b.HasIndex("EmailOrUsername")
                         .IsUnique();
 
                     b.HasIndex("NormalizedEmail")

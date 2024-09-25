@@ -81,7 +81,7 @@ namespace CoinyProject.Infrastructure.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetUsers_Email",
                 table: "AspNetUsers",
-                column: "Email",
+                column: "EmailOrUsername",
                 unique: true);
         }
 

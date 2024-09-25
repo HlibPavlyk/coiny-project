@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {NgClass, NgForOf, NgIf, NgOptimizedImage} from "@angular/common";
 import {Router} from "@angular/router";
+import {UserModel} from "../services/user.module";
+import {AuthService} from "../services/auth.service";
 
 @Component({
   selector: 'app-top-bar',
@@ -14,7 +16,9 @@ import {Router} from "@angular/router";
   templateUrl: './top-bar.component.html',
   styleUrl: './top-bar.component.css'
 })
-export class TopBarComponent {
+export class TopBarComponent implements OnInit{
+
+  user: UserModel | undefined;
 
   // Variable to toggle language dropdown
   isLanguageDropdownOpen: boolean = false;
@@ -28,7 +32,24 @@ export class TopBarComponent {
   // Array of available languages
   availableLanguages: string[] = ['UA', 'EN'];
 
-  constructor(private router: Router) {}
+  constructor(protected authService: AuthService, private router: Router) { }
+
+  ngOnInit() {
+    this.authService.user().subscribe(user => {
+      if (user) {
+        this.user = user;
+        console.log(`User is logged in as ${user.email}`);
+      }
+    });
+    this.user = this.authService.getUser();
+  }
+
+  onLogout(): void{
+    this.user = undefined;
+    this.authService.logout();
+    this.router.navigate(['login']);
+    console.log('User is logged out');
+  }
 
   // Toggle the language dropdown
   toggleLanguageDropdown() {

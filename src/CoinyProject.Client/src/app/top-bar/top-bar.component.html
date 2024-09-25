@@ -16,12 +16,12 @@
 
         <div class="flex items-center space-x-4">
           <!-- Check if the user is logged in -->
-          <ng-container *ngIf="isUserLoggedIn(); else loginTemplate">
+          <ng-container *ngIf="user  else loginTemplate">
             <!-- Display the user's name -->
-            <span class="font-semibold text-gray-600">Hello, {{ userName }}</span>
+            <span class="font-semibold  text-yellow-500">Hello, {{ user.username }}</span>
 
             <!-- Logout button -->
-            <button (click)="logout()" class="hover:text-gray-400 transition duration-200">
+            <button (click)="onLogout()" class="hover:text-gray-400 transition duration-200">
               <i class="fas fa-sign-out-alt"></i> Logout
             </button>
           </ng-container>

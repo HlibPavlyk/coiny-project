@@ -1,4 +1,4 @@
 export interface LoginRequestDto {
-  emailOrName: string;
+  emailOrUsername: string;
   password: string;
 }
