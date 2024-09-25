@@ -18,8 +18,8 @@ export class AuthService {
 
   constructor(private http: HttpClient, private cookieService: CookieService) { }
 
-  register(registerDto: RegisterDto): Observable<any> {
-    return this.http.post(`${this.apiUrl}/register`, registerDto);
+  register(registerDto: RegisterDto): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/register`, registerDto);
   }
 
   login(loginDto: LoginRequestDto): Observable<LoginResponseModel> {
