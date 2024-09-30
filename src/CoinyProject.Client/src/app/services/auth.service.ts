@@ -27,10 +27,15 @@ export class AuthService {
   }
 
   setUser(user: UserModel): void {
-    this.userSubject.next(user);
     localStorage.setItem('user-name', user.username);
     localStorage.setItem('user-email', user.email);
     localStorage.setItem('user-roles', user.roles.join());
+    this.userSubject.next(user);
+  }
+
+  isTokenExpired(token: string): boolean {
+    const expiry = (JSON.parse(atob(token.split('.')[1]))).exp;
+    return (Math.floor((new Date).getTime() / 1000)) >= expiry;
   }
 
   user(): Observable<UserModel | undefined> {
@@ -51,6 +56,7 @@ export class AuthService {
     }
     return undefined;
   }
+
 
   logout(): void {
     localStorage.clear();

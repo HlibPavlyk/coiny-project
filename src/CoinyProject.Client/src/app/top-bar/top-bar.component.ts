@@ -35,17 +35,18 @@ export class TopBarComponent implements OnInit{
   constructor(protected authService: AuthService, private router: Router) { }
 
   ngOnInit() {
-    this.authService.user().subscribe(user => {
-      if (user) {
-        this.user = user;
-        console.log(`User is logged in as ${user.email}`);
+    this.authService.user().subscribe(() => {
+      this.user = this.authService.getUser();
+      if (this.user) {
+        console.log(`User is logged in as ${this.user.email}`);
+      } else {
+        console.log('User is not logged in');
       }
     });
-    this.user = this.authService.getUser();
   }
 
   onLogout(): void{
-    this.user = undefined;
+    //this.user = undefined;
     this.authService.logout();
     this.router.navigate(['login']);
     console.log('User is logged out');

@@ -1,7 +1,12 @@
 <!-- login.component.html -->
-<div class="flex justify-center items-center h-screen bg-yellow-100">
+<div class="flex justify-center items-center mt-20 bg-yellow-100">
   <div class="w-full max-w-md bg-white shadow-lg rounded-lg p-8">
     <h2 class="text-3xl font-bold mb-6 text-center text-yellow-600">Login</h2>
+
+    <!-- Error message -->
+    <div *ngIf="errorMessage" class="text-red-600 bg-red-100 p-3 rounded mb-4">
+      {{ errorMessage }}
+    </div>
 
     <form (ngSubmit)="onLoginFormSubmit()" class="space-y-6">
       <!-- Email or Username -->

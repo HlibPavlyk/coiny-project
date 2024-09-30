@@ -4,13 +4,15 @@ import {AuthService} from "../services/auth.service";
 import {FormsModule} from "@angular/forms";
 import {LoginRequestDto} from "./login-request.module";
 import {CookieService} from "ngx-cookie-service";
+import {NgIf} from "@angular/common";
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [
-    FormsModule
-  ],
+    imports: [
+        FormsModule,
+        NgIf
+    ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
