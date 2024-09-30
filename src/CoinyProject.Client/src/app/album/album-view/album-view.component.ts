@@ -3,6 +3,7 @@ import {AlbumService} from "../../services/album.service";
 import {AlbumViewGetDto} from "./album-get.model";
 import {DatePipe, NgClass, NgForOf} from "@angular/common";
 import {FormsModule} from "@angular/forms";
+import {RouterLink} from "@angular/router";
 
 @Component({
   selector: 'app-album-view',
@@ -12,7 +13,8 @@ import {FormsModule} from "@angular/forms";
     NgClass,
     FormsModule,
     NgForOf,
-    DatePipe
+    DatePipe,
+    RouterLink
   ],
   styleUrls: ['./album-view.component.css']
 })

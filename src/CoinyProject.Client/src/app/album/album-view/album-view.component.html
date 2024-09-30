@@ -66,9 +66,12 @@
         </button>
 
         <!-- Album Image -->
-        <img [src]="album.imagesUrls[album.currentImageIndex]"
-             alt="Album Image"
-             class="h-full w-full object-cover rounded-lg transition-transform duration-500 ease-in-out transform hover:scale-105">
+        <a [routerLink]="['/album-edit', album.id]">
+          <img [src]="album.imagesUrls[album.currentImageIndex]"
+               alt="Album Image"
+               class="h-full w-full object-cover rounded-lg transition-transform duration-500 ease-in-out transform hover:scale-105 cursor-pointer">
+        </a>
+
 
         <!-- Right Arrow -->
         <button (click)="getNextImage(album)"
