@@ -1,8 +1,9 @@
-export interface AlbumGetDto {
+export interface AlbumViewGetDto {
   id: string;
   name: string;
   description: string;
   rate: number;
   updatedAt: string;
-  createdAt: string;
+  imagesUrls: string[];
+  currentImageIndex: number;
 }

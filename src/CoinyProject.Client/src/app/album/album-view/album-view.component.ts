@@ -1,9 +1,9 @@
 import {Component, OnInit} from "@angular/core";
 import {AlbumService} from "../../services/album.service";
-import {AlbumViewGetDto} from "./album-get.model";
+import {AlbumViewGetDto} from "./album-view-get.model";
 import {DatePipe, NgClass, NgForOf} from "@angular/common";
 import {FormsModule} from "@angular/forms";
-import {RouterLink} from "@angular/router";
+import {ActivatedRoute, RouterLink} from "@angular/router";
 
 @Component({
   selector: 'app-album-view',
@@ -27,28 +27,63 @@ export class AlbumViewComponent implements OnInit {
   isAscending: boolean = false;
   searchQuery: string = '';
 
-  constructor(private albumService: AlbumService) {}
+  userId: string | null = null;
+  isCurrentUser: boolean = false;
+
+  constructor(private albumService: AlbumService, private route: ActivatedRoute) {}
 
   ngOnInit(): void {
-    this.getPagedAlbums();
+    // Отримання параметрів із маршруту або queryParams
+    this.route.params.subscribe(params => {
+      this.userId = params['userId'] || null; // якщо передається userId
+    });
+
+    this.route.queryParams.subscribe(queryParams => {
+      this.isCurrentUser = queryParams['my'] === 'true'; // перевіряємо, чи це альбоми поточного користувача
+    });
+
+    this.getAlbums();
   }
 
-  getPagedAlbums(): void {
-    this.albumService.getPagedAlbums(this.page, this.size, this.sortItem, this.isAscending)
-      .subscribe((response) => {
+  getAlbums(): void {
+    // Якщо переглядаються альбоми поточного користувача
+    if (this.isCurrentUser) {
+      this.albumService.getPagedAlbumsByCurrentUser(this.page, this.size, this.sortItem, this.isAscending).subscribe(response => {
         this.albums = response.items.map(album => {
           album.currentImageIndex = 0;
           return album;
         });
-
         this.filteredAlbums = this.albums;
       });
+    }
+    // Якщо переглядаються альбоми іншого користувача
+    else if (this.userId) {
+      this.albumService.getPagedAlbumsByUserId(this.userId, this.page, this.size, this.sortItem, this.isAscending).subscribe(response => {
+        this.albums = response.items.map(album => {
+          album.currentImageIndex = 0;
+          return album;
+        });
+        this.filteredAlbums = this.albums;
+      });
+    }
+    // Всі альбоми
+    else {
+      this.albumService.getPagedAlbumsForView(this.page, this.size, this.sortItem, this.isAscending).subscribe(response => {
+        this.albums = response.items.map(album => {
+          album.currentImageIndex = 0;
+          return album;
+        });
+        this.filteredAlbums = this.albums;
+      });
+    }
   }
+
+
 
   setSort(sortType: string, isAscending: boolean): void {
     this.sortItem = sortType === 'rate' ? 'rate' : 'time';
     this.isAscending  = isAscending;
-    this.getPagedAlbums();
+    this.getAlbums();
   }
 
   searchAlbums(): void {

@@ -31,7 +31,7 @@ export class AlbumFormComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.albumId = this.route.snapshot.paramMap.get('id');
+    this.albumId = this.route.snapshot. paramMap.get('id');
     if (this.albumId) {
       this.isEditMode = true;
       this.loadAlbumData(this.albumId);
@@ -42,9 +42,9 @@ export class AlbumFormComponent implements OnInit {
   loadAlbumData(id: string): void {
     this.albumService.getAlbumById(id).subscribe({
       next: (album) => {
-        this.album = album;
-        this.startAlbum = { ...album };
-      },
+      this.album = { name: album.name, description: album.description };
+      this.startAlbum = { ...this.album };
+    },
       error: (err) => {
         this.errorMessage = `Failed to load album data: ${err.status}`;
         console.error('Failed to load album data', err.message());
@@ -72,7 +72,10 @@ export class AlbumFormComponent implements OnInit {
 
     if (this.isEditMode && this.albumId) {
       this.albumService.updateAlbum(this.albumId, partialAlbum).subscribe({
-        next: () => this.router.navigate(['/albums']),
+        next: (response) => {
+          console.log('Update successful ', response);
+          this.router.navigate(['/albums'])
+        },
         error: (err) => {
           console.error('Update failed', err);
           this.errorMessage = `Failed to update album: ${err.status}`;
@@ -80,7 +83,10 @@ export class AlbumFormComponent implements OnInit {
       });
     } else {
       this.albumService.addAlbum(this.album).subscribe({
-        next: () => this.router.navigate(['/albums']),
+        next: (response) => {
+          console.log('Adding successful ', response);
+          this.router.navigate(['/albums'])
+        },
         error: (err) => {
           console.error('Adding failed', err);
           this.errorMessage = `Failed to add album: ${err.status}`;

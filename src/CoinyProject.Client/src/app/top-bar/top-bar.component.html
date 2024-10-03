@@ -18,7 +18,10 @@
           <!-- Check if the user is logged in -->
           <ng-container *ngIf="user  else loginTemplate">
             <!-- Display the user's name -->
-            <span class="font-semibold  text-yellow-500">Hello, {{ user.username }}</span>
+            <button (click)="navigateTo('profile/my')" class="font-semibold text-yellow-500 hover:text-yellow-600 bg-transparent rounded-md transition duration-200">
+              Hello, {{ user.username }}
+            </button>
+
 
             <!-- Logout button -->
             <button (click)="onLogout()" class="hover:text-yellow-500 transition duration-200">
@@ -98,11 +101,21 @@
       </div>
 
 
-      <!-- Create Listing Button -->
-      <button (click)="navigateTo('Album-Create')" class="flex items-center space-x-2 bg-transparent border border-yellow-400 text-yellow-400 rounded-md px-4 py-2 hover:bg-yellow-400 hover:text-white transition duration-200">
-        <span class="font-semibold">+</span>
-        <span>Create Album</span>
-      </button>
+      <div class="flex space-x-4">
+        <!-- Create Album Button -->
+        <button (click)="navigateTo('Album-Create')"
+                class="flex items-center space-x-2 bg-transparent border border-yellow-400 text-yellow-400 rounded-md px-4 py-2 hover:bg-yellow-400 hover:text-white transition duration-200">
+          <span class="font-semibold">+</span>
+          <span>Create Album</span>
+        </button>
+
+        <!-- My Albums Button (Visible only if the user is logged in) -->
+        <button *ngIf="user" [routerLink]="['profile/my']" [queryParams]="{ my: true }"
+                class="flex items-center space-x-2 bg-transparent border border-yellow-400 text-yellow-400 rounded-md px-4 py-2 hover:bg-yellow-400 hover:text-white transition duration-200">
+          <i class="fas fa-folder-open"></i>
+          <span>My Albums</span>
+        </button>
+      </div>
     </div>
   </div>
 </div>

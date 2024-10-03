@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {NgClass, NgForOf, NgIf, NgOptimizedImage} from "@angular/common";
-import {Router} from "@angular/router";
+import {Router, RouterLink} from "@angular/router";
 import {UserModel} from "../services/user.module";
 import {AuthService} from "../services/auth.service";
 
@@ -11,7 +11,8 @@ import {AuthService} from "../services/auth.service";
     NgOptimizedImage,
     NgForOf,
     NgIf,
-    NgClass
+    NgClass,
+    RouterLink
   ],
   templateUrl: './top-bar.component.html',
   styleUrl: './top-bar.component.css'
