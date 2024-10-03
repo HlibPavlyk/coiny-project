@@ -8,6 +8,8 @@ namespace CoinyProject.Application.Abstractions.Services
     {
         Task<Guid> AddAlbumAsync(AlbumPostDto album);
         Task<PagedResponse<AlbumViewGetDto>> GetPagedAlbumsAsync(PageQueryDto pageQuery, SortByItemQueryDto? sortQuery);
+        Task<PagedResponse<AlbumViewGetDto>> GetPagedActiveAlbumsByUserIdAsync(Guid userId, PageQueryDto pageQuery, SortByItemQueryDto? sortQuery);
+        Task<PagedResponse<AlbumViewGetDto>> GetCurrentUserPagedAlbumsAsync(PageQueryDto pageQuery, SortByItemQueryDto? sortQuery);
         Task<AlbumGetDto> GetAlbumById(Guid id);
         Task<Guid> UpdateAlbumAsync(Guid id, AlbumPatchDto album);
         Task DeactivateAlbumAsync(Guid id);

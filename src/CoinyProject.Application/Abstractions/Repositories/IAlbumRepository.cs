@@ -6,7 +6,7 @@ namespace CoinyProject.Application.Abstractions.Repositories
     public interface IAlbumRepository : IGenericRepository<Album>
     {
         Task<PagedResponse<Album>> GetPagedActiveAlbumsWithElementsAsync(PageQueryDto pageQuery, SortByItemQueryDto? sortQuery);
-        Task<PagedResponse<Album>> GetPagedAlbumsWithElementsAndFavoritesForViewAsync(int page, int size);
-        //Task<Album?> GetAlbumWithElementsByIdAsync(Guid id);
+        Task<PagedResponse<Album>> GetPagedAlbumsWithElementsByUserIdAsync(Guid userId, PageQueryDto pageQuery, SortByItemQueryDto? sortQuery);
+        Task<PagedResponse<Album>> GetPagedActiveAlbumsWithElementsByUserIdAsync(Guid userId, PageQueryDto pageQuery, SortByItemQueryDto? sortQuery);
     }
 }

@@ -1,4 +1,5 @@
-﻿using CoinyProject.Application.Abstractions.Repositories;
+﻿using System.Linq.Expressions;
+using CoinyProject.Application.Abstractions.Repositories;
 using CoinyProject.Application.Dto.Other;
 using CoinyProject.Domain.Entities;
 using CoinyProject.Domain.Enums;
@@ -9,21 +10,33 @@ namespace CoinyProject.Infrastructure.Repositories
     public class AlbumRepository : GenericRepository<Album>, IAlbumRepository
     {
         public AlbumRepository(ApplicationDbContext context) : base(context) {}
-
-        /*public async Task<Album?> GetAlbumWithElementsByIdAsync(Guid id)
-        {
-            return await Context.Albums
-                .Include(x => x.Elements)
-                .AsNoTracking()
-                .SingleOrDefaultAsync(x => x.Id == id)
-        }*/
-
+        
         public async Task<PagedResponse<Album>> GetPagedActiveAlbumsWithElementsAsync(PageQueryDto pageQuery, SortByItemQueryDto? sortQuery)
+        {
+            return await GetPagedAlbumsWithElementsByPredicateAsync(pageQuery, sortQuery, x => x.Status == AlbumStatus.Active);
+        }
+
+        public Task<PagedResponse<Album>> GetPagedAlbumsWithElementsByUserIdAsync(Guid userId, PageQueryDto pageQuery, SortByItemQueryDto? sortQuery)
+        {
+            return GetPagedAlbumsWithElementsByPredicateAsync(pageQuery, sortQuery, x => x.UserId == userId);
+        }
+
+        public Task<PagedResponse<Album>> GetPagedActiveAlbumsWithElementsByUserIdAsync(Guid userId, PageQueryDto pageQuery, SortByItemQueryDto? sortQuery)
+        {
+            return GetPagedAlbumsWithElementsByPredicateAsync(pageQuery, sortQuery, x => x.UserId == userId && x.Status == AlbumStatus.Active);
+        }
+        
+        private async Task<PagedResponse<Album>> GetPagedAlbumsWithElementsByPredicateAsync(
+            PageQueryDto pageQuery, 
+            SortByItemQueryDto? sortQuery, 
+            Expression<Func<Album, bool>>? predicate = null)
         {
             var query = Context.Albums
                 .Include(x => x.Elements)
-                .Where(x => x.Status == AlbumStatus.Active)
                 .AsNoTracking();
+
+            if (predicate != null)
+                query = query.Where(predicate);
 
             if (sortQuery != null)
             {
@@ -41,17 +54,6 @@ namespace CoinyProject.Infrastructure.Repositories
 
             return await GetPagedEntitiesAsync(query, pageQuery.Page, pageQuery.PageSize);
         }
-
-        public async Task<PagedResponse<Album>> GetPagedAlbumsWithElementsAndFavoritesForViewAsync(int page, int size)
-        {
-            var query = Context.Albums
-                .Include(x => x.Elements)
-                .ThenInclude(e => e.FavoriteAlbumElements)
-                .Where(x => x.Status == AlbumStatus.Active)
-                .OrderByDescending(x => x.Rate)
-                .AsNoTracking();
-
-            return await GetPagedEntitiesAsync(query, page, size);
-        }
+        
     }
 }

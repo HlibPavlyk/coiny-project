@@ -43,11 +43,23 @@ namespace CoinyProject.Application.Services
 
         public async Task<PagedResponse<AlbumViewGetDto>> GetPagedAlbumsAsync(PageQueryDto pageQuery, SortByItemQueryDto? sortQuery)
         {
-            var albums = await _unitOfWork.Albums.GetPagedActiveAlbumsWithElementsAsync(pageQuery,sortQuery);
-            if (albums.TotalPages == 0)
-                throw new NotFoundException("Any active album not found.");
-           
-            return _mapper.Map<PagedResponse<AlbumViewGetDto>>(albums);
+            var albums = await _unitOfWork.Albums.GetPagedActiveAlbumsWithElementsAsync(pageQuery, sortQuery);
+            return GetPagedAlbumsDtoFromPagedAlbums(albums);
+        }
+
+        public async Task<PagedResponse<AlbumViewGetDto>> GetPagedActiveAlbumsByUserIdAsync(Guid userId, PageQueryDto pageQuery, SortByItemQueryDto? sortQuery)
+        {
+            var albums = await _unitOfWork.Albums.GetPagedActiveAlbumsWithElementsByUserIdAsync(userId, pageQuery, sortQuery);
+            return GetPagedAlbumsDtoFromPagedAlbums(albums);
+        }
+        public async Task<PagedResponse<AlbumViewGetDto>> GetCurrentUserPagedAlbumsAsync(PageQueryDto pageQuery, SortByItemQueryDto? sortQuery)
+        {
+            var user = _httpContextAccessor.HttpContext?.User;
+            if (user is not { Identity.IsAuthenticated: true } || !Guid.TryParse(user.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
+                throw new UnauthorizedAccessException("User is not authenticated or user id is not valid");
+            
+            var albums = await _unitOfWork.Albums.GetPagedAlbumsWithElementsByUserIdAsync(userId, pageQuery, sortQuery);
+            return GetPagedAlbumsDtoFromPagedAlbums(albums);
         }
 
         public async Task<AlbumGetDto> GetAlbumById(Guid id)
@@ -135,6 +147,14 @@ namespace CoinyProject.Application.Services
                 album.Status = endStatus;
             
             await _unitOfWork.SaveChangesAsync();
+        }
+        
+        private PagedResponse<AlbumViewGetDto> GetPagedAlbumsDtoFromPagedAlbums(PagedResponse<Album> albums)
+        {
+            if (albums.TotalPages == 0)
+                throw new NotFoundException("Any active album not found.");
+           
+            return _mapper.Map<PagedResponse<AlbumViewGetDto>>(albums);
         }
     }
 }

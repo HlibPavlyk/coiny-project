@@ -57,6 +57,51 @@ public class AlbumController : Controller
         }
     }
     
+    [HttpGet("by-user/{userId:guid}")]
+    public async Task<IActionResult> GetPagedByUserIdAlbums([FromRoute] Guid userId, [FromQuery] int page = 1,[FromQuery] int size = 10,
+        [FromQuery] string sortItem = "time", [FromQuery] bool isAscending = false)
+    {
+        try
+        {
+            var albums = await _albumService.GetPagedActiveAlbumsByUserIdAsync(userId, new PageQueryDto(page, size),
+                new SortByItemQueryDto(sortItem, isAscending));
+            return Ok(albums);
+        }
+        catch (NotFoundException e)
+        {
+            return NotFound(e.Message);
+        }
+        catch (ArgumentException e)
+        {
+            return BadRequest(e.Message);
+        }
+    }
+    
+    [HttpGet("my")]
+    [Authorize]
+    public async Task<IActionResult> GetPagedByCurrentUser([FromQuery] int page = 1,[FromQuery] int size = 10,
+        [FromQuery] string sortItem = "time", [FromQuery] bool isAscending = false)
+    {
+        try
+        {
+            var albums = await _albumService.GetCurrentUserPagedAlbumsAsync(new PageQueryDto(page, size),
+                new SortByItemQueryDto(sortItem, isAscending));
+            return Ok(albums);
+        }
+        catch (NotFoundException e)
+        {
+            return NotFound(e.Message);
+        }
+        catch (ArgumentException e)
+        {
+            return BadRequest(e.Message);
+        }
+        catch (UnauthorizedAccessException e)
+        {
+            return BadRequest(e.Message);
+        }
+    }
+    
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetAlbumById([FromRoute] Guid id)
     {

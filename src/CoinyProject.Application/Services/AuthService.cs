@@ -28,7 +28,8 @@ public class AuthService(UserManager<User> userManager, ITokenService tokenServi
     
     public async Task<LoginResponseDto> LoginAsync(LoginRequestDto login)
     {
-        var identityUser = await userManager.FindByEmailAsync(login.EmailOrUsername);
+        var identityUser = await userManager.FindByEmailAsync(login.EmailOrUsername) 
+                           ?? await userManager.FindByNameAsync(login.EmailOrUsername);
 
         if (identityUser != null)
         {
