@@ -28,6 +28,7 @@ public static class DependencyContainerExtension
         services.AddScoped<IAlbumElementService, AlbumElementService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<ITokenService, TokenService>();
+        services.AddScoped<IUserService, UserService>();
 
         services.AddIdentityUser();
         services.ConfigurateIdentityOptions();

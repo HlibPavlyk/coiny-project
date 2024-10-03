@@ -8,12 +8,13 @@ namespace CoinyProject.Infrastructure.Repositories
     {
         public UserRepository(ApplicationDbContext context) : base(context) {}
 
-        public async Task<User?> GetUserWithFavoriteAlbumElementsByIdAsync(Guid id)
+        public async Task<User?> GetUserWithInfoForStatsAsync(Guid id)
         {
             return await Context.Users
                 .AsNoTracking()
-                .Include(u => u.FavoriteAlbumElements)
-                .SingleOrDefaultAsync(u => u.Id == id);
+                .Include(u => u.Albums)
+                .ThenInclude(a => a.Elements)
+                .FirstOrDefaultAsync(u => u.Id == id);
         }
     }
 }
