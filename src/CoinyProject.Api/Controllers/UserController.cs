@@ -15,26 +15,18 @@ public class UserController : Controller
         _userService = userService;
     }
 
-    [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetUser(Guid id)
+    [HttpGet("stats")]
+    public async Task<IActionResult> GetUser([FromQuery] Guid? id)
     {
         try
         {
-            var user = await _userService.GetUserStatsAsync(id);
-            return Ok(user);
-        }
-        catch (NotFoundException e)
-        {
-            return NotFound(e.Message);
-        }
-    }
-    
-    [HttpGet("me")]
-    public async Task<IActionResult> GetCurrentUser()
-    {
-        try
-        {
-            var user = await _userService.GetCurrentUserStatsAsync();
+            if (id == null)
+            {
+                var currentUser = await _userService.GetCurrentUserStatsAsync();
+                return Ok(currentUser);
+            }
+
+            var user = await _userService.GetUserStatsAsync(id.Value);
             return Ok(user);
         }
         catch (UnauthorizedAccessException e)
@@ -46,4 +38,5 @@ public class UserController : Controller
             return NotFound(e.Message);
         }
     }
+
 }

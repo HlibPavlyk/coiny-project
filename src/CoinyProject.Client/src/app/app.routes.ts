@@ -26,16 +26,14 @@ export const routes: Routes = [
     data: { roles: ['User'] }
   },
   {
-    path: 'profile/my',
+    path: 'profile',
     component: ProfileComponent,
     canActivate: [authGuard],
     data: { roles: ['User'], my: true }
   },
   {
-    path: 'profile/user/:id',
-    component: ProfileComponent,
-    canActivate: [authGuard],
-    data: { my: true }
+    path: 'profile/:id',
+    component: ProfileComponent
   },
 
 ]

@@ -35,7 +35,7 @@ export class AlbumViewComponent implements OnInit {
   ngOnInit(): void {
     // Отримання параметрів із маршруту або queryParams
     this.route.params.subscribe(params => {
-      this.userId = params['userId'] || null; // якщо передається userId
+      this.userId = params['id'] || null; // якщо передається userId
     });
 
     this.route.queryParams.subscribe(queryParams => {
@@ -47,8 +47,8 @@ export class AlbumViewComponent implements OnInit {
 
   getAlbums(): void {
     // Якщо переглядаються альбоми поточного користувача
-    if (this.isCurrentUser) {
-      this.albumService.getPagedAlbumsByCurrentUser(this.page, this.size, this.sortItem, this.isAscending).subscribe(response => {
+    if (this.isCurrentUser || this.userId) {
+      this.albumService.getPagedAlbumsByUser(this.userId, this.page, this.size, this.sortItem, this.isAscending).subscribe(response => {
         this.albums = response.items.map(album => {
           album.currentImageIndex = 0;
           return album;
@@ -56,17 +56,6 @@ export class AlbumViewComponent implements OnInit {
         this.filteredAlbums = this.albums;
       });
     }
-    // Якщо переглядаються альбоми іншого користувача
-    else if (this.userId) {
-      this.albumService.getPagedAlbumsByUserId(this.userId, this.page, this.size, this.sortItem, this.isAscending).subscribe(response => {
-        this.albums = response.items.map(album => {
-          album.currentImageIndex = 0;
-          return album;
-        });
-        this.filteredAlbums = this.albums;
-      });
-    }
-    // Всі альбоми
     else {
       this.albumService.getPagedAlbumsForView(this.page, this.size, this.sortItem, this.isAscending).subscribe(response => {
         this.albums = response.items.map(album => {
@@ -77,8 +66,6 @@ export class AlbumViewComponent implements OnInit {
       });
     }
   }
-
-
 
   setSort(sortType: string, isAscending: boolean): void {
     this.sortItem = sortType === 'rate' ? 'rate' : 'time';
@@ -108,4 +95,10 @@ export class AlbumViewComponent implements OnInit {
       album.currentImageIndex = index;
     }
   }
+
+  onImageError(event: Event) {
+    const target = event.target as HTMLImageElement;
+    target.src = 'no-image.jpg';
+  }
+
 }

@@ -18,9 +18,10 @@
           <!-- Check if the user is logged in -->
           <ng-container *ngIf="user  else loginTemplate">
             <!-- Display the user's name -->
-            <button (click)="navigateTo('profile/my')" class="font-semibold text-yellow-500 hover:text-yellow-600 bg-transparent rounded-md transition duration-200">
+            <a (click)="selectButton('Profile')" [routerLink]="['profile']" [queryParams]="{ my: true }"
+                    class="font-semibold text-yellow-500 hover:text-yellow-600 bg-transparent rounded-md transition duration-200">
               Hello, {{ user.username }}
-            </button>
+            </a>
 
 
             <!-- Logout button -->
@@ -32,7 +33,8 @@
           <!-- Login button template -->
           <ng-template #loginTemplate>
             <!-- Login Icon -->
-            <button (click)="navigateTo('Login')" class="hover:text-yellow-500 transition duration-200">
+            <button (click)="selectButton('Login')" [routerLink]="['login']"
+                    class="hover:text-yellow-500 transition duration-200">
               <i class="fas fa-sign-in-alt"></i> Login
             </button>
           </ng-template>
@@ -55,9 +57,10 @@
         </div>
 
         <!-- Information Icon -->
-        <button (click)="navigateTo('Info')" class="hover:text-yellow-500 transition duration-200 cursor-pointer">
+        <a (click)="selectButton('Info')" [routerLink]="['info']"
+           class="hover:text-yellow-500 transition duration-200 cursor-pointer">
           <i class="fas fa-info-circle"></i>
-        </button>
+        </a>
 
       </div>
     </div>
@@ -72,28 +75,27 @@
       <!-- Left Section -->
       <div class="flex items-center space-x-6">
         <a href="#"
-           (click)="navigateTo('Home')"
+           (click)="selectButton('Home')" [routerLink]="['home']"
            [ngClass]="{'text-yellow-400 font-semibold': activePage === 'Home', 'text-gray-300': activePage !== 'Home'}"
            class="hover:text-yellow-500 transition duration-200">
           Home
         </a>
 
-        <button
-           (click)="navigateTo('Albums')"
+        <a
+           (click)="selectButton('Albums')" [routerLink]="['albums']"
            [ngClass]="{'text-yellow-400 font-semibold': activePage === 'Albums', 'text-gray-300': activePage !== 'Albums'}"
            class="hover:text-yellow-500 transition duration-200">
           Albums
-        </button>
+        </a>
 
         <a href="#"
-           (click)="navigateTo('Community')"
+           (click)="selectButton('Community')"
            [ngClass]="{'text-yellow-400 font-semibold': activePage === 'Community', 'text-gray-300': activePage !== 'Community'}"
            class="hover:text-yellow-500 transition duration-200">
           Community
         </a>
 
-        <a href="#"
-           (click)="navigateTo('Auctions')"
+        <a (click)="selectButton('Auctions')" [routerLink]="['auctions']"
            [ngClass]="{'text-yellow-400 font-semibold': activePage === 'Auctions', 'text-gray-300': activePage !== 'Auctions'}"
            class="hover:text-yellow-500 transition duration-200">
           Auctions
@@ -103,18 +105,18 @@
 
       <div class="flex space-x-4">
         <!-- Create Album Button -->
-        <button (click)="navigateTo('Album-Create')"
+        <a (click)="selectButton('Album-Create')" [routerLink]="['album-create']"
                 class="flex items-center space-x-2 bg-transparent border border-yellow-400 text-yellow-400 rounded-md px-4 py-2 hover:bg-yellow-400 hover:text-white transition duration-200">
           <span class="font-semibold">+</span>
           <span>Create Album</span>
-        </button>
+        </a>
 
         <!-- My Albums Button (Visible only if the user is logged in) -->
-        <button *ngIf="user" [routerLink]="['profile/my']" [queryParams]="{ my: true }"
+        <a *ngIf="user" (click)="selectButton('My-Albums')" [routerLink]="['profile']" [queryParams]="{ my: true }"
                 class="flex items-center space-x-2 bg-transparent border border-yellow-400 text-yellow-400 rounded-md px-4 py-2 hover:bg-yellow-400 hover:text-white transition duration-200">
           <i class="fas fa-folder-open"></i>
           <span>My Albums</span>
-        </button>
+        </a>
       </div>
     </div>
   </div>

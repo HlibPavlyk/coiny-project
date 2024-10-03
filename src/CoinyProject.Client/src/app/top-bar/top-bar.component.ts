@@ -75,11 +75,9 @@ export class TopBarComponent implements OnInit{
   }
 
   // Method to handle navigation clicks (for Home, Albums, etc.)
-  navigateTo(page: string) {
+  selectButton(page: string) {
     this.activePage = page;
-    this.router.navigate([`/${page.toLowerCase()}`])
-      .then(r => console.log('Navigating to Home'));
-
+    console.log('Navigating to Home');
   }
 
 }

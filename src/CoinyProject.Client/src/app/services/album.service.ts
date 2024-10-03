@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {HttpClient} from "@angular/common/http";
+import {HttpClient, HttpParams} from "@angular/common/http";
 import {Observable} from "rxjs";
 import {PagedResponse} from "./paged-response.model";
 import {AlbumViewGetDto} from "../album/album-view/album-view-get.model";
@@ -26,25 +26,21 @@ export class AlbumService {
     return this.http.get<PagedResponse<AlbumViewGetDto>>(this.baseUrl, {params});
   }
 
-  getPagedAlbumsByCurrentUser(page: number, size: number, sortItem: string, isAscending: boolean): Observable<PagedResponse<AlbumViewGetDto>> {
-    const params = {
-      page: page.toString(),
-      size: size.toString(),
-      sortItem: sortItem,
-      isAscending: isAscending.toString(),
-      addAuth: 'true'
-    };
-    return this.http.get<PagedResponse<AlbumViewGetDto>>(`${this.baseUrl}/my`, {params});
-  }
+  getPagedAlbumsByUser(userId: string | null, page: number, size: number, sortItem: string, isAscending: boolean): Observable<PagedResponse<AlbumViewGetDto>> {
+    let params = new HttpParams();
+    if (userId) {
+      params = params.append('userId', userId);
+    }
+    else {
+      params = params.append('addAuth', 'true');
+    }
 
-  getPagedAlbumsByUserId(userId: string, page: number, size: number, sortItem: string, isAscending: boolean): Observable<PagedResponse<AlbumViewGetDto>> {
-    const params = {
-      page: page.toString(),
-      size: size.toString(),
-      sortItem: sortItem,
-      isAscending: isAscending.toString(),
-    };
-    return this.http.get<PagedResponse<AlbumViewGetDto>>(`${this.baseUrl}/by-user/${userId}`, {params});
+    params = params.append('page', page.toString());
+    params = params.append('size', size.toString(),);
+    params = params.append('sortItem', sortItem);
+    params = params.append('isAscending', isAscending.toString());
+
+    return this.http.get<PagedResponse<AlbumViewGetDto>>(`${this.baseUrl}/by-user`, { params });
   }
 
   // Create a new album
