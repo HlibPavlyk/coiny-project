@@ -58,7 +58,6 @@ public class AlbumController : Controller
     }
     
     [HttpGet("by-user")]
-    [Authorize]
     public async Task<IActionResult> GetPagedAlbums([FromQuery] Guid? userId, [FromQuery] int page = 1, [FromQuery] int size = 10,
         [FromQuery] string sortItem = "time", [FromQuery] bool isAscending = false)
     {
