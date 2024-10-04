@@ -4,6 +4,8 @@ import {AlbumViewGetDto} from "./album-view-get.model";
 import {DatePipe, NgClass, NgForOf} from "@angular/common";
 import {FormsModule} from "@angular/forms";
 import {ActivatedRoute, RouterLink} from "@angular/router";
+import {UserModel} from "../../services/user.model";
+import {AuthService} from "../../services/auth.service";
 
 @Component({
   selector: 'app-album-view',
@@ -30,9 +32,14 @@ export class AlbumViewComponent implements OnInit {
   userId: string | null = null;
   isCurrentUser: boolean = false;
 
-  constructor(private albumService: AlbumService, private route: ActivatedRoute) {}
+  user: UserModel | undefined;
+
+  constructor(private authService:AuthService, private albumService: AlbumService, private route: ActivatedRoute) {}
 
   ngOnInit(): void {
+    this.authService.user().subscribe(user => {
+      this.user = user;
+    });
     // Отримання параметрів із маршруту або queryParams
     this.route.params.subscribe(params => {
       this.userId = params['id'] || null; // якщо передається userId

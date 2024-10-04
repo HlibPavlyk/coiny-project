@@ -47,8 +47,9 @@ public class AuthService(UserManager<User> userManager, ITokenService tokenServi
                 
                     return new LoginResponseDto
                     {
+                        Id = identityUser.Id,
                         Username = identityUser.UserName,
-                        Email = login.EmailOrUsername,
+                        Email = identityUser.Email,
                         Roles = roles.ToList(),
                         Token = jwtToken
                     };

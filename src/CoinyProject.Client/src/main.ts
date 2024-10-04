@@ -10,6 +10,6 @@ bootstrapApplication(AppComponent, {
   providers: [
     provideRouter(routes),
     importProvidersFrom(HttpClientModule),
-    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
   ]
 }).catch(err => console.error(err));

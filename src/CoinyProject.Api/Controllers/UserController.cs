@@ -38,5 +38,19 @@ public class UserController : Controller
             return NotFound(e.Message);
         }
     }
+    
+    [HttpGet("{id}/name")]
+    public async Task<IActionResult> GetUserName([FromRoute]Guid id)
+    {
+        try
+        {
+            var userName = await _userService.GetUserNameAsync(id);
+            return Ok(userName);
+        }
+        catch (NotFoundException e)
+        {
+            return NotFound(e.Message);
+        }
+    }
 
 }

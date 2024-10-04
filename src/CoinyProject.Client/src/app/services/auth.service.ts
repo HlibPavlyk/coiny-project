@@ -4,7 +4,7 @@ import {BehaviorSubject, Observable} from "rxjs";
 import {RegisterDto} from "../register/register.module";
 import {LoginRequestDto} from "../login/login-request.module";
 import {CookieService} from "ngx-cookie-service";
-import {UserModel} from "./user.module";
+import {UserModel} from "./user.model";
 import {LoginResponseModel} from "../login/login-response.module";
 
 @Injectable({
@@ -27,6 +27,7 @@ export class AuthService {
   }
 
   setUser(user: UserModel): void {
+    localStorage.setItem('user-id', user.id);
     localStorage.setItem('user-name', user.username);
     localStorage.setItem('user-email', user.email);
     localStorage.setItem('user-roles', user.roles.join());
@@ -43,12 +44,14 @@ export class AuthService {
   }
 
   getUser(): UserModel | undefined {
+    const id = localStorage.getItem('user-id');
     const username = localStorage.getItem('user-name');
     const email = localStorage.getItem('user-email');
     const roles = localStorage.getItem('user-roles');
 
-    if (username && email && roles) {
+    if (id && username && email && roles) {
       return {
+        id,
         username,
         email,
         roles: roles.split(',')

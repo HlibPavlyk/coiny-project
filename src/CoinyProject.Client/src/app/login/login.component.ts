@@ -33,6 +33,7 @@ export class LoginComponent  {
           this.cookieService.set('Authorization', `Bearer  ${response.token}`,
             undefined, '/', undefined, true, 'Strict');
           this.authService.setUser({
+            id: response.id,
             username: response.username,
             email: response.email,
             roles: response.roles

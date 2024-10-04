@@ -110,12 +110,18 @@
         <!-- Author section -->
         <div class="flex items-center mb-4">
           <span class="font-bold text-yellow-600">Author: </span>
-          <a [routerLink]="['/profile', album.author.id]" class="ml-2 text-yellow-600 hover:underline">
+          <!-- Conditional RouterLink -->
+          <a
+            [routerLink]="user?.id === album.author.id ? ['/profile'] : ['/profile', album.author.id]"
+            [queryParams]="user?.id === album.author.id ? { my: true } : null"
+            class="ml-2 text-yellow-600 hover:text-yellow-500 transition duration-300">
             {{ album.author.username }}
           </a>
         </div>
-      </div>
 
-    </div>
+
+
+      </div>
   </div>
+</div>
 </div>

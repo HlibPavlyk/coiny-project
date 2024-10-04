@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {NgClass, NgForOf, NgIf, NgOptimizedImage} from "@angular/common";
 import {Router, RouterLink} from "@angular/router";
-import {UserModel} from "../services/user.module";
+import {UserModel} from "../services/user.model";
 import {AuthService} from "../services/auth.service";
 
 @Component({

@@ -40,4 +40,13 @@ public class UserService : IUserService
         
         return await GetUserStatsAsync(currentUserId);
     }
+
+    public async Task<UserNameGetDto> GetUserNameAsync(Guid userId)
+    {
+        var album = await _unitOfWork.Users.GetByIdAsync(userId);
+        if (album == null)
+            throw new NotFoundException("Album not found.");
+            
+        return _mapper.Map<UserNameGetDto>(album);
+    }
 }

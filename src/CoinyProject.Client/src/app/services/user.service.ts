@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import {Observable} from "rxjs";
 import {UserStatsModel} from "../profile/stats/stats.module";
 import {HttpClient, HttpParams} from "@angular/common/http";
+import {UsernameModel} from "./username.model";
 
 @Injectable({
   providedIn: 'root'
@@ -23,4 +24,7 @@ export class UserService {
     return this.http.get<UserStatsModel>(`${this.baseUrl}/stats`, {params} ); // Adjust the endpoint accordingly
   }
 
+  getUsernameById(id: string): Observable<UsernameModel> {
+    return this.http.get<UsernameModel>(`${this.baseUrl}/${id}/name`);
+  }
 }
