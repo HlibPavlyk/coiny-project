@@ -33,6 +33,7 @@ namespace CoinyProject.Infrastructure.Repositories
         {
             var query = Context.Albums
                 .Include(x => x.Elements)
+                .Include(x => x.User)
                 .AsNoTracking();
 
             if (predicate != null)

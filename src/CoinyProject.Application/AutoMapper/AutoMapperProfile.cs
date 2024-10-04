@@ -21,7 +21,9 @@ namespace CoinyProject.Application.AutoMapper
                 .ForMember(dest => dest.ImageUrl, src => src.Ignore());
 
             CreateMap<Album, AlbumViewGetDto>()
-                .ForMember(dest => dest.ImagesUrls, opt => opt.MapFrom<GetISeveralImageUrlsResolver>());
+                .ForMember(dest => dest.ImagesUrls, opt => opt.MapFrom<GetISeveralImageUrlsResolver>())
+                .ForMember(dest => dest.Author, opt => opt.MapFrom(src => src.User));
+            CreateMap<User, UserNameGetDto>();
             CreateMap<Album, AlbumGetDto>();
             CreateMap<AlbumElement, AlbumElementGetDto>()
                 .ForMember(dest => dest.ImageUrl, src => src.MapFrom<GetImageUrlResolver>());

@@ -15,7 +15,7 @@ export class UserService {
   getUserStats(id: string| null): Observable<UserStatsModel> {
     let params = new HttpParams();
     if (id) {
-      params = params.append('userId', id);
+      params = params.append('id', id);
     }
     else {
       params = params.append('addAuth', 'true');

@@ -55,6 +55,9 @@ export class AlbumService {
 
   // Get album by ID
   getAlbumById(id: string): Observable<AlbumGetDto> {
-    return this.http.get<AlbumGetDto>(`${this.baseUrl}/${id}`);
+    const params = {
+      addAuth: true.toString()
+    };
+    return this.http.get<AlbumGetDto>(`${this.baseUrl}/${id}`, {params});
   }
 }

@@ -1,3 +1,5 @@
+using CoinyProject.Application.Dto.User;
+
 namespace CoinyProject.Application.Dto.Album;
 
 public class AlbumGetDto
@@ -6,6 +8,7 @@ public class AlbumGetDto
     public string Name { get; set; } = string.Empty;
     public string? Description { get; set; }
     public int Rate { get; set; }
+    public UserNameGetDto Author { get; set; }
     public DateTime UpdatedAt { get; set; }
     public DateTime CreatedAt { get; set; }
 }
