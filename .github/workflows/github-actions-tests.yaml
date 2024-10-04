@@ -6,6 +6,7 @@ on:
             - master
             - develop
             - test-branch
+            - change-project-structure
     pull_request:
         branches:
             - master

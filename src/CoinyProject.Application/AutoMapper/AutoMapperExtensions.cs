@@ -1,11 +1,4 @@
-﻿using CoinyProject.Infrastructure.Data;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 namespace CoinyProject.Application.AutoMapper
 {
@@ -13,8 +6,10 @@ namespace CoinyProject.Application.AutoMapper
     {
         public static void AddAutoMapperService(this IServiceCollection service)
         {
-            IServiceCollection serviceCollection = service.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
-
+            service.AddAutoMapper(cfg =>
+            {
+                cfg.AddProfile<AutoMapperProfile>();
+            });
         }
     }
 }

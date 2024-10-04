@@ -1,0 +1,28 @@
+<div class="container mx-auto px-4 py-8">
+<div class="bg-pastel-red-light shadow-md rounded-lg p-6">
+  <h2 class="text-xl font-bold mb-4">{{ isCurrentUser ? 'My' : 'User' }} Statistics</h2>
+
+  <div class="flex flex-col space-y-2">
+    <div class="flex justify-between">
+      <span class="font-medium">Username:</span>
+      <span>{{ userStats?.username }}</span>
+    </div>
+    <div class="flex justify-between">
+      <span class="font-medium">Discussion Rate:</span>
+      <span>{{ userStats?.discussionRate }}</span>
+    </div>
+    <div class="flex justify-between">
+      <span class="font-medium">Likes:</span>
+      <span>{{ userStats?.likesCount }}</span>
+    </div>
+    <div class="flex justify-between">
+      <span class="font-medium">Albums:</span>
+      <span>{{ userStats?.albumsCount }}</span>
+    </div>
+    <div class="flex justify-between">
+      <span class="font-medium">Albums Elements:</span>
+      <span>{{ userStats?.albumsElementsCount }}</span>
+    </div>
+  </div>
+</div>
+</div>

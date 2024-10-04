@@ -1,0 +1,42 @@
+<!-- login.component.html -->
+<div class="flex justify-center items-center mt-20 bg-yellow-100">
+  <div class="w-full max-w-md bg-white shadow-lg rounded-lg p-8">
+    <h2 class="text-3xl font-bold mb-6 text-center text-yellow-600">Login</h2>
+
+    <!-- Error message -->
+    <div *ngIf="errorMessage" class="text-red-600 bg-red-100 p-3 rounded mb-4">
+      {{ errorMessage }}
+    </div>
+
+    <form (ngSubmit)="onLoginFormSubmit()" class="space-y-6">
+      <!-- Email or Username -->
+      <div>
+        <label class="block text-gray-700 font-medium mb-2">Email or Username</label>
+        <input type="text" [(ngModel)]="loginDto.emailOrUsername" name="emailOrName"
+               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none"
+               placeholder="Enter your email or username" required>
+      </div>
+
+      <!-- Password -->
+      <div>
+        <label class="block text-gray-700 font-medium mb-2">Password</label>
+        <input type="password" [(ngModel)]="loginDto.password" name="password"
+               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none"
+               placeholder="Enter your password" required>
+      </div>
+
+      <!-- Login Button -->
+      <button type="submit" class="w-full py-3 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-600 transition-colors duration-300">
+        Login
+      </button>
+    </form>
+
+    <!-- Register Redirect -->
+    <div class="mt-6 text-center">
+      <p class="text-gray-600">Don't have an account?</p>
+      <button (click)="goToRegister()" class="text-yellow-600 hover:underline font-semibold">
+        Register here
+      </button>
+    </div>
+  </div>
+</div>
