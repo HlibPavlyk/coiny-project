@@ -65,7 +65,7 @@
         </button>
 
         <!-- Album Image -->
-        <a [routerLink]="['/album-edit', album.id]">
+        <a [routerLink]="['/album', album.id]">
           <img [src]="album.imagesUrls[album.currentImageIndex]"
                alt="Album Image"
                class="h-full w-full object-cover rounded-lg transition-transform duration-500 ease-in-out transform hover:scale-105 cursor-pointer"
@@ -119,8 +119,11 @@
           </a>
         </div>
 
-
-
+        <!-- Last Updated Section -->
+        <div class="flex items-center">
+          <span class="font-bold text-yellow-500">Updated:</span>
+          <span class="ml-2 text-gray-800">{{ album.updatedAt | date:'dd MMM yyyy, HH:mm' }}</span>
+        </div>
       </div>
   </div>
 </div>

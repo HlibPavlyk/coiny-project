@@ -1,1 +1,61 @@
-<p>album-view works!</p>
+<div class="container mx-auto px-20 py-8">
+    <div class="px-4">
+
+        <!-- Error message -->
+        <div *ngIf="errorMessage" class="text-red-600 bg-red-100 p-3 rounded mb-4">
+            {{ errorMessage }}
+        </div>
+
+        <div *ngIf="album" class="bg-white shadow-md rounded-lg p-6">
+
+            <div class="flex justify-between items-center">
+                <!-- Album Name -->
+                <h2 class="text-3xl font-bold text-yellow-600">{{ album.name }}</h2>
+
+                <!-- Edit and Delete Buttons if 'my=true' -->
+                <div *ngIf="isMyAlbum">
+                    <button (click)="editAlbum()"
+                            class="px-4 py-2 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-600 transition duration-300">
+                        Edit
+                    </button>
+                    <!-- Button for Deactivation -->
+                    <button (click)="openModal()"
+                            class="ml-2 px-4 py-2 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition duration-300">
+                        Deactivate
+                    </button>
+
+                    <!-- Include the modal component -->
+                    <app-modal
+                            [title]="'Confirm Deactivation'"
+                            [message]="'Are you sure you want to deactivate this album?'"
+                            [isOpen]="isModalOpen"
+                            [errorMessage]=errorMessage
+                            (onConfirm)="confirmDelete()"
+                            (onCancel)="closeModal()">
+                    </app-modal>
+
+                </div>
+            </div>
+
+            <!-- Album Details -->
+            <div class="mt-4">
+                <div class="text-gray-700">
+                    <p class="text-gray-700 mb-4">
+                        <span class="font-bold">Description: </span>{{ album.description || 'No description available' }}
+                    </p>
+
+                    <div class="mt-4">
+                        <p><span class="font-bold text-yellow-600">Rate: </span>{{ album.rate }}</p>
+                        <p><span class="font-bold text-yellow-600">Author: </span>
+                            <a [routerLink]="['/profile', album.author.id]" class="text-yellow-600 hover:text-yellow-500 transition">
+                                {{ album.author.username }}
+                            </a>
+                        </p>
+                        <p><span class="font-bold text-gray-700">Updated At: </span>{{ album.updatedAt | date: 'dd MMM yyyy, HH:mm' }}</p>
+                        <p><span class="font-bold text-gray-700">Created At: </span>{{ album.createdAt | date: 'dd MMM yyyy, HH:mm' }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

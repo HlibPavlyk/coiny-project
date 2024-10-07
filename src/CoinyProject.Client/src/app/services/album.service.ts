@@ -60,4 +60,12 @@ export class AlbumService {
     };
     return this.http.get<AlbumGetDto>(`${this.baseUrl}/${id}`, {params});
   }
+
+  // Deactivate album by ID
+  deactivateAlbum(id: string): Observable<void> {
+    const params = {
+      addAuth: true.toString()
+    };
+      return this.http.post<void>(`${this.baseUrl}/${id}/deactivate`, null, {params});
+    }
 }
