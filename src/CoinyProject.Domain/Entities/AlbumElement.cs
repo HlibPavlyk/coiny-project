@@ -10,6 +10,8 @@ namespace CoinyProject.Domain.Entities
         public string ImageUrl { get; set; }
         public Guid AlbumId { get; init; }
         public Guid? AuctionId { get; init; }
+        /*public DateTime UpdatedAt { get; set; }
+        public DateTime CreatedAt { get; set; }*/
         
         public Album Album { get; init; }
         public Auction? Auction { get; init; }

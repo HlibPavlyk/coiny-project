@@ -1,5 +1,6 @@
 ﻿using CoinyProject.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace CoinyProject.Infrastructure.EntityTypeConfiguration
@@ -26,6 +27,18 @@ namespace CoinyProject.Infrastructure.EntityTypeConfiguration
                 .WithMany(x => x.Elements)
                 .HasForeignKey(x => x.AlbumId)
                 .OnDelete(DeleteBehavior.NoAction);
+            
+            
+            /*
+            builder.Property(t => t.CreatedAt)
+                .HasDefaultValueSql("SYSDATETIMEOFFSET()");
+
+            builder.Property(t => t.UpdatedAt)
+                .IsRequired()
+                .ValueGeneratedOnAddOrUpdate()
+                .HasDefaultValueSql("SYSDATETIMEOFFSET()")
+                .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Save);*/
+
             
             builder.HasMany(x => x.FavoriteAlbumElements)
                 .WithOne(x => x.AlbumElement)

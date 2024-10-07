@@ -5,6 +5,7 @@ export interface AlbumGetDto {
   name: string;
   description: string;
   rate: number;
+  status: string;
   author: UsernameModel;
   updatedAt: string;
   createdAt: string;

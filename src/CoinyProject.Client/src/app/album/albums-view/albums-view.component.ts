@@ -1,7 +1,7 @@
 import {Component, OnInit} from "@angular/core";
 import {AlbumService} from "../../services/album.service";
 import {AlbumViewGetDto} from "./album-view-get.model";
-import {DatePipe, NgClass, NgForOf} from "@angular/common";
+import {DatePipe, NgClass, NgForOf, NgIf} from "@angular/common";
 import {FormsModule} from "@angular/forms";
 import {ActivatedRoute, RouterLink} from "@angular/router";
 import {UserModel} from "../../services/user.model";
@@ -16,7 +16,8 @@ import {AuthService} from "../../services/auth.service";
     FormsModule,
     NgForOf,
     DatePipe,
-    RouterLink
+    RouterLink,
+    NgIf
   ],
   styleUrls: ['./albums-view.component.css']
 })
@@ -49,6 +50,11 @@ export class AlbumsViewComponent implements OnInit {
       this.isCurrentUser = queryParams['my'] === 'true'; // перевіряємо, чи це альбоми поточного користувача
     });
 
+    if (this.isCurrentUser) {
+      this.sortItem = 'status';
+      this.isAscending = true;
+    }
+
     this.getAlbums();
   }
 
@@ -75,7 +81,7 @@ export class AlbumsViewComponent implements OnInit {
   }
 
   setSort(sortType: string, isAscending: boolean): void {
-    this.sortItem = sortType === 'rate' ? 'rate' : 'time';
+    this.sortItem = sortType;
     this.isAscending  = isAscending;
     this.getAlbums();
   }

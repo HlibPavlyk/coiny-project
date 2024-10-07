@@ -5,6 +5,7 @@ export interface AlbumViewGetDto {
   name: string;
   description: string;
   rate: number;
+  status: string;
   author: UsernameModel;
   updatedAt: string;
   imagesUrls: string[];
