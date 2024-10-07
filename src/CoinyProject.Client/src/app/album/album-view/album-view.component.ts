@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {AlbumGetDto} from "../albums-view/album-get.model";
 import {ActivatedRoute, Router, RouterLink} from "@angular/router";
 import {AlbumService} from "../../services/album.service";
-import {DatePipe, NgIf} from "@angular/common";
+import {DatePipe, NgClass, NgIf} from "@angular/common";
 import {ModalComponent} from "../../shared/modal/modal.component";
 import {AuthService} from "../../services/auth.service";
 import {UserModel} from "../../services/user.model";
@@ -14,7 +14,8 @@ import {UserModel} from "../../services/user.model";
     RouterLink,
     DatePipe,
     NgIf,
-    ModalComponent
+    ModalComponent,
+    NgClass
   ],
   templateUrl: './album-view.component.html',
   styleUrl: './album-view.component.css'
@@ -77,16 +78,36 @@ export class AlbumViewComponent implements OnInit {
     this.isModalOpen = false;
   }
 
-  confirmDelete(): void {
+  confirmDeactivate(): void {
     if (this.album) {
       this.albumService.deactivateAlbum(this.album.id).subscribe({
         next: () => {
-          this.router.navigate(['/albums']).then(() => console.log('Album deactivated'));
+          this.router.navigate(['/profile'], { queryParams: { my: true } }).then(() => {
+            console.log('Album deactivated');
+          });
+
           this.closeModal();
         },
         error: (err) => {
           this.errorMessage = `Failed to deactivate album (${err.status})`;
           console.error('Failed to deactivate album:', err);
+        },
+      });
+    }
+  }
+
+  confirmActivate(): void {
+    if (this.album) {
+      this.albumService.activateAlbum(this.album.id).subscribe({
+        next: () => {
+          this.router.navigate(['/profile'], { queryParams: { my: true } }).then(() => {
+            console.log('Album activated');
+          });
+          this.closeModal();
+        },
+        error: (err) => {
+          this.errorMessage = `Failed to activate album. All necessary fields should be filled, and you must have at least 4 photos (${err.status}).`;
+          console.error('Failed to activate album:', err);
         },
       });
     }

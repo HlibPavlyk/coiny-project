@@ -18,19 +18,35 @@
                             class="px-4 py-2 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-600 transition duration-300">
                         Edit
                     </button>
-                    <!-- Button for Deactivation -->
+                    <!-- Button for Deactivation/Activation -->
                     <button (click)="openModal()"
-                            class="ml-2 px-4 py-2 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition duration-300">
-                        Deactivate
+                            [ngClass]="{
+                              'bg-red-500 hover:bg-red-600': album.status !== 'Inactive',
+                              'bg-green-500 hover:bg-green-600': album.status === 'Inactive'
+                            }"
+                            [innerText]="album.status !== 'Inactive' ? 'Deactivate' : 'Activate'"
+                            class="ml-2 px-4 py-2 text-white font-semibold rounded-lg transition duration-300">
                     </button>
 
-                    <!-- Include the modal component -->
+                    <!-- Include the modal component for deactivation -->
                     <app-modal
+                            *ngIf="album.status !== 'Inactive'"
                             [title]="'Confirm Deactivation'"
                             [message]="'Are you sure you want to deactivate this album?'"
                             [isOpen]="isModalOpen"
-                            [errorMessage]=errorMessage
-                            (onConfirm)="confirmDelete()"
+                            [errorMessage]="errorMessage"
+                            (onConfirm)="confirmDeactivate()"
+                            (onCancel)="closeModal()">
+                    </app-modal>
+
+                    <!-- Include the modal component for activation -->
+                    <app-modal
+                            *ngIf="album.status === 'Inactive'"
+                            [title]="'Confirm Activation'"
+                            [message]="'Are you sure you want to activate this album?'"
+                            [isOpen]="isModalOpen"
+                            [errorMessage]="errorMessage"
+                            (onConfirm)="confirmActivate()"
                             (onCancel)="closeModal()">
                     </app-modal>
 
@@ -53,6 +69,20 @@
                         </p>
                         <p><span class="font-bold text-gray-700">Updated At: </span>{{ album.updatedAt | date: 'dd MMM yyyy, HH:mm' }}</p>
                         <p><span class="font-bold text-gray-700">Created At: </span>{{ album.createdAt | date: 'dd MMM yyyy, HH:mm' }}</p>
+
+                        <!-- Album Status -->
+                        <div *ngIf="isMyAlbum">
+                            <p><span class="font-bold text-gray-700">Status: </span>
+                                <span class="font-semibold"
+                                      [ngClass]="{
+                                        'text-green-600': album.status === 'Active',
+                                        'text-red-600': album.status === 'Inactive',
+                                        'text-yellow-500': album.status === 'NotApproved'
+                                      }">
+                                    {{ album.status }}
+                                </span>
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -107,7 +107,7 @@ namespace CoinyProject.Application.Services
 
         public async Task DeactivateAlbumAsync(Guid id)
         {
-           await ChangeAlbumStatus(id, AlbumStatus.Active, AlbumStatus.Inactive);
+           await ChangeAlbumStatus(id, AlbumStatus.Inactive);
         }
 
         public async Task ActivateAlbumAsync(Guid id)
@@ -116,7 +116,7 @@ namespace CoinyProject.Application.Services
             if(elements.Items.Count() < 4)
                 throw new InvalidOperationException("Album should have at least 4 element to activate.");
             
-            await ChangeAlbumStatus(id, AlbumStatus.Inactive, AlbumStatus.NotApproved);
+            await ChangeAlbumStatus(id, AlbumStatus.NotApproved, AlbumStatus.Inactive);
         }
 
         public async Task ApproveAlbumAsync(Guid id)
@@ -131,7 +131,7 @@ namespace CoinyProject.Application.Services
             await _unitOfWork.SaveChangesAsync();
         }
 
-        private async Task ChangeAlbumStatus(Guid id, AlbumStatus startStatus, AlbumStatus endStatus)
+        private async Task ChangeAlbumStatus(Guid id, AlbumStatus endStatus, AlbumStatus? startStatus = null)
         {
             var user = _httpContextAccessor.HttpContext?.User;
             if (user is not { Identity.IsAuthenticated: true } || !Guid.TryParse(user.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
@@ -143,7 +143,7 @@ namespace CoinyProject.Application.Services
             if(album.UserId != userId)
                 throw new UnauthorizedAccessException("User is not the owner of the album");
             
-            if (album.Status == startStatus)
+            if (startStatus == null || album.Status == startStatus)
                 album.Status = endStatus;
             
             await _unitOfWork.SaveChangesAsync();

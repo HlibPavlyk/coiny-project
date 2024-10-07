@@ -68,4 +68,11 @@ export class AlbumService {
     };
       return this.http.post<void>(`${this.baseUrl}/${id}/deactivate`, null, {params});
     }
+
+    activateAlbum(id: string): Observable<void> {
+    const params = {
+      addAuth: true.toString()
+    };
+      return this.http.post<void>(`${this.baseUrl}/${id}/activate`, null, {params});
+    }
 }
