@@ -2,10 +2,10 @@ import { Injectable } from '@angular/core';
 import {HttpClient, HttpParams} from "@angular/common/http";
 import {Observable} from "rxjs";
 import {PagedResponse} from "./paged-response.model";
-import {AlbumViewGetDto} from "../album/album-view/album-view-get.model";
+import {AlbumViewGetDto} from "../album/albums-view/album-view-get.model";
 import {AlbumPostDto} from "../album/album-form/album-post.model";
 import {AlbumPatchDto} from "../album/album-form/album-patch.model";
-import {AlbumGetDto} from "../album/album-view/album-get.model";
+import {AlbumGetDto} from "../album/albums-view/album-get.model";
 
 @Injectable({
   providedIn: 'root'

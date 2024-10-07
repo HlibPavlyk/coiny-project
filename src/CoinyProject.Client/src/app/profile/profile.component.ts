@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import {AlbumViewComponent} from "../album/album-view/album-view.component";
+import {AlbumsViewComponent} from "../album/albums-view/albums-view.component";
 import {SectionBarComponent} from "../section-bar/section-bar.component";
 import {StatsComponent} from "./stats/stats.component";
 
@@ -7,7 +7,7 @@ import {StatsComponent} from "./stats/stats.component";
   selector: 'app-profile',
   standalone: true,
   imports: [
-    AlbumViewComponent,
+    AlbumsViewComponent,
     SectionBarComponent,
     StatsComponent
   ],

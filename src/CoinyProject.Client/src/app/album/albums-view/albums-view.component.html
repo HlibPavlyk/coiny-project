@@ -1,0 +1,127 @@
+<div class="container mx-auto px-4 py-6">
+  <!-- Sorting and Search Section -->
+  <div class="flex flex-wrap justify-between items-center mb-4 space-y-2 space-x-2">
+    <!-- Sort by Buttons -->
+    <div class="sort-buttons flex space-x-1">
+      <!-- Сортування за популярністю -->
+      <button (click)="setSort('rate', true)"
+              [ngClass]="{'bg-yellow-400': sortItem === 'rate' && isAscending, 'bg-pastel-red-light': !(sortItem === 'rate' && isAscending)}"
+              class="hover:bg-gray-300 text-gray-700 py-1 px-3 rounded flex items-center">
+        <span class="mr-1">Popularity</span>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" />
+        </svg>
+      </button>
+      <button (click)="setSort('rate', false)"
+              [ngClass]="{'bg-yellow-400': sortItem === 'rate' && !isAscending, 'bg-pastel-red-light': !(sortItem === 'rate' && !isAscending)}"
+              class="hover:bg-gray-300 text-gray-700 py-1 px-3 rounded flex items-center">
+        <span class="mr-1">Popularity</span>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      <!-- Сортування за часом оновлення -->
+      <button (click)="setSort('time', true)"
+              [ngClass]="{'bg-yellow-400': sortItem === 'time' && isAscending, 'bg-pastel-red-light': !(sortItem === 'time' && isAscending)}"
+              class="hover:bg-gray-300 text-gray-700 py-1 px-3 rounded flex items-center">
+        <span class="mr-1">Update Time</span>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" />
+        </svg>
+      </button>
+      <button (click)="setSort('time', false)"
+              [ngClass]="{'bg-yellow-400': sortItem === 'time' && !isAscending, 'bg-pastel-red-light': !(sortItem === 'time' && !isAscending)}"
+              class="hover:bg-gray-300 text-gray-700 py-1 px-3 rounded flex items-center">
+        <span class="mr-1">Update Time</span>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="w-full sm:w-1/3 lg:w-1/3">
+      <input type="text" [(ngModel)]="searchQuery" (input)="searchAlbums()"
+             class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:outline-none"
+             placeholder="Search albums..." />
+    </div>
+  </div>
+
+
+    <!-- Album List Section -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div *ngFor="let album of albums" class="bg-white shadow-md rounded-lg overflow-hidden flex flex-col">
+
+      <!-- Image Carousel Section -->
+      <div class="relative w-full aspect-square bg-pastel-red-dark p-4 rounded-t-lg rounded-b-none shadow-md overflow-hidden group">
+
+      <!-- Left Arrow -->
+        <button (click)="getPreviousImage(album)"
+                class="absolute top-1/2 left-2 transform -translate-y-1/2 text-2xl p-3 bg-gray-300 rounded-full hover:bg-gray-400 transition-all duration-300 ease-in-out shadow-md hover:shadow-lg opacity-0 group-hover:opacity-100 z-10">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600 hover:text-gray-900" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+
+        <!-- Album Image -->
+        <a [routerLink]="['/album-edit', album.id]">
+          <img [src]="album.imagesUrls[album.currentImageIndex]"
+               alt="Album Image"
+               class="h-full w-full object-cover rounded-lg transition-transform duration-500 ease-in-out transform hover:scale-105 cursor-pointer"
+               (error)="onImageError($event)">
+        </a>
+
+
+        <!-- Right Arrow -->
+        <button (click)="getNextImage(album)"
+                class="absolute top-1/2 right-2 transform -translate-y-1/2 text-2xl p-3 bg-gray-300 rounded-full hover:bg-gray-400 transition-all duration-300 ease-in-out shadow-md hover:shadow-lg opacity-0 group-hover:opacity-100 z-10">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600 hover:text-gray-900" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+
+        <!-- Dots Navigation -->
+        <div class="absolute bottom-2 left-0 right-0 flex justify-center space-x-2 z-10">
+          <span *ngFor="let image of album.imagesUrls; let i = index"
+                (click)="goToImage(album, i)"
+                class="w-3 h-3 bg-gray-400 rounded-full cursor-pointer hover:bg-gray-600 transition-all duration-300 ease-in-out"
+                [ngClass]="{'bg-gray-600': album.currentImageIndex === i}">
+          </span>
+        </div>
+      </div>
+
+      <!-- Album Details Below Image -->
+      <div class="p-4 flex-grow bg-yellow-50 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+        <!-- Album Name -->
+        <h2 class="text-lg font-bold mb-2 truncate text-yellow-600">{{ album.name }}</h2>
+
+        <!-- Description -->
+        <p class="text-gray-700 mb-4 max-h-24 overflow-hidden text-ellipsis">
+          {{ album.description || 'No description available' }}
+        </p>
+
+        <!-- Rating section -->
+        <div class="flex items-center mb-4">
+          <span class="font-bold text-yellow-500">Rate:</span>
+          <span class="ml-2 text-gray-800">{{ album.rate }}</span>
+        </div>
+
+        <!-- Author section -->
+        <div class="flex items-center mb-4">
+          <span class="font-bold text-yellow-600">Author: </span>
+          <!-- Conditional RouterLink -->
+          <a
+            [routerLink]="user?.id === album.author.id ? ['/profile'] : ['/profile', album.author.id]"
+            [queryParams]="user?.id === album.author.id ? { my: true } : null"
+            class="ml-2 text-yellow-600 hover:text-yellow-500 transition duration-300">
+            {{ album.author.username }}
+          </a>
+        </div>
+
+
+
+      </div>
+  </div>
+</div>
+</div>
