@@ -25,7 +25,14 @@ namespace CoinyProject.Infrastructure.Repositories
         {
             return GetPagedAlbumsWithElementsByPredicateAsync(pageQuery, sortQuery, x => x.UserId == userId && x.Status == AlbumStatus.Active);
         }
-        
+
+        public async Task<Album?> GetAlbumWithUserByIdAsync(Guid id)
+        {
+            return await Context.Albums
+                .Include(x => x.User)
+                .FirstOrDefaultAsync(x => x.Id == id);
+        }
+
         private async Task<PagedResponse<Album>> GetPagedAlbumsWithElementsByPredicateAsync(
             PageQueryDto pageQuery, 
             SortByItemQueryDto? sortQuery, 

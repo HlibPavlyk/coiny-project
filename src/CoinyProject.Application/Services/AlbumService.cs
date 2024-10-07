@@ -64,7 +64,7 @@ namespace CoinyProject.Application.Services
 
         public async Task<AlbumGetDto> GetAlbumById(Guid id)
         {
-            var album = await _unitOfWork.Albums.GetByIdAsync(id);
+            var album = await _unitOfWork.Albums.GetAlbumWithUserByIdAsync(id);
             if (album == null)
                 throw new NotFoundException("Album not found.");
             
