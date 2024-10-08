@@ -36,6 +36,7 @@ export class AlbumElementsComponent implements OnInit {
 
 
   @Input() isCurrentUser: boolean = false;
+  @Input() isAlbumLoaded: boolean = false;
 
   constructor(private albumElementService: AlbumElementService, private route: ActivatedRoute) {}
 

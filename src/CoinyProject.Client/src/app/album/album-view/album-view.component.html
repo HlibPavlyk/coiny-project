@@ -90,7 +90,8 @@
         </div>
 
           <app-album-elements
-            [isCurrentUser] = "isMyAlbum">
+            [isCurrentUser] = "isMyAlbum"
+            [isAlbumLoaded] = "album !== null ">
           </app-album-elements>
 
         </ng-template>

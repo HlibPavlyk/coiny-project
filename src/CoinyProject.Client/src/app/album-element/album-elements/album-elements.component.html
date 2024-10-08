@@ -1,10 +1,14 @@
 
 <div class="container mx-auto py-8">
+
+  <div *ngIf="errorMessage && isAlbumLoaded; else albumElementSection">
+    <app-item-no-found></app-item-no-found>
+  </div>
+
+  <ng-template #albumElementSection>
   <!-- Sorting and Search Section -->
   <div class="flex flex-wrap justify-between items-center mb-4 space-y-2 space-x-2">
     <!-- Sort by Buttons -->
-
-
     <div class="sort-buttons flex space-x-1">
       <!-- Сортування за популярністю -->
       <button (click)="setSort('rate', true)"
@@ -41,26 +45,6 @@
           <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
         </svg>
       </button>
-
-      <!-- Сортування за типом (доступно тільки для поточного користувача) -->
-      <div *ngIf="isCurrentUser" class="sort-type flex space-x-1">
-        <button (click)="setSort('status', true)"
-                [ngClass]="{'bg-yellow-400': sortItem === 'status' && isAscending, 'bg-pastel-red-light': !(sortItem === 'status' && isAscending)}"
-                class="hover:bg-gray-300 text-gray-700 py-1 px-3 rounded flex items-center">
-          <span class="mr-1">Active Status</span>
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" />
-          </svg>
-        </button>
-        <button (click)="setSort('status', false)"
-                [ngClass]="{'bg-yellow-400': sortItem === 'status' && !isAscending, 'bg-pastel-red-light': !(sortItem === 'status' && !isAscending)}"
-                class="hover:bg-gray-300 text-gray-700 py-1 px-3 rounded flex items-center">
-          <span class="mr-1">Active Status</span>
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-          </svg>
-        </button>
-      </div>
     </div>
 
     <div class="w-full sm:w-1/3 lg:w-1/3 relative">
@@ -148,6 +132,6 @@
           </button>
         </div>
       </div>
-
-  </div>
+    </div>
+  </ng-template>
 </div>
