@@ -7,6 +7,7 @@ import {ModalComponent} from "../../shared/modal/modal.component";
 import {AuthService} from "../../services/auth.service";
 import {UserModel} from "../../services/user.model";
 import {ItemNoFoundComponent} from "../../shared/item-no-found/item-no-found.component";
+import {AlbumElementsComponent} from "../../album-element/album-elements/album-elements.component";
 
 @Component({
   selector: 'app-album-view',
@@ -17,7 +18,8 @@ import {ItemNoFoundComponent} from "../../shared/item-no-found/item-no-found.com
     NgIf,
     ModalComponent,
     NgClass,
-    ItemNoFoundComponent
+    ItemNoFoundComponent,
+    AlbumElementsComponent
   ],
   templateUrl: './album-view.component.html',
   styleUrl: './album-view.component.css'

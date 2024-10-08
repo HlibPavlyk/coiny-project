@@ -25,7 +25,6 @@ import {ItemNoFoundComponent} from "../../shared/item-no-found/item-no-found.com
 })
 export class AlbumsViewComponent implements OnInit {
   albums: AlbumViewGetDto[] = [];
-  filteredAlbums: AlbumViewGetDto[] = [];
   page: number = 1;
   size: number = 2;
   sortItem: string = 'time';
@@ -79,7 +78,6 @@ export class AlbumsViewComponent implements OnInit {
                 album.currentImageIndex = 0;
                 return album;
               });
-              this.filteredAlbums = this.albums;
             },
             error: (error) => {
               this.albums = [];
@@ -97,7 +95,6 @@ export class AlbumsViewComponent implements OnInit {
                 album.currentImageIndex = 0;
                 return album;
               });
-              this.filteredAlbums = this.albums;
             },
             error: (error) => {
               this.albums = [];
