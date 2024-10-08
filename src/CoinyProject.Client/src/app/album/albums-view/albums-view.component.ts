@@ -64,13 +64,14 @@ export class AlbumsViewComponent implements OnInit {
   // Error message field to store any errors
   errorMessage: string | null = null;
 
-  getAlbums(search: string | null = null): void {
+  getAlbums(): void {
     // Clear any existing error messages before making a request
     this.errorMessage = null;
+    const trimmedQuery = this.searchQuery.trim();
 
     if (this.isCurrentUser || this.userId) {
       // Fetch albums for the current user or a specific user
-      this.albumService.getPagedAlbumsByUser(this.userId, this.page, this.size, this.sortItem, this.isAscending, search)
+      this.albumService.getPagedAlbumsByUser(this.userId, this.page, this.size, this.sortItem, this.isAscending, trimmedQuery)
           .subscribe({
             next: (response) => {
               this.totalPages = response.totalPages;
@@ -88,7 +89,7 @@ export class AlbumsViewComponent implements OnInit {
           });
     } else {
       // Fetch albums for viewing (not specific to a user)
-      this.albumService.getPagedAlbumsForView(this.page, this.size, this.sortItem, this.isAscending, search)
+      this.albumService.getPagedAlbumsForView(this.page, this.size, this.sortItem, this.isAscending, trimmedQuery)
           .subscribe({
             next: (response) => {
               this.totalPages = response.totalPages;
@@ -114,14 +115,8 @@ export class AlbumsViewComponent implements OnInit {
   }
 
   onSearch(): void {
-    const trimmedQuery = this.searchQuery.trim(); // Trim spaces before searching
-
-    // If search query is present, trigger search, otherwise load all albums
-    if (trimmedQuery) {
-      this.getAlbums(trimmedQuery);
-    } else {
-      this.getAlbums(); // Load all albums if the search query is cleared
-    }
+    this.page = 1;
+    this.getAlbums();
   }
 
 

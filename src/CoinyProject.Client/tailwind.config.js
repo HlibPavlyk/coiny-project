@@ -10,6 +10,7 @@ module.exports = {
         'pastel-red': '#fff5d1',  // Example pastel yellow
         'pastel-black': '#a79494',
         'pastel-red-dark': '#f8f5e7',
+        'pastel-yellow-white': '#fffdf3',
         // Add more colors if needed
       },
     },
