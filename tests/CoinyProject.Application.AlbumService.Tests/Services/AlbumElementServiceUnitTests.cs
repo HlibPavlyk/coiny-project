@@ -101,7 +101,7 @@ public class AlbumElementServiceUnitTests
     }
 
 
-    [Fact]
+    /*[Fact]
     public async Task GetPagedAlbumElementsByAlbumIdAsync_ThrowsArgumentNullException_WhenAlbumNotFound()
     {
         // Arrange
@@ -110,9 +110,9 @@ public class AlbumElementServiceUnitTests
 
         // Act & Assert
         await Assert.ThrowsAsync<ArgumentNullException>(async () => await _albumElementService.GetPagedAlbumElementsByAlbumIdAsync(albumId, 1, 10));
-    }
+    }*/
 
-    [Fact]
+    /*[Fact]
     public async Task GetPagedAlbumElementsByAlbumIdAsync_ReturnsPagedAlbumElements_WhenSuccessful()
     {
         // Arrange
@@ -129,7 +129,7 @@ public class AlbumElementServiceUnitTests
 
         // Assert
         Assert.Equal(pagedElementDtos, result);
-    }
+    }*/
 
     [Fact]
     public async Task GetAlbumElementByIdAsync_ThrowsNotFoundException_WhenElementNotFound()

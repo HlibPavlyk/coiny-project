@@ -80,6 +80,11 @@ namespace CoinyProject.Infrastructure.Migrations
                     b.Property<Guid?>("AuctionId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("SYSDATETIMEOFFSET()");
+
                     b.Property<string>("Description")
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
@@ -97,6 +102,11 @@ namespace CoinyProject.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasDefaultValue(0);
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("SYSDATETIMEOFFSET()");
 
                     b.HasKey("Id");
 
@@ -267,7 +277,7 @@ namespace CoinyProject.Infrastructure.Migrations
                         .HasColumnType("int")
                         .HasDefaultValue(0);
 
-                    b.Property<string>("EmailOrUsername")
+                    b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -311,7 +321,7 @@ namespace CoinyProject.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("EmailOrUsername")
+                    b.HasIndex("Email")
                         .IsUnique();
 
                     b.HasIndex("NormalizedEmail")
@@ -355,19 +365,19 @@ namespace CoinyProject.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("d90a34a1-6f21-408c-b632-fab495cdd109"),
+                            Id = new Guid("15e32c1a-3349-4132-830f-806b63afbefc"),
                             Name = "User",
                             NormalizedName = "USER"
                         },
                         new
                         {
-                            Id = new Guid("8fb1527c-c0fb-476a-9647-4d90c132bac0"),
+                            Id = new Guid("da04faea-c270-4e00-ab8f-fe150c26822d"),
                             Name = "Moderator",
                             NormalizedName = "MODERATOR"
                         },
                         new
                         {
-                            Id = new Guid("9c525be7-1d6a-47fd-bf99-902616271b72"),
+                            Id = new Guid("57445230-6cf6-4024-9118-0ac78afaaabe"),
                             Name = "Administrator",
                             NormalizedName = "ADMINISTRATOR"
                         });

@@ -8,7 +8,7 @@ namespace CoinyProject.Application.Abstractions.Services;
 public interface IAlbumElementService
 {
     Task<Guid> AddAlbumElement(AlbumElementPostDto element);
-    Task<PagedResponse<AlbumElementGetDto> > GetPagedAlbumElementsByAlbumIdAsync(Guid id, int page, int size);
+    Task<PagedResponse<AlbumElementGetDto> > GetPagedAlbumElementsByAlbumIdAsync(Guid id, PageQueryDto pageQuery, SortByItemQueryDto? sortQuery, string? search);
     Task<AlbumElementGetDto> GetAlbumElementByIdAsync(Guid id);
     Task<Guid> UpdateAlbumElementAsync(Guid id, AlbumElementPatchDto element);
     Task DeleteAlbumElementAsync(Guid id);

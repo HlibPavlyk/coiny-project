@@ -53,12 +53,12 @@ public class AlbumElementService : IAlbumElementService
         return entity.Id;
     }
 
-    public async Task<PagedResponse<AlbumElementGetDto>> GetPagedAlbumElementsByAlbumIdAsync(Guid id, int page, int size)
+    public async Task<PagedResponse<AlbumElementGetDto>> GetPagedAlbumElementsByAlbumIdAsync(Guid id, PageQueryDto pageQuery, SortByItemQueryDto? sortQuery, string? search)
     {
         if (!await _unitOfWork.Albums.AnyAsync(x => x.Id == id))
             throw new ArgumentNullException(nameof(id), "AlbumId is null");
         
-        var elements = await _unitOfWork.AlbumElements.GetPagedAlbumElementsByAlbumIdAsync(id, page, size);
+        var elements = await _unitOfWork.AlbumElements.GetPagedAlbumElementsByAlbumIdAsync(id, pageQuery, sortQuery, search);
         if (elements.TotalPages == 0)
             throw new NotFoundException("No elements found for this album");
         

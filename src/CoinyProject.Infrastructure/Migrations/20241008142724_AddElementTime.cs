@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace CoinyProject.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class AddTimeToAlbums : Migration
+    public partial class AddElementTime : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -42,14 +42,28 @@ namespace CoinyProject.Infrastructure.Migrations
                 nullable: false,
                 defaultValueSql: "SYSDATETIMEOFFSET()");
 
+            migrationBuilder.AddColumn<DateTime>(
+                name: "CreatedAt",
+                table: "AlbumElements",
+                type: "datetime2",
+                nullable: false,
+                defaultValueSql: "SYSDATETIMEOFFSET()");
+
+            migrationBuilder.AddColumn<DateTime>(
+                name: "UpdatedAt",
+                table: "AlbumElements",
+                type: "datetime2",
+                nullable: false,
+                defaultValueSql: "SYSDATETIMEOFFSET()");
+
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { new Guid("8fb1527c-c0fb-476a-9647-4d90c132bac0"), null, "Moderator", "MODERATOR" },
-                    { new Guid("9c525be7-1d6a-47fd-bf99-902616271b72"), null, "Administrator", "ADMINISTRATOR" },
-                    { new Guid("d90a34a1-6f21-408c-b632-fab495cdd109"), null, "User", "USER" }
+                    { new Guid("15e32c1a-3349-4132-830f-806b63afbefc"), null, "User", "USER" },
+                    { new Guid("57445230-6cf6-4024-9118-0ac78afaaabe"), null, "Administrator", "ADMINISTRATOR" },
+                    { new Guid("da04faea-c270-4e00-ab8f-fe150c26822d"), null, "Moderator", "MODERATOR" }
                 });
         }
 
@@ -59,17 +73,17 @@ namespace CoinyProject.Infrastructure.Migrations
             migrationBuilder.DeleteData(
                 table: "AspNetRoles",
                 keyColumn: "Id",
-                keyValue: new Guid("8fb1527c-c0fb-476a-9647-4d90c132bac0"));
+                keyValue: new Guid("15e32c1a-3349-4132-830f-806b63afbefc"));
 
             migrationBuilder.DeleteData(
                 table: "AspNetRoles",
                 keyColumn: "Id",
-                keyValue: new Guid("9c525be7-1d6a-47fd-bf99-902616271b72"));
+                keyValue: new Guid("57445230-6cf6-4024-9118-0ac78afaaabe"));
 
             migrationBuilder.DeleteData(
                 table: "AspNetRoles",
                 keyColumn: "Id",
-                keyValue: new Guid("d90a34a1-6f21-408c-b632-fab495cdd109"));
+                keyValue: new Guid("da04faea-c270-4e00-ab8f-fe150c26822d"));
 
             migrationBuilder.DropColumn(
                 name: "CreatedAt",
@@ -78,6 +92,14 @@ namespace CoinyProject.Infrastructure.Migrations
             migrationBuilder.DropColumn(
                 name: "UpdatedAt",
                 table: "Albums");
+
+            migrationBuilder.DropColumn(
+                name: "CreatedAt",
+                table: "AlbumElements");
+
+            migrationBuilder.DropColumn(
+                name: "UpdatedAt",
+                table: "AlbumElements");
 
             migrationBuilder.InsertData(
                 table: "AspNetRoles",

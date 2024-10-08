@@ -112,7 +112,7 @@ namespace CoinyProject.Application.Services
 
         public async Task ActivateAlbumAsync(Guid id)
         {
-            var elements = await _unitOfWork.AlbumElements.GetPagedAlbumElementsByAlbumIdAsync(id, 1, 10);
+            var elements = await _unitOfWork.AlbumElements.GetPagedAlbumElementsByAlbumIdAsync(id, new PageQueryDto(1, 10), null, null);
             if(elements.Items.Count() < 4)
                 throw new InvalidOperationException("Album should have at least 4 element to activate.");
             

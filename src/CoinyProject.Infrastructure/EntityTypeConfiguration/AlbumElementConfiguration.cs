@@ -29,7 +29,6 @@ namespace CoinyProject.Infrastructure.EntityTypeConfiguration
                 .OnDelete(DeleteBehavior.NoAction);
             
             
-            /*
             builder.Property(t => t.CreatedAt)
                 .HasDefaultValueSql("SYSDATETIMEOFFSET()");
 
@@ -37,7 +36,7 @@ namespace CoinyProject.Infrastructure.EntityTypeConfiguration
                 .IsRequired()
                 .ValueGeneratedOnAddOrUpdate()
                 .HasDefaultValueSql("SYSDATETIMEOFFSET()")
-                .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Save);*/
+                .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Save);
 
             
             builder.HasMany(x => x.FavoriteAlbumElements)

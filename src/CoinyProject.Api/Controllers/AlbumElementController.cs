@@ -1,6 +1,7 @@
 using CoinyProject.Api.Responses;
 using CoinyProject.Application.Abstractions.Services;
 using CoinyProject.Application.Dto.AlbumElement;
+using CoinyProject.Application.Dto.Other;
 using CoinyProject.Domain.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -39,12 +40,13 @@ public class AlbumElementController : Controller
     }
 
     [HttpGet("by-album/{albumId:guid}")]
-    public async Task<IActionResult> GetPagedAlbumElementsByAlbumIdAsync([FromRoute] Guid albumId,
-        [FromQuery] int page = 1, int size = 10)
+    public async Task<IActionResult> GetPagedAlbumElementsByAlbumIdAsync([FromRoute] Guid albumId,[FromQuery] int page = 1,[FromQuery] int size = 10,
+        [FromQuery] string sortItem = "time", [FromQuery] bool isAscending = false, [FromQuery] string? search = null)
     {
         try
         {
-            var elements = await _albumElementService.GetPagedAlbumElementsByAlbumIdAsync(albumId, page, size);
+            var elements = await _albumElementService.GetPagedAlbumElementsByAlbumIdAsync(albumId,
+                new PageQueryDto(page, size), new SortByItemQueryDto(sortItem, isAscending), search);
             return Ok(elements);
         }
         catch (UnauthorizedAccessException e)
