@@ -40,11 +40,11 @@ public class AlbumController : Controller
     
     [HttpGet]
     public async Task<IActionResult> GetPagedAlbums([FromQuery] int page = 1,[FromQuery] int size = 10,
-        [FromQuery] string sortItem = "time", [FromQuery] bool isAscending = false)
+        [FromQuery] string sortItem = "time", [FromQuery] bool isAscending = false, [FromQuery] string? search = null)
     {
         try
         {
-            var albums = await _albumService.GetPagedAlbumsAsync(new PageQueryDto(page, size), new SortByItemQueryDto(sortItem, isAscending));
+            var albums = await _albumService.GetPagedAlbumsAsync(new PageQueryDto(page, size), new SortByItemQueryDto(sortItem, isAscending), search);
             return Ok(albums);
         }
         catch (NotFoundException e)
@@ -59,20 +59,20 @@ public class AlbumController : Controller
     
     [HttpGet("by-user")]
     public async Task<IActionResult> GetPagedAlbums([FromQuery] Guid? userId, [FromQuery] int page = 1, [FromQuery] int size = 10,
-        [FromQuery] string sortItem = "time", [FromQuery] bool isAscending = false)
+        [FromQuery] string sortItem = "time", [FromQuery] bool isAscending = false, [FromQuery] string? search = null)
     {
         try
         {
             if (userId.HasValue)
             {
                 var albums = await _albumService.GetPagedActiveAlbumsByUserIdAsync(userId.Value, new PageQueryDto(page, size),
-                    new SortByItemQueryDto(sortItem, isAscending));
+                    new SortByItemQueryDto(sortItem, isAscending), search);
                 return Ok(albums);
             }
             else
             {
                 var albums = await _albumService.GetCurrentUserPagedAlbumsAsync(new PageQueryDto(page, size),
-                    new SortByItemQueryDto(sortItem, isAscending));
+                    new SortByItemQueryDto(sortItem, isAscending), search);
                 return Ok(albums);
             }
         }

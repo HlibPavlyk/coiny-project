@@ -41,24 +41,24 @@ namespace CoinyProject.Application.Services
             return entity.Id;
         }
 
-        public async Task<PagedResponse<AlbumViewGetDto>> GetPagedAlbumsAsync(PageQueryDto pageQuery, SortByItemQueryDto? sortQuery)
+        public async Task<PagedResponse<AlbumViewGetDto>> GetPagedAlbumsAsync(PageQueryDto pageQuery, SortByItemQueryDto? sortQuery, string? search)
         {
-            var albums = await _unitOfWork.Albums.GetPagedActiveAlbumsWithElementsAsync(pageQuery, sortQuery);
+            var albums = await _unitOfWork.Albums.GetPagedActiveAlbumsWithElementsAsync(pageQuery, sortQuery, search);
             return GetPagedAlbumsDtoFromPagedAlbums(albums);
         }
 
-        public async Task<PagedResponse<AlbumViewGetDto>> GetPagedActiveAlbumsByUserIdAsync(Guid userId, PageQueryDto pageQuery, SortByItemQueryDto? sortQuery)
+        public async Task<PagedResponse<AlbumViewGetDto>> GetPagedActiveAlbumsByUserIdAsync(Guid userId, PageQueryDto pageQuery, SortByItemQueryDto? sortQuery, string? search)
         {
-            var albums = await _unitOfWork.Albums.GetPagedActiveAlbumsWithElementsByUserIdAsync(userId, pageQuery, sortQuery);
+            var albums = await _unitOfWork.Albums.GetPagedActiveAlbumsWithElementsByUserIdAsync(userId, pageQuery, sortQuery, search);
             return GetPagedAlbumsDtoFromPagedAlbums(albums);
         }
-        public async Task<PagedResponse<AlbumViewGetDto>> GetCurrentUserPagedAlbumsAsync(PageQueryDto pageQuery, SortByItemQueryDto? sortQuery)
+        public async Task<PagedResponse<AlbumViewGetDto>> GetCurrentUserPagedAlbumsAsync(PageQueryDto pageQuery, SortByItemQueryDto? sortQuery, string? search)
         {
             var user = _httpContextAccessor.HttpContext?.User;
             if (user is not { Identity.IsAuthenticated: true } || !Guid.TryParse(user.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
                 throw new UnauthorizedAccessException("User is not authenticated or user id is not valid");
             
-            var albums = await _unitOfWork.Albums.GetPagedAlbumsWithElementsByUserIdAsync(userId, pageQuery, sortQuery);
+            var albums = await _unitOfWork.Albums.GetPagedAlbumsWithElementsByUserIdAsync(userId, pageQuery, sortQuery, search);
             return GetPagedAlbumsDtoFromPagedAlbums(albums);
         }
 

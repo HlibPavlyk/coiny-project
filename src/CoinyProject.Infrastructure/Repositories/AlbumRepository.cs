@@ -11,19 +11,19 @@ namespace CoinyProject.Infrastructure.Repositories
     {
         public AlbumRepository(ApplicationDbContext context) : base(context) {}
         
-        public async Task<PagedResponse<Album>> GetPagedActiveAlbumsWithElementsAsync(PageQueryDto pageQuery, SortByItemQueryDto? sortQuery)
+        public async Task<PagedResponse<Album>> GetPagedActiveAlbumsWithElementsAsync(PageQueryDto pageQuery, SortByItemQueryDto? sortQuery, string? search)
         {
-            return await GetPagedAlbumsWithElementsByPredicateAsync(pageQuery, sortQuery, x => x.Status == AlbumStatus.Active);
+            return await GetPagedAlbumsWithElementsByPredicateAsync(pageQuery, sortQuery, search, x => x.Status == AlbumStatus.Active);
         }
 
-        public Task<PagedResponse<Album>> GetPagedAlbumsWithElementsByUserIdAsync(Guid userId, PageQueryDto pageQuery, SortByItemQueryDto? sortQuery)
+        public Task<PagedResponse<Album>> GetPagedAlbumsWithElementsByUserIdAsync(Guid userId, PageQueryDto pageQuery, SortByItemQueryDto? sortQuery, string? search)
         {
-            return GetPagedAlbumsWithElementsByPredicateAsync(pageQuery, sortQuery, x => x.UserId == userId);
+            return GetPagedAlbumsWithElementsByPredicateAsync(pageQuery, sortQuery, search, x => x.UserId == userId);
         }
 
-        public Task<PagedResponse<Album>> GetPagedActiveAlbumsWithElementsByUserIdAsync(Guid userId, PageQueryDto pageQuery, SortByItemQueryDto? sortQuery)
+        public Task<PagedResponse<Album>> GetPagedActiveAlbumsWithElementsByUserIdAsync(Guid userId, PageQueryDto pageQuery, SortByItemQueryDto? sortQuery, string? search)
         {
-            return GetPagedAlbumsWithElementsByPredicateAsync(pageQuery, sortQuery, x => x.UserId == userId && x.Status == AlbumStatus.Active);
+            return GetPagedAlbumsWithElementsByPredicateAsync(pageQuery, sortQuery, search, x => x.UserId == userId && x.Status == AlbumStatus.Active);
         }
 
         public async Task<Album?> GetAlbumWithUserByIdAsync(Guid id)
@@ -35,7 +35,8 @@ namespace CoinyProject.Infrastructure.Repositories
 
         private async Task<PagedResponse<Album>> GetPagedAlbumsWithElementsByPredicateAsync(
             PageQueryDto pageQuery, 
-            SortByItemQueryDto? sortQuery, 
+            SortByItemQueryDto? sortQuery,
+            string? search,
             Expression<Func<Album, bool>>? predicate = null)
         {
             var query = Context.Albums
@@ -46,6 +47,13 @@ namespace CoinyProject.Infrastructure.Repositories
             if (predicate != null)
                 query = query.Where(predicate);
 
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(x => x.Name.ToLower().Contains(search.ToLower()));
+            }
+
+
+            
             if (sortQuery != null)
             {
                 query = sortQuery.SortItem switch
