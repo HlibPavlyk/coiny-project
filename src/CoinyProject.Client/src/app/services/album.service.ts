@@ -16,17 +16,20 @@ export class AlbumService {
   constructor(private http: HttpClient) {
   }
 
-  getPagedAlbumsForView(page: number, size: number, sortItem: string, isAscending: boolean): Observable<PagedResponse<AlbumViewGetDto>> {
-    const params = {
-      page: page.toString(),
-      size: size.toString(),
-      sortItem: sortItem,
-      isAscending: isAscending.toString(),
-    };
+  getPagedAlbumsForView(page: number, size: number, sortItem: string, isAscending: boolean, search: string | null = null): Observable<PagedResponse<AlbumViewGetDto>> {
+    let params = new HttpParams();
+    params = params.append('page', page.toString());
+    params = params.append('size', size.toString(),);
+    params = params.append('sortItem', sortItem);
+    params = params.append('isAscending', isAscending.toString());
+
+    if (search) {
+      params = params.append('search', search);
+    }
     return this.http.get<PagedResponse<AlbumViewGetDto>>(this.baseUrl, {params});
   }
 
-  getPagedAlbumsByUser(userId: string | null, page: number, size: number, sortItem: string, isAscending: boolean): Observable<PagedResponse<AlbumViewGetDto>> {
+  getPagedAlbumsByUser(userId: string | null, page: number, size: number, sortItem: string, isAscending: boolean, search: string | null = null): Observable<PagedResponse<AlbumViewGetDto>> {
     let params = new HttpParams();
     if (userId) {
       params = params.append('userId', userId);
@@ -39,6 +42,10 @@ export class AlbumService {
     params = params.append('size', size.toString(),);
     params = params.append('sortItem', sortItem);
     params = params.append('isAscending', isAscending.toString());
+
+    if (search) {
+        params = params.append('search', search);
+    }
 
     return this.http.get<PagedResponse<AlbumViewGetDto>>(`${this.baseUrl}/by-user`, { params });
   }

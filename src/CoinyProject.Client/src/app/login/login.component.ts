@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import {Router} from "@angular/router";
+import {ActivatedRoute, Router} from "@angular/router";
 import {AuthService} from "../services/auth.service";
 import {FormsModule} from "@angular/forms";
 import {LoginRequestDto} from "./login-request.module";
@@ -23,7 +23,7 @@ export class LoginComponent  {
   };
   errorMessage = '';
 
-  constructor(private authService: AuthService, private cookieService: CookieService, private router: Router) {}
+  constructor(private authService: AuthService, private cookieService: CookieService, private router: Router,  private route: ActivatedRoute) {}
 
   onLoginFormSubmit() {
     this.authService.login(this.loginDto)
@@ -38,8 +38,11 @@ export class LoginComponent  {
             email: response.email,
             roles: response.roles
           });
+          // Get the returnUrl from query parameters or use a default
+          const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') || '/';
 
-          this.router.navigate(['']);
+          // Navigate to the returnUrl
+          this.router.navigateByUrl(returnUrl).then(r => console.log(`Navigated to ${returnUrl}`));
         },
         error: (err) => {
           this.errorMessage = `Incorrect login or password (${err.status})`;

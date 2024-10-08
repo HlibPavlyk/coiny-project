@@ -6,6 +6,7 @@ import {DatePipe, NgClass, NgIf} from "@angular/common";
 import {ModalComponent} from "../../shared/modal/modal.component";
 import {AuthService} from "../../services/auth.service";
 import {UserModel} from "../../services/user.model";
+import {ItemNoFoundComponent} from "../../shared/item-no-found/item-no-found.component";
 
 @Component({
   selector: 'app-album-view',
@@ -15,7 +16,8 @@ import {UserModel} from "../../services/user.model";
     DatePipe,
     NgIf,
     ModalComponent,
-    NgClass
+    NgClass,
+    ItemNoFoundComponent
   ],
   templateUrl: './album-view.component.html',
   styleUrl: './album-view.component.css'

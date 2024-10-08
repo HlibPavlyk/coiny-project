@@ -6,6 +6,7 @@ import {FormsModule} from "@angular/forms";
 import {ActivatedRoute, RouterLink} from "@angular/router";
 import {UserModel} from "../../services/user.model";
 import {AuthService} from "../../services/auth.service";
+import {ItemNoFoundComponent} from "../../shared/item-no-found/item-no-found.component";
 
 @Component({
   selector: 'app-albums-view',
@@ -17,7 +18,8 @@ import {AuthService} from "../../services/auth.service";
     NgForOf,
     DatePipe,
     RouterLink,
-    NgIf
+    NgIf,
+    ItemNoFoundComponent
   ],
   styleUrls: ['./albums-view.component.css']
 })
@@ -25,10 +27,11 @@ export class AlbumsViewComponent implements OnInit {
   albums: AlbumViewGetDto[] = [];
   filteredAlbums: AlbumViewGetDto[] = [];
   page: number = 1;
-  size: number = 10;
+  size: number = 2;
   sortItem: string = 'time';
   isAscending: boolean = false;
   searchQuery: string = '';
+  totalPages: number = 0;
 
   userId: string | null = null;
   isCurrentUser: boolean = false;
@@ -58,38 +61,69 @@ export class AlbumsViewComponent implements OnInit {
     this.getAlbums();
   }
 
-  getAlbums(): void {
-    // Якщо переглядаються альбоми поточного користувача
+  // Error message field to store any errors
+  errorMessage: string | null = null;
+
+  getAlbums(search: string | null = null): void {
+    // Clear any existing error messages before making a request
+    this.errorMessage = null;
+
     if (this.isCurrentUser || this.userId) {
-      this.albumService.getPagedAlbumsByUser(this.userId, this.page, this.size, this.sortItem, this.isAscending).subscribe(response => {
-        this.albums = response.items.map(album => {
-          album.currentImageIndex = 0;
-          return album;
-        });
-        this.filteredAlbums = this.albums;
-      });
-    }
-    else {
-      this.albumService.getPagedAlbumsForView(this.page, this.size, this.sortItem, this.isAscending).subscribe(response => {
-        this.albums = response.items.map(album => {
-          album.currentImageIndex = 0;
-          return album;
-        });
-        this.filteredAlbums = this.albums;
-      });
+      // Fetch albums for the current user or a specific user
+      this.albumService.getPagedAlbumsByUser(this.userId, this.page, this.size, this.sortItem, this.isAscending, search)
+          .subscribe({
+            next: (response) => {
+              this.totalPages = response.totalPages;
+              this.albums = response.items.map(album => {
+                album.currentImageIndex = 0;
+                return album;
+              });
+              this.filteredAlbums = this.albums;
+            },
+            error: (error) => {
+              this.albums = [];
+              console.error('Error fetching user albums:', error);
+              this.errorMessage = 'Failed to load albums. Please try again later.';
+            }
+          });
+    } else {
+      // Fetch albums for viewing (not specific to a user)
+      this.albumService.getPagedAlbumsForView(this.page, this.size, this.sortItem, this.isAscending, search)
+          .subscribe({
+            next: (response) => {
+              this.totalPages = response.totalPages;
+              this.albums = response.items.map(album => {
+                album.currentImageIndex = 0;
+                return album;
+              });
+              this.filteredAlbums = this.albums;
+            },
+            error: (error) => {
+              this.albums = [];
+              console.error('Error fetching albums:', error);
+              this.errorMessage = 'Failed to load albums. Please try again later.';
+            }
+          });
     }
   }
 
   setSort(sortType: string, isAscending: boolean): void {
     this.sortItem = sortType;
-    this.isAscending  = isAscending;
-    this.getAlbums();
+    this.isAscending = isAscending;
+    this.getAlbums(); // Re-fetch albums with new sort settings
   }
 
-  searchAlbums(): void {
-    this.filteredAlbums = this.albums.filter(album =>
-      album.name.toLowerCase().includes(this.searchQuery.toLowerCase()));
+  onSearch(): void {
+    const trimmedQuery = this.searchQuery.trim(); // Trim spaces before searching
+
+    // If search query is present, trigger search, otherwise load all albums
+    if (trimmedQuery) {
+      this.getAlbums(trimmedQuery);
+    } else {
+      this.getAlbums(); // Load all albums if the search query is cleared
+    }
   }
+
 
   getPreviousImage(album: any) {
     album.currentImageIndex = (album.currentImageIndex > 0)
@@ -112,6 +146,21 @@ export class AlbumsViewComponent implements OnInit {
   onImageError(event: Event) {
     const target = event.target as HTMLImageElement;
     target.src = 'no-image.jpg';
+  }
+
+  // Pagination methods
+  nextPage(): void {
+    if (this.page < this.totalPages) {
+      this.page++;
+      this.getAlbums();
+    }
+  }
+
+  previousPage(): void {
+    if (this.page > 1) {
+      this.page--;
+      this.getAlbums();
+    }
   }
 
 }

@@ -1,7 +1,10 @@
+
 <div class="container mx-auto px-4 py-6">
   <!-- Sorting and Search Section -->
   <div class="flex flex-wrap justify-between items-center mb-4 space-y-2 space-x-2">
     <!-- Sort by Buttons -->
+
+
     <div class="sort-buttons flex space-x-1">
       <!-- Сортування за популярністю -->
       <button (click)="setSort('rate', true)"
@@ -60,117 +63,147 @@
       </div>
     </div>
 
-    <!-- Search Bar -->
-    <div class="w-full sm:w-1/3 lg:w-1/3">
-      <input type="text" [(ngModel)]="searchQuery" (input)="searchAlbums()"
-             class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:outline-none"
+    <div class="w-full sm:w-1/3 lg:w-1/3 relative">
+      <!-- Search Input -->
+      <input type="text" [(ngModel)]="searchQuery" (keydown.enter)="onSearch()"
+             class="w-full p-2 pr-24 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none"
              placeholder="Search albums..." />
+
+      <!-- Search Button -->
+      <button (click)="onSearch()"
+              class="absolute right-0 h-full px-5 py-2 bg-yellow-500 text-white font-semibold rounded-r hover:bg-yellow-600 transition duration-300 shadow-md focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-1">
+        Search
+      </button>
     </div>
-  </div>
 
 
-  <div class="container mx-auto px-4 py-6">
-    <!-- Album List Section -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div *ngFor="let album of albums"
-           [ngClass]="{'bg-gray-300': album.status !== 'Active'}"
-           class="relative bg-white shadow-md rounded-lg overflow-hidden flex flex-col transition duration-300"
-           [class.opacity-65]="album.status !== 'Active'">
+    <div class="py-6" *ngIf=" errorMessage; else albumsSection">
+      <app-item-no-found></app-item-no-found>
+    </div>
 
-        <div class="relative bg-white shadow-md rounded-lg overflow-hidden flex flex-col">
-          <!-- Album Image and Content -->
+    <ng-template #albumsSection>
+      <div class="container mx-auto px-4 py-6">
+        <!-- Album List Section -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div *ngFor="let album of albums"
+               [ngClass]="{'bg-gray-300': album.status !== 'Active'}"
+               class="relative bg-white shadow-md rounded-lg overflow-hidden flex flex-col transition duration-300"
+               [class.opacity-65]="album.status !== 'Active'">
 
-          <!-- Status Badge on the Card -->
-
-        </div>
-
-
-        <!-- Image Carousel Section -->
-        <div class="relative w-full aspect-square bg-pastel-red-dark p-4 rounded-t-lg rounded-b-none shadow-md overflow-hidden group">
+            <!-- Image Carousel Section -->
+            <div class="relative w-full aspect-square bg-pastel-red-dark p-4 rounded-t-lg rounded-b-none shadow-md overflow-hidden group">
 
 
-          <!-- Left Arrow -->
-          <button (click)="getPreviousImage(album)"
-                  class="absolute top-1/2 left-2 transform -translate-y-1/2 text-2xl p-3 bg-gray-300 rounded-full hover:bg-gray-400 transition-all duration-300 ease-in-out shadow-md hover:shadow-lg opacity-0 group-hover:opacity-100 z-10">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600 hover:text-gray-900" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
+              <!-- Left Arrow -->
+              <button (click)="getPreviousImage(album)"
+                      class="absolute top-1/2 left-2 transform -translate-y-1/2 text-2xl p-3 bg-gray-300 rounded-full hover:bg-gray-400 transition-all duration-300 ease-in-out shadow-md hover:shadow-lg opacity-0 group-hover:opacity-100 z-10">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600 hover:text-gray-900" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
 
-          <!-- Album Image -->
-          <a [routerLink]="['/album', album.id]">
-            <img [src]="album.imagesUrls[album.currentImageIndex]"
-                 alt="Album Image"
-                 class="h-full w-full object-cover rounded-lg transition-transform duration-500 ease-in-out transform hover:scale-105 cursor-pointer"
-                 (error)="onImageError($event)">
-          </a>
+              <!-- Album Image -->
+              <a [routerLink]="['/album', album.id]">
+                <img [src]="album.imagesUrls[album.currentImageIndex]"
+                     alt="Album Image"
+                     class="h-full w-full object-cover rounded-lg transition-transform duration-500 ease-in-out transform hover:scale-105 cursor-pointer"
+                     (error)="onImageError($event)">
+              </a>
 
-          <!-- Right Arrow -->
-          <button (click)="getNextImage(album)"
-                  class="absolute top-1/2 right-2 transform -translate-y-1/2 text-2xl p-3 bg-gray-300 rounded-full hover:bg-gray-400 transition-all duration-300 ease-in-out shadow-md hover:shadow-lg opacity-0 group-hover:opacity-100 z-10">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600 hover:text-gray-900" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
+              <!-- Right Arrow -->
+              <button (click)="getNextImage(album)"
+                      class="absolute top-1/2 right-2 transform -translate-y-1/2 text-2xl p-3 bg-gray-300 rounded-full hover:bg-gray-400 transition-all duration-300 ease-in-out shadow-md hover:shadow-lg opacity-0 group-hover:opacity-100 z-10">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600 hover:text-gray-900" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
 
-          <!-- Dots Navigation -->
-          <div class="absolute bottom-2 left-0 right-0 flex justify-center space-x-2 z-10">
+              <!-- Dots Navigation -->
+              <div class="absolute bottom-2 left-0 right-0 flex justify-center space-x-2 z-10">
           <span *ngFor="let image of album.imagesUrls; let i = index"
                 (click)="goToImage(album, i)"
                 class="w-3 h-3 bg-gray-400 rounded-full cursor-pointer hover:bg-gray-600 transition-all duration-300 ease-in-out"
                 [ngClass]="{'bg-gray-600': album.currentImageIndex === i}">
           </span>
-          </div>
-        </div>
+              </div>
+            </div>
 
-        <!-- Album Details Below Image -->
-        <div class="p-4 flex-grow bg-yellow-50 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+            <!-- Album Details Below Image -->
+            <div class="p-4 flex-grow bg-yellow-50 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
 
 
-          <!-- Album Name -->
-          <h2 class="text-lg font-bold mb-2 truncate text-yellow-600">{{ album.name }}</h2>
+              <!-- Album Name -->
+              <h2 class="text-lg font-bold mb-2 truncate text-yellow-600">{{ album.name }}</h2>
 
-          <!-- Description -->
-          <p class="text-gray-700 mb-4 max-h-24 overflow-hidden text-ellipsis">
-            {{ album.description || 'No description available' }}
-          </p>
+              <!-- Description -->
+              <p class="text-gray-700 mb-4 max-h-24 overflow-hidden text-ellipsis">
+                {{ album.description || 'No description available' }}
+              </p>
 
-          <!-- Rating section -->
-          <div class="flex items-center mb-4">
-            <span class="font-bold text-yellow-500">Rate:</span>
-            <span class="ml-2 text-gray-800">{{ album.rate }}</span>
-          </div>
+              <!-- Rating section -->
+              <div class="flex items-center mb-4">
+                <span class="font-bold text-yellow-500">Rate:</span>
+                <span class="ml-2 text-gray-800">{{ album.rate }}</span>
+              </div>
 
-          <!-- Author section -->
-          <div class="flex items-center mb-4">
-            <span class="font-bold text-yellow-600">Author: </span>
-            <!-- Conditional RouterLink -->
-            <a
-              [routerLink]="user?.id === album.author.id ? ['/profile'] : ['/profile', album.author.id]"
-              [queryParams]="user?.id === album.author.id ? { my: true } : null"
-              class="ml-2 text-yellow-600 hover:text-yellow-500 transition duration-300">
-              {{ album.author.username }}
-            </a>
-          </div>
+              <!-- Author section -->
+              <div class="flex items-center mb-4">
+                <span class="font-bold text-yellow-600">Author: </span>
+                <!-- Conditional RouterLink -->
+                <a
+                  [routerLink]="user?.id === album.author.id ? ['/profile'] : ['/profile', album.author.id]"
+                  [queryParams]="user?.id === album.author.id ? { my: true } : null"
+                  class="ml-2 text-yellow-600 hover:text-yellow-500 transition duration-300">
+                  {{ album.author.username }}
+                </a>
+              </div>
 
-          <!-- Last Updated Section -->
-          <div class="flex items-center">
-            <span class="font-bold text-yellow-500">Updated:</span>
-            <span class="ml-2 text-gray-800">{{ album.updatedAt | date:'dd MMM yyyy, HH:mm' }}</span>
-          </div>
-        </div>
+              <!-- Last Updated Section -->
+              <div class="flex items-center">
+                <span class="font-bold text-yellow-500">Updated:</span>
+                <span class="ml-2 text-gray-800">{{ album.updatedAt | date:'dd MMM yyyy, HH:mm' }}</span>
+              </div>
+            </div>
 
-        <div *ngIf="album.status !== 'Active'"
-             class="absolute top-0 right-0 m-2 px-3 py-1 rounded-lg text-xs font-semibold"
-             [ngClass]="{
+            <div *ngIf="album.status !== 'Active'"
+                 class="absolute top-0 right-0 m-2 px-3 py-1 rounded-lg text-xs font-semibold"
+                 [ngClass]="{
         'bg-red-500 text-white': album.status === 'Inactive',
         'bg-yellow-400 text-gray-800': album.status === 'NotApproved'
      }">
-          {{ album.status === 'Inactive' ? 'Inactive' : 'Not Approved' }}
+              {{ album.status === 'Inactive' ? 'Inactive' : 'Not Approved' }}
+            </div>
+
+          </div>
         </div>
+        <!-- Pagination Controls -->
+        <div class="flex justify-center mt-6 space-x-2">
+          <!-- Previous Button -->
+          <button (click)="previousPage()" [disabled]="page === 1"
+                  class="px-4 py-2 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-600 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+            Previous
+          </button>
 
+          <!-- Display the current page and total pages -->
+          <span class="px-4 py-2 text-gray-700 font-semibold bg-white border border-yellow-500 rounded-lg">
+    Page {{ page }} of {{ totalPages }}
+  </span>
+
+          <!-- Next Button -->
+          <button (click)="nextPage()" [disabled]="page === totalPages"
+                  class="px-4 py-2 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-600 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+            Next
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline ml-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
       </div>
-    </div>
-  </div>
 
+    </ng-template>
+
+  </div>
 </div>
