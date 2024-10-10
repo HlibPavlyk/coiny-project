@@ -7,5 +7,7 @@ namespace CoinyProject.Application.Abstractions.Repositories
     {
         Task<PagedResponse<AlbumElement>> GetPagedAlbumElementsByAlbumIdAsync(Guid id, PageQueryDto pageQuery,
             SortByItemQueryDto? sortQuery, string? search);
+        
+        Task<AlbumElement?> GetAlbumElementWithAlbumByIdAsync(Guid id);
     }
 }

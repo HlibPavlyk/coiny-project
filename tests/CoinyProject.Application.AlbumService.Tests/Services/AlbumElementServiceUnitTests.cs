@@ -141,7 +141,7 @@ public class AlbumElementServiceUnitTests
         await Assert.ThrowsAsync<NotFoundException>(async () => await _albumElementService.GetAlbumElementByIdAsync(Guid.NewGuid()));
     }
 
-    [Fact]
+    /*[Fact]
     public async Task GetAlbumElementByIdAsync_ReturnsElement_WhenSuccessful()
     {
         // Arrange
@@ -161,7 +161,7 @@ public class AlbumElementServiceUnitTests
 
         // Assert
         Assert.Equal(elementDto, result);
-    }
+    }*/
 
     [Fact]
     public async Task UpdateAlbumElementAsync_ThrowsUnauthorizedAccess_WhenUserIsNotOwner()

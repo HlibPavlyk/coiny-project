@@ -80,9 +80,9 @@ public class AlbumElementService : IAlbumElementService
         return _mapper.Map<PagedResponse<AlbumElementGetDto>>(elements);
     }
 
-    public async Task<AlbumElementGetDto> GetAlbumElementByIdAsync(Guid id)
+    public async Task<AlbumElementViewGetDto> GetAlbumElementByIdAsync(Guid id)
     {
-        var element = await _unitOfWork.AlbumElements.GetByIdAsync(id);
+        var element = await _unitOfWork.AlbumElements.GetAlbumElementWithAlbumByIdAsync(id);
         if (element == null)
             throw new NotFoundException("Element not found");
         
@@ -101,7 +101,7 @@ public class AlbumElementService : IAlbumElementService
                 throw new UnauthorizedAccessException("Denied for not authenticated users or album is not active");
         }
         
-        return _mapper.Map<AlbumElementGetDto>(element);
+        return _mapper.Map<AlbumElementViewGetDto>(element);
     }
 
     public async Task<Guid> UpdateAlbumElementAsync(Guid id, AlbumElementPatchDto element)

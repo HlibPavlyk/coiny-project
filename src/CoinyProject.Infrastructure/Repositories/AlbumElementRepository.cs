@@ -89,5 +89,14 @@ namespace CoinyProject.Infrastructure.Repositories
 
             return await GetPagedEntitiesAsync(query, pageQuery.Page, pageQuery.PageSize);
         }
+
+        public Task<AlbumElement?> GetAlbumElementWithAlbumByIdAsync(Guid id)
+        {
+            return Context.AlbumElements
+                .Include(x => x.Album)
+                .ThenInclude(x => x.User)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == id);
+        }
     }
 }

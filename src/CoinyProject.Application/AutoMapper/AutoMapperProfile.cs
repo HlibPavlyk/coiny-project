@@ -26,7 +26,12 @@ namespace CoinyProject.Application.AutoMapper
             CreateMap<User, UserNameGetDto>();
             CreateMap<Album, AlbumGetDto>()
                 .ForMember(dest => dest.Author, opt => opt.MapFrom(src => src.User));
+            CreateMap<Album, AlbumMinDetailsGetDTO>()
+                .ForMember(dest => dest.Author, opt => opt.MapFrom(src => src.User));
+            
             CreateMap<AlbumElement, AlbumElementGetDto>()
+                .ForMember(dest => dest.ImageUrl, src => src.MapFrom<GetImageUrlResolver>());
+            CreateMap<AlbumElement, AlbumElementViewGetDto>()
                 .ForMember(dest => dest.ImageUrl, src => src.MapFrom<GetImageUrlResolver>());
             
             CreateMap<AlbumPatchDto, Album>()
