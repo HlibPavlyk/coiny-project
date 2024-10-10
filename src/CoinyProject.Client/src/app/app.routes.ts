@@ -7,6 +7,7 @@ import {AlbumFormComponent} from "./album/album-form/album-form.component";
 import {authGuard} from "./guards/auth.guard";
 import {ProfileComponent} from "./profile/profile.component";
 import {AlbumViewComponent} from "./album/album-view/album-view.component";
+import {AlbumElementViewComponent} from "./album-element/album-element-view/album-element-view.component";
 
 export const routes: Routes = [
   { path: '', redirectTo: 'albums', pathMatch: 'full' },
@@ -39,6 +40,12 @@ export const routes: Routes = [
   {
     path: 'album/:id',
     component: AlbumViewComponent,
+    canActivate: [authGuard],
+    data: { roles: ['User'] }
+  },
+  {
+    path: 'album-element/:id',
+    component: AlbumElementViewComponent,
     canActivate: [authGuard],
     data: { roles: ['User'] }
   }

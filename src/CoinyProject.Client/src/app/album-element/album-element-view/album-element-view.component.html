@@ -1,0 +1,84 @@
+<div class="container mx-auto px-20 py-8">
+  <div class="px-4">
+
+    <div *ngIf="!element; else albumSection">
+      <app-item-no-found></app-item-no-found>
+    </div>
+
+    <ng-template #albumSection>
+      <div *ngIf="element" class="bg-pastel-yellow-white shadow-md rounded-lg p-6">
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center lg:space-x-8">
+          <!-- Left Section: Album Details -->
+          <div class="lg:w-2/3 pr-6">
+            <!-- Album Name -->
+            <h2 class="text-3xl font-bold text-yellow-600 mb-4">{{ element.name }}</h2>
+
+            <!-- Album Details -->
+            <div class="text-gray-700">
+              <p class="mb-4">
+                <span class="font-bold">Description: </span>{{ element.description || 'No description available' }}
+              </p>
+
+              <p class="mb-4">
+                <span class="font-bold text-yellow-600">Rate: </span>{{ element.rate }}
+              </p>
+
+              <p class="mb-4">
+                <span class="font-bold text-yellow-600">Author: </span>
+                <a [routerLink]="['/profile', element.album.author.id]" class="text-yellow-600 hover:text-yellow-500 transition">
+                  {{ element.album.author.username }}
+                </a>
+              </p>
+
+              <p class="mb-4">
+                <span class="font-bold text-yellow-600">Album: </span>
+                <a [routerLink]="['/album', element.album.id]" class="text-yellow-600 hover:text-yellow-500 transition">
+                  {{ element.album.name }}
+                </a>
+              </p>
+
+              <p class="mb-4">
+                <span class="font-bold text-gray-700">Updated At: </span>{{ element.updatedAt | date: 'dd MMM yyyy, HH:mm' }}
+              </p>
+
+              <p>
+                <span class="font-bold text-gray-700">Created At: </span>{{ element.createdAt | date: 'dd MMM yyyy, HH:mm' }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Right Section: Image and Buttons -->
+          <div class="lg:w-1/3 flex flex-col items-center mt-6 lg:mt-0">
+            <!-- Edit and Delete Buttons if 'my=true' -->
+            <div *ngIf="isMyAlbumElement" class="flex justify-end mb-4 w-full mr-20">
+              <button (click)="editAlbumElement()"
+                      class="px-4 py-2 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-600 transition duration-300 mr-2">
+                Edit
+              </button>
+              <button (click)="openModal()"
+                      class="px-4 py-2 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition duration-300">
+                Delete
+              </button>
+
+              <!-- Include the modal component for deactivation -->
+              <app-modal
+                [title]="'Confirm Deleting'"
+                [message]="'Are you sure you want to delete this album?'"
+                [isOpen]="isModalOpen"
+                [errorMessage]="errorMessage"
+                (onConfirm)="confirmDelete()"
+                (onCancel)="closeModal()">
+              </app-modal>
+            </div>
+
+            <!-- Image Section -->
+            <div class="relative w-64 h-64 border-4 border-yellow-500 rounded-lg overflow-hidden shadow-md">
+              <img [src]="element.imageUrl" alt="Album Element Image"
+                   class="absolute inset-0 h-full w-full object-cover"/>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+  </div>
+</div>
