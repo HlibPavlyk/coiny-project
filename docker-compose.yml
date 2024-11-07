@@ -1,0 +1,6 @@
+﻿services:
+  coinyproject.api:
+    image: coinyproject.api
+    build:
+      context: .
+      dockerfile: src/CoinyProject.Api/Dockerfile

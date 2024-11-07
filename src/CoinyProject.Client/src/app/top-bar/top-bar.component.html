@@ -1,0 +1,123 @@
+<!-- Main Navigation Bar -->
+<nav class="bg-gray-900 text-gray-100 shadow-md">
+  <div class="container mx-auto px-6">
+    <div class="container mx-auto px-20 py-3 flex justify-between items-center">
+
+      <div class="flex items-center space-x-4">
+        <!-- Logo -->
+        <div class="flex items-center space-x-2">
+          <img src="logo.png" alt="Logo" class="h-8 w-auto">
+          <span class="font-bold text-xl text-yellow-500">COINY</span>
+        </div>
+      </div>
+
+      <!-- Right Side (Icons and Actions) -->
+      <div class="flex items-center space-x-4">
+
+        <div class="flex items-center space-x-4">
+          <!-- Check if the user is logged in -->
+          <ng-container *ngIf="user  else loginTemplate">
+            <!-- Display the user's name -->
+            <a (click)="selectButton('Profile')" [routerLink]="['profile']" [queryParams]="{ my: true }"
+                    class="font-semibold text-yellow-500 hover:text-yellow-600 bg-transparent rounded-md transition duration-200">
+              Hello, {{ user.username }}
+            </a>
+
+
+            <!-- Logout button -->
+            <button (click)="onLogout()" class="hover:text-yellow-500 transition duration-200">
+              <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+          </ng-container>
+
+          <!-- Login button template -->
+          <ng-template #loginTemplate>
+            <!-- Login Icon -->
+            <button (click)="selectButton('Login')" [routerLink]="['login']"
+                    class="hover:text-yellow-500 transition duration-200">
+              <i class="fas fa-sign-in-alt"></i> Login
+            </button>
+          </ng-template>
+
+          <!-- Separator -->
+          <span>|</span>
+        </div>
+
+        <!-- Language Dropdown -->
+        <div class="relative">
+          <button (click)="toggleLanguageDropdown()" class="flex items-center hover:text-yellow-500 transition duration-200">
+            <i class="fas fa-globe"></i>
+            <span class="ml-1">{{ currentLanguage }}</span>
+          </button>
+          <div *ngIf="isLanguageDropdownOpen" class="absolute right-0 mt-2 w-24 bg-white text-gray-700 rounded shadow-lg">
+            <a *ngFor="let language of availableLanguages" (click)="selectLanguage(language)" href="#" class="block px-4 py-2 hover:bg-gray-200">
+              {{ language }}
+            </a>
+          </div>
+        </div>
+
+        <!-- Information Icon -->
+        <a (click)="selectButton('Info')" [routerLink]="['info']"
+           class="hover:text-yellow-500 transition duration-200 cursor-pointer">
+          <i class="fas fa-info-circle"></i>
+        </a>
+
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Sub Navigation Bar -->
+<div class="bg-gray-700 text-gray-200 shadow-sm">
+  <div class="container mx-auto px-20">
+    <div class="container mx-auto px-4 py-2 flex justify-between items-center">
+
+      <!-- Left Section -->
+      <div class="flex items-center space-x-6">
+        <a href="#"
+           (click)="selectButton('Home')" [routerLink]="['home']"
+           [ngClass]="{'text-yellow-400 font-semibold': activePage === 'Home', 'text-gray-300': activePage !== 'Home'}"
+           class="hover:text-yellow-500 transition duration-200">
+          Home
+        </a>
+
+        <a
+           (click)="selectButton('Albums')" [routerLink]="['albums']"
+           [ngClass]="{'text-yellow-400 font-semibold': activePage === 'Albums', 'text-gray-300': activePage !== 'Albums'}"
+           class="hover:text-yellow-500 transition duration-200">
+          Albums
+        </a>
+
+        <a href="#"
+           (click)="selectButton('Community')"
+           [ngClass]="{'text-yellow-400 font-semibold': activePage === 'Community', 'text-gray-300': activePage !== 'Community'}"
+           class="hover:text-yellow-500 transition duration-200">
+          Community
+        </a>
+
+        <a (click)="selectButton('Auctions')" [routerLink]="['auctions']"
+           [ngClass]="{'text-yellow-400 font-semibold': activePage === 'Auctions', 'text-gray-300': activePage !== 'Auctions'}"
+           class="hover:text-yellow-500 transition duration-200">
+          Auctions
+        </a>
+      </div>
+
+
+      <div class="flex space-x-4">
+        <!-- Create Album Button -->
+        <a (click)="selectButton('Album-Create')" [routerLink]="['album-create']"
+                class="flex items-center space-x-2 bg-transparent border border-yellow-400 text-yellow-400 rounded-md px-4 py-2 hover:bg-yellow-400 hover:text-white transition duration-200">
+          <span class="font-semibold">+</span>
+          <span>Create Album</span>
+        </a>
+
+        <!-- My Albums Button (Visible only if the user is logged in) -->
+        <a *ngIf="user" (click)="selectButton('My-Albums')" [routerLink]="['profile']" [queryParams]="{ my: true }"
+                class="flex items-center space-x-2 bg-transparent border border-yellow-400 text-yellow-400 rounded-md px-4 py-2 hover:bg-yellow-400 hover:text-white transition duration-200">
+          <i class="fas fa-folder-open"></i>
+          <span>My Albums</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

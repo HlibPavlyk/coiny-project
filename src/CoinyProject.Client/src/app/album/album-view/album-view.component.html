@@ -1,0 +1,105 @@
+<div class="container mx-auto px-20 py-8">
+    <div class="px-4">
+
+        <div *ngIf=" !album; else albumSection">
+            <app-item-no-found></app-item-no-found>
+        </div>
+
+        <ng-template #albumSection>
+
+        <div *ngIf="album" class="bg-pastel-yellow-white shadow-md rounded-lg p-6">
+
+            <div class="flex justify-between items-center">
+                <!-- Album Name -->
+                <h2 class="text-3xl font-bold text-yellow-600">{{ album.name }}</h2>
+
+                <!-- Edit and Delete Buttons if 'my=true' -->
+                <div *ngIf="isMyAlbum">
+
+                  <button (click)="addElement()"
+                          class="px-4 py-2 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition duration-300">
+                    Add Element
+                  </button>
+
+                    <button (click)="editAlbum()"
+                            class="ml-2 px-4 py-2 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-600 transition duration-300">
+                        Edit
+                    </button>
+                    <!-- Button for Deactivation/Activation -->
+                    <button (click)="openModal()"
+                            [ngClass]="{
+                              'bg-red-500 hover:bg-red-600': album.status !== 'Inactive',
+                              'bg-green-500 hover:bg-green-600': album.status === 'Inactive'
+                            }"
+                            [innerText]="album.status !== 'Inactive' ? 'Deactivate' : 'Activate'"
+                            class="ml-2 px-4 py-2 text-white font-semibold rounded-lg transition duration-300">
+                    </button>
+
+                    <!-- Include the modal component for deactivation -->
+                    <app-modal
+                            *ngIf="album.status !== 'Inactive'"
+                            [title]="'Confirm Deactivation'"
+                            [message]="'Are you sure you want to deactivate this album?'"
+                            [isOpen]="isModalOpen"
+                            [errorMessage]="errorMessage"
+                            (onConfirm)="confirmDeactivate()"
+                            (onCancel)="closeModal()">
+                    </app-modal>
+
+                    <!-- Include the modal component for activation -->
+                    <app-modal
+                            *ngIf="album.status === 'Inactive'"
+                            [title]="'Confirm Activation'"
+                            [message]="'Are you sure you want to activate this album?'"
+                            [isOpen]="isModalOpen"
+                            [errorMessage]="errorMessage"
+                            (onConfirm)="confirmActivate()"
+                            (onCancel)="closeModal()">
+                    </app-modal>
+
+                </div>
+            </div>
+
+            <!-- Album Details -->
+            <div class="mt-4">
+                <div class="text-gray-700">
+                    <p class="text-gray-700 mb-4">
+                        <span class="font-bold">Description: </span>{{ album.description || 'No description available' }}
+                    </p>
+
+                    <div class="mt-4">
+                        <p><span class="font-bold text-yellow-600">Rate: </span>{{ album.rate }}</p>
+                        <p><span class="font-bold text-yellow-600">Author: </span>
+                            <a [routerLink]="['/profile', album.author.id]" class="text-yellow-600 hover:text-yellow-500 transition">
+                                {{ album.author.username }}
+                            </a>
+                        </p>
+                        <p><span class="font-bold text-gray-700">Updated At: </span>{{ album.updatedAt | date: 'dd MMM yyyy, HH:mm' }}</p>
+                        <p><span class="font-bold text-gray-700">Created At: </span>{{ album.createdAt | date: 'dd MMM yyyy, HH:mm' }}</p>
+
+                        <!-- Album Status -->
+                        <div *ngIf="isMyAlbum">
+                            <p><span class="font-bold text-gray-700">Status: </span>
+                                <span class="font-semibold"
+                                      [ngClass]="{
+                                        'text-green-600': album.status === 'Active',
+                                        'text-red-600': album.status === 'Inactive',
+                                        'text-yellow-500': album.status === 'NotApproved'
+                                      }">
+                                    {{ album.status }}
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+          <app-album-elements
+            [isCurrentUser] = "isMyAlbum"
+            [isAlbumLoaded] = "album !== null ">
+          </app-album-elements>
+
+        </ng-template>
+    </div>
+</div>

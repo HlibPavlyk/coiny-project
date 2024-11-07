@@ -7,24 +7,25 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using CoinyProject.Application.Dto.Album;
 
 namespace CoinyProject.UnitTests.Shared
 {
     public class FakeDataGenerator
     {
-        Faker<AlbumCreating> inputAlbumFake;
+        Faker<AlbumPostDto> inputAlbumFake;
 
         public FakeDataGenerator()
         {
             Randomizer.Seed = new Random(8675309);
 
-            inputAlbumFake = new Faker<AlbumCreating>()
+            inputAlbumFake = new Faker<AlbumPostDto>()
                 .WithRecord()
                 .RuleFor(a => a.Name, f => f.Lorem.Word())
                 .RuleFor(a => a.Description, f => f.Lorem.Sentence());
         }
 
-        public AlbumCreating GetInputAlbum()
+        public AlbumPostDto GetInputAlbum()
         {
             return inputAlbumFake.Generate();
         }

@@ -1,0 +1,137 @@
+
+<div class="container mx-auto py-8">
+
+  <div *ngIf="errorMessage && isAlbumLoaded; else albumElementSection">
+    <app-item-no-found></app-item-no-found>
+  </div>
+
+  <ng-template #albumElementSection>
+  <!-- Sorting and Search Section -->
+  <div class="flex flex-wrap justify-between items-center mb-4 space-y-2 space-x-2">
+    <!-- Sort by Buttons -->
+    <div class="sort-buttons flex space-x-1">
+      <!-- Сортування за популярністю -->
+      <button (click)="setSort('rate', true)"
+              [ngClass]="{'bg-yellow-400': sortItem === 'rate' && isAscending, 'bg-pastel-red-light': !(sortItem === 'rate' && isAscending)}"
+              class="hover:bg-gray-300 text-gray-700 py-1 px-3 rounded flex items-center">
+        <span class="mr-1">Popularity</span>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" />
+        </svg>
+      </button>
+      <button (click)="setSort('rate', false)"
+              [ngClass]="{'bg-yellow-400': sortItem === 'rate' && !isAscending, 'bg-pastel-red-light': !(sortItem === 'rate' && !isAscending)}"
+              class="hover:bg-gray-300 text-gray-700 py-1 px-3 rounded flex items-center">
+        <span class="mr-1">Popularity</span>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      <!-- Сортування за часом оновлення -->
+      <button (click)="setSort('time', true)"
+              [ngClass]="{'bg-yellow-400': sortItem === 'time' && isAscending, 'bg-pastel-red-light': !(sortItem === 'time' && isAscending)}"
+              class="hover:bg-gray-300 text-gray-700 py-1 px-3 rounded flex items-center">
+        <span class="mr-1">Update Time</span>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" />
+        </svg>
+      </button>
+      <button (click)="setSort('time', false)"
+              [ngClass]="{'bg-yellow-400': sortItem === 'time' && !isAscending, 'bg-pastel-red-light': !(sortItem === 'time' && !isAscending)}"
+              class="hover:bg-gray-300 text-gray-700 py-1 px-3 rounded flex items-center">
+        <span class="mr-1">Update Time</span>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="w-full sm:w-1/3 lg:w-1/3 relative">
+      <!-- Search Input -->
+      <input type="text" [(ngModel)]="searchQuery" (keydown.enter)="onSearch()"
+             class="w-full p-2 pr-24 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none"
+             placeholder="Search albums..." />
+
+      <!-- Search Button -->
+      <button (click)="onSearch()"
+              class="absolute right-0 h-full px-5 py-2 bg-yellow-500 text-white font-semibold rounded-r hover:bg-yellow-600 transition duration-300 shadow-md focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-1">
+        Search
+      </button>
+    </div>
+
+      <div class="container mx-auto py-6">
+        <!-- Album List Section -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div *ngFor="let element of elements"
+               class="relative bg-white shadow-md rounded-lg overflow-hidden flex flex-col transition duration-300">
+
+            <!-- Image Carousel Section -->
+            <div class="relative w-full aspect-square bg-pastel-red-dark p-4 rounded-t-lg rounded-b-none shadow-md overflow-hidden group">
+
+
+              <!-- Album Image -->
+              <a [routerLink]="['/album-element', element.id]">
+                <img [src]="element.imageUrl"
+                     alt="Album Image"
+                     class="h-full w-full object-cover rounded-lg transition-transform duration-500 ease-in-out transform hover:scale-105 cursor-pointer">
+              </a>
+
+            </div>
+
+            <!-- Album Details Below Image -->
+            <div class="p-4 flex-grow bg-pastel-yellow-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+
+
+              <!-- Album Name -->
+              <h2 class="text-lg font-bold mb-2 truncate text-yellow-600">{{ element.name }}</h2>
+
+              <!-- Description -->
+              <p class="text-gray-700 mb-4 max-h-24 overflow-hidden text-ellipsis">
+                {{ element.description || 'No description available' }}
+              </p>
+
+              <!-- Rating section -->
+              <div class="flex items-center mb-4">
+                <span class="font-bold text-yellow-500">Rate:</span>
+                <span class="ml-2 text-gray-800">{{ element.rate }}</span>
+              </div>
+
+              <!-- Last Updated Section -->
+              <div class="flex items-center">
+                <span class="font-bold text-yellow-500">Updated:</span>
+                <span class="ml-2 text-gray-800">{{ element.updatedAt | date:'dd MMM yyyy, HH:mm' }}</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+        <!-- Pagination Controls -->
+        <div class="flex justify-center mt-6 space-x-2">
+          <!-- Previous Button -->
+          <button (click)="previousPage()" [disabled]="page === 1"
+                  class="px-4 py-2 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-600 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+            Previous
+          </button>
+
+          <!-- Display the current page and total pages -->
+          <span class="px-4 py-2 text-gray-700 font-semibold bg-white border border-yellow-500 rounded-lg">
+    Page {{ page }} of {{ totalPages }}
+  </span>
+
+          <!-- Next Button -->
+          <button (click)="nextPage()" [disabled]="page === totalPages"
+                  class="px-4 py-2 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-600 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+            Next
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline ml-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+</div>

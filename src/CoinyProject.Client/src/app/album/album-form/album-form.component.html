@@ -1,0 +1,58 @@
+<div class="flex justify-center items-center bg-yellow-100 mt-20">
+  <div class="w-full max-w-5xl bg-white shadow-lg rounded-lg p-8">
+    <h2 class="text-3xl font-bold mb-4 text-yellow-600">{{ isEditMode ? 'Edit Album' : 'Create Album' }}</h2>
+
+    <!-- Error message -->
+    <div *ngIf="errorMessage" class="text-red-600 bg-red-100 p-3 rounded mb-4">
+      {{ errorMessage }}
+    </div>
+
+    <form (ngSubmit)="onSubmit()" class="space-y-8" #albumForm="ngForm">
+      <!-- Album Name (minlength validation) -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center">
+        <div>
+          <label class="block text-gray-700 font-medium mb-1">Album Name</label>
+          <input type="text" [(ngModel)]="album.name" name="name"
+                 class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:outline-none"
+                 placeholder="Enter album name" required minlength="10" #nameInput="ngModel">
+
+          <!-- Error message for minlength -->
+          <div *ngIf="nameInput.invalid && nameInput.touched" class="text-red-500 text-sm">
+            Album name must be at least 10 characters long.
+          </div>
+        </div>
+        <div class="text-gray-500 text-sm">
+          <p>Provide a clear and concise name for your album that describes the contents.</p>
+        </div>
+      </div>
+
+      <!-- Album Description -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center">
+        <div>
+          <label class="block text-gray-700 font-medium mb-1">Description</label>
+          <textarea [(ngModel)]="album.description" name="description"
+                    class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:outline-none"
+                    placeholder="Enter album description"></textarea>
+        </div>
+        <div class="text-gray-500 text-sm">
+          <p>Provide a detailed description of the album, including any notable features or highlights.</p>
+        </div>
+      </div>
+
+      <!-- Buttons -->
+      <div class="flex justify-between items-center">
+        <button (click)="onCancel()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition">
+          Cancel
+        </button>
+        <div class="space-x-2">
+          <button type="submit" [disabled]="albumForm.invalid" class="px-4 py-3 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-600 transition">
+            {{ isEditMode ? 'Update Album' : 'Create Album' }}
+          </button>
+          <button type="button" class="px-4 py-3 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-600 transition"
+                  (click)="onCreateAndFill()">{{ isEditMode ? 'Update And Fill' : 'Create And Fill' }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

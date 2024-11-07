@@ -1,0 +1,80 @@
+<div class="flex justify-center items-center bg-yellow-100 mt-20">
+  <div class="w-full max-w-5xl bg-white shadow-lg rounded-lg p-8 mb-20">
+    <h2 class="text-3xl font-bold text-yellow-600 mb-6">
+      {{ isEditMode ? 'Edit Album Element' : 'Create Album Element' }}
+    </h2>
+
+    <!-- Error message -->
+    <div *ngIf="errorMessage" class="text-red-600 bg-red-100 p-3 rounded mb-4">
+      {{ errorMessage }}
+    </div>
+
+    <form (ngSubmit)="onSubmit()" class="space-y-6" #albumElementForm="ngForm">
+      <!-- Element Name Field -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+        <div>
+          <label for="elementName" class="block text-gray-700 font-medium mb-1">Element Name</label>
+          <input type="text" id="elementName" [(ngModel)]="albumElement.name" name="name"
+                 class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:outline-none"
+                 placeholder="Enter album element name" required minlength="3" #nameInput="ngModel">
+          <div *ngIf="nameInput.invalid && nameInput.touched" class="text-red-500 text-sm">
+            Element name is required and must be at least 3 characters.
+          </div>
+        </div>
+
+        <div class="text-sm text-gray-500 self-center">
+          Provide a clear and concise name for the album element that describes the content.
+        </div>
+      </div>
+
+      <!-- Description Field -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+        <div>
+          <label for="elementDescription" class="block text-gray-700 font-medium mb-1">Description</label>
+          <textarea id="elementDescription" [(ngModel)]="albumElement.description" name="description"
+                    class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:outline-none"
+                    placeholder="Enter element description" rows="3"></textarea>
+        </div>
+
+        <div class="text-sm text-gray-500 self-center">
+          Provide a detailed description of the album element, including any notable features or highlights.
+        </div>
+      </div>
+
+      <!-- Upload Photo Field with Preview -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+        <div class="mt-7" >
+          <label for="elementPhoto" class="block text-gray-700 font-medium mb-1">Upload Photo</label>
+          <input type="file" id="elementPhoto" (change)="onFileChange($event)"
+                 class="w-full p-2 border border-gray-300 rounded-md">
+          <div class="text-sm text-gray-500 mt-2">
+            Upload a photo to visually represent the album element. Ensure the image is clear and relevant.
+          </div>
+        </div>
+
+        <div class="flex justify-center items-center">
+          <div class="relative w-48 h-48 border-2 border-yellow-500 rounded-lg overflow-hidden shadow-md">
+            <img *ngIf="previewUrl" [src]="previewUrl" alt="Preview"
+                 class="absolute inset-0 w-full h-full object-cover" />
+            <div *ngIf="!previewUrl" class="flex items-center justify-center h-full text-gray-400">
+              No Image Selected
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Action Buttons -->
+      <div class="flex justify-end space-x-4 mt-8">
+        <button type="button" (click)="goBack()"
+                class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition">
+          Cancel
+        </button>
+        <button type="submit" [disabled]="albumElementForm.invalid"
+                class="px-4 py-2 bg-yellow-500 text-white font-semibold rounded-md hover:bg-yellow-600 transition">
+          {{ isEditMode ? 'Update Element' : 'Create Element' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
