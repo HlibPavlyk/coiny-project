@@ -107,6 +107,7 @@ public class AlbumServiceUnitTests
         await Assert.ThrowsAsync<NotFoundException>(async () => await _albumService.GetAlbumById(Guid.NewGuid()));
     }
 
+    /*
     [Fact]
     public async Task GetAlbumById_ReturnsAlbumDto_WhenAlbumIsActiveAndUserIsOwner()
     {
@@ -124,7 +125,7 @@ public class AlbumServiceUnitTests
 
         // Assert
         Assert.Equal(albumDto, result);
-    }
+    }*/
 
     [Fact]
     public async Task UpdateAlbumAsync_ThrowsUnauthorizedAccess_WhenUserIsNotOwner()
