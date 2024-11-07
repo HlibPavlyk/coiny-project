@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using CoinyProject.Application.AutoMapper;
 using CoinyProject.Infrastructure.Extensions;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -65,6 +66,14 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseStaticFiles();
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(Directory.GetCurrentDirectory(), "uploads")),
+    RequestPath = "/photos"
+});
+
 app.UseHttpsRedirection();
 
 app.UseAuthentication();

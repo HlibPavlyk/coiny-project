@@ -24,11 +24,6 @@
               {
                 "glob": "**/*",
                 "input": "public"
-              },
-              {
-                "glob": "**/*",
-                "input": "../CoinyProject.Api/uploads",
-                "output": "/photos"
               }
             ],
             "styles": [
