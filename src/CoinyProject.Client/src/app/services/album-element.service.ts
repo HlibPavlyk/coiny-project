@@ -8,6 +8,8 @@ import {AlbumPatchDto} from "../album/album-form/album-patch.model";
 import {AlbumGetDto} from "../album/albums-view/album-get.model";
 import {AlbumElementGetModel} from "../album-element/album-elements/album-element-get.model";
 import {AlbumElementViewGetModel} from "../album-element/album-element-view/album-element-view-get.model";
+import {AlbumElementPostModel} from "../album-element/album-element-form/album-element-post.model";
+import {AlbumElementPatchModel} from "../album-element/album-element-form/album-element-patch.model";
 
 @Injectable({
   providedIn: 'root'
@@ -41,15 +43,14 @@ export class AlbumElementService {
     return this.http.get<AlbumElementViewGetModel>(`${this.baseUrl}/${id}`, {params});
   }
   // Create a new album
-  addAlbum(album: AlbumPostDto): Observable<AlbumGetDto> {
-    return this.http.post<AlbumGetDto>(`${this.baseUrl}?addAuth=true`, album);
+  addAlbumElement(element: FormData): Observable<AlbumElementGetModel> {
+    return this.http.post<AlbumElementGetModel>(`${this.baseUrl}?addAuth=true`, element);
   }
 
   // Update an existing album
-  updateAlbum(id: string, album: AlbumPatchDto): Observable<AlbumGetDto> {
-    return this.http.patch<AlbumGetDto>(`${this.baseUrl}/${id}?addAuth=true`, album);
+  updateAlbumElement(id: string, element: FormData): Observable<AlbumElementGetModel> {
+    return this.http.patch<AlbumElementGetModel>(`${this.baseUrl}/${id}?addAuth=true`, element);
   }
-
 
   // Deactivate album by ID
   deleteAlbumElement(id: string): Observable<void> {
@@ -57,12 +58,5 @@ export class AlbumElementService {
       addAuth: true.toString()
     };
       return this.http.delete<void>(`${this.baseUrl}/${id}`, {params});
-    }
-
-    activateAlbum(id: string): Observable<void> {
-    const params = {
-      addAuth: true.toString()
-    };
-      return this.http.post<void>(`${this.baseUrl}/${id}/activate`, null, {params});
     }
 }
