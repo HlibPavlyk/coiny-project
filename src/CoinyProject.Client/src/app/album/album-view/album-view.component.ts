@@ -74,6 +74,12 @@ export class AlbumViewComponent implements OnInit {
     }
   }
 
+  addElement(): void {
+    if (this.album) {
+      this.router.navigate(['/album-element-create', this.album.id]).then(r => console.log('Add element to the current album:', r));
+    }
+  }
+
   openModal(): void {
     this.isModalOpen = true;
   }
