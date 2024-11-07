@@ -1,7 +1,9 @@
 ﻿
+using CoinyProject.Domain.Abstractions;
+
 namespace CoinyProject.Domain.Entities
 {
-    public class AlbumElement
+    public class AlbumElement : IUpdateable
     {
         public Guid Id { get; init; }
         public string Name { get; set; }

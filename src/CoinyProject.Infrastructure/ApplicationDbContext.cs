@@ -37,7 +37,11 @@ namespace CoinyProject.Infrastructure
             var currentDateTime = DateTime.Now;
             var entries = ChangeTracker.Entries().ToList();
 
-            var updatedEntries = entries.Where(e => e is { Entity: IUpdateable, State: EntityState.Modified }).ToList();
+            var updatedEntries = entries
+                .Where(e => e.Entity is IUpdateable && 
+                            (e.State == EntityState.Modified || e.State == EntityState.Added))
+                .ToList();
+
 
             updatedEntries.ForEach(e =>
             {
