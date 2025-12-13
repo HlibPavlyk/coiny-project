@@ -32,6 +32,13 @@ namespace CoinyProject.Infrastructure.Repositories
                 .AsNoTracking()
                 .ToListAsync();
         }
+        
+        public IAsyncEnumerable<TEntity> GetAllAsyncEnumerable()
+        {
+            return Context.Set<TEntity>()
+                .AsNoTracking()
+                .ToAsyncEnumerable();
+        }
 
         public async Task AddAsync(TEntity entity)
         {

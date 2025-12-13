@@ -7,6 +7,7 @@ namespace CoinyProject.Application.Abstractions.Repositories
         Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate);
         Task<TEntity?> GetByIdAsync(Guid id);
         Task<IEnumerable<TEntity>?> GetAllAsync();
+        IAsyncEnumerable<TEntity> GetAllAsyncEnumerable();
         Task AddAsync(TEntity entity);
         void Update(TEntity entity);
         void Remove(TEntity entity);

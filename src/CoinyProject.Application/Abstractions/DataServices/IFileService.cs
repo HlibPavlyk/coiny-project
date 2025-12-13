@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
 namespace CoinyProject.Application.Abstractions.DataServices;

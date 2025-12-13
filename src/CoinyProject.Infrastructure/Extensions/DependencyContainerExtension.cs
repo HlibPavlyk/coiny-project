@@ -1,3 +1,5 @@
+using System.Reflection;
+using CoinyProject.Application;
 using CoinyProject.Application.Abstractions.DataServices;
 using CoinyProject.Application.Abstractions.Repositories;
 using CoinyProject.Application.Abstractions.Services;
@@ -29,6 +31,11 @@ public static class DependencyContainerExtension
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IUserService, UserService>();
+        
+        // register mediator handlers
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(
+            typeof(ApplicationAssemblyType).Assembly
+        ));
 
         services.AddIdentityUser();
         services.ConfigurateIdentityOptions();
