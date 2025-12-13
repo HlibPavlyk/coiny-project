@@ -1,14 +1,14 @@
 ﻿using AutoMapper;
-using CoinyProject.Application.AutoMapper.Resolvers;
+using CoinyProject.Application.Common.AutoMapper.Resolvers;
 using CoinyProject.Application.Dto.Album;
-using CoinyProject.Application.DTO.Album;
 using CoinyProject.Application.Dto.AlbumElement;
 using CoinyProject.Application.Dto.Other;
 using CoinyProject.Application.Dto.User;
+using CoinyProject.Application.Features.Albums.Models;
 using CoinyProject.Domain.Entities;
 using CoinyProject.Domain.Enums;
 
-namespace CoinyProject.Application.AutoMapper
+namespace CoinyProject.Application.Common.AutoMapper
 {
     public class AutoMapperProfile : Profile
     {
@@ -20,7 +20,7 @@ namespace CoinyProject.Application.AutoMapper
             CreateMap<AlbumElementPostDto, AlbumElement>()
                 .ForMember(dest => dest.ImageUrl, src => src.Ignore());
 
-            CreateMap<Album, AlbumViewGetDto>()
+            CreateMap<Album, AlbumViewGetModel>()
                 //.ForMember(dest => dest.ImagesUrls, opt => opt.MapFrom<GetISeveralImageUrlsResolver>())
                 .ForMember(dest => dest.Author, opt => opt.MapFrom(src => src.User));
             CreateMap<User, UserNameGetDto>();
@@ -35,9 +35,9 @@ namespace CoinyProject.Application.AutoMapper
                 .ForMember(dest => dest.ImageUrl, src => src.MapFrom<GetImageUrlResolver>());
             
             CreateMap<AlbumPatchDto, Album>()
-                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+                .ForAllMembers(opts => opts.Condition((_, _, srcMember) => srcMember != null));
             CreateMap<AlbumElementPatchDto, AlbumElement>()
-                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+                .ForAllMembers(opts => opts.Condition((_, _, srcMember) => srcMember != null));
 
             CreateMap<User, UserStatsGetDto>()
                 .ForMember(dest => dest.LikesCount, opt => opt.MapFrom(src => src.Albums.Where(x => x.Status == AlbumStatus.Active)

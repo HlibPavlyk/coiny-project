@@ -3,8 +3,8 @@ using AutoMapper;
 using CoinyProject.Application.Abstractions.Repositories;
 using CoinyProject.Application.Abstractions.Services;
 using CoinyProject.Application.Dto.Album;
-using CoinyProject.Application.DTO.Album;
 using CoinyProject.Application.Dto.Other;
+using CoinyProject.Application.Features.Albums.Models;
 using CoinyProject.Domain.Entities;
 using CoinyProject.Domain.Enums;
 using CoinyProject.Domain.Exceptions;
@@ -41,18 +41,18 @@ namespace CoinyProject.Application.Services
             return entity.Id;
         }
 
-        public async Task<PagedResponse<AlbumViewGetDto>> GetPagedAlbumsAsync(PageQueryDto pageQuery, SortByItemQueryDto? sortQuery, string? search)
+        public async Task<PagedResponse<AlbumViewGetModel>> GetPagedAlbumsAsync(PageQueryDto pageQuery, SortByItemQueryDto? sortQuery, string? search)
         {
             var albums = await _unitOfWork.Albums.GetPagedActiveAlbumsWithElementsAsync(pageQuery, sortQuery, search);
             return GetPagedAlbumsDtoFromPagedAlbums(albums);
         }
 
-        public async Task<PagedResponse<AlbumViewGetDto>> GetPagedActiveAlbumsByUserIdAsync(Guid userId, PageQueryDto pageQuery, SortByItemQueryDto? sortQuery, string? search)
+        public async Task<PagedResponse<AlbumViewGetModel>> GetPagedActiveAlbumsByUserIdAsync(Guid userId, PageQueryDto pageQuery, SortByItemQueryDto? sortQuery, string? search)
         {
             var albums = await _unitOfWork.Albums.GetPagedActiveAlbumsWithElementsByUserIdAsync(userId, pageQuery, sortQuery, search);
             return GetPagedAlbumsDtoFromPagedAlbums(albums);
         }
-        public async Task<PagedResponse<AlbumViewGetDto>> GetCurrentUserPagedAlbumsAsync(PageQueryDto pageQuery, SortByItemQueryDto? sortQuery, string? search)
+        public async Task<PagedResponse<AlbumViewGetModel>> GetCurrentUserPagedAlbumsAsync(PageQueryDto pageQuery, SortByItemQueryDto? sortQuery, string? search)
         {
             var user = _httpContextAccessor.HttpContext?.User;
             if (user is not { Identity.IsAuthenticated: true } || !Guid.TryParse(user.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
@@ -149,12 +149,12 @@ namespace CoinyProject.Application.Services
             await _unitOfWork.SaveChangesAsync();
         }
         
-        private PagedResponse<AlbumViewGetDto> GetPagedAlbumsDtoFromPagedAlbums(PagedResponse<Album> albums)
+        private PagedResponse<AlbumViewGetModel> GetPagedAlbumsDtoFromPagedAlbums(PagedResponse<Album> albums)
         {
             if (albums.TotalPages == 0)
                 throw new NotFoundException("Any active album not found.");
            
-            return _mapper.Map<PagedResponse<AlbumViewGetDto>>(albums);
+            return _mapper.Map<PagedResponse<AlbumViewGetModel>>(albums);
         }
     }
 }

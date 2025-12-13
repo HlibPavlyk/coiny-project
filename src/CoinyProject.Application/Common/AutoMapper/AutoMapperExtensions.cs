@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace CoinyProject.Application.AutoMapper
+namespace CoinyProject.Application.Common.AutoMapper
 {
     public static class AutoMapperExtensions
     {

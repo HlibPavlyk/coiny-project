@@ -1,5 +1,4 @@
 using CoinyProject.Application.Dto.Album;
-using CoinyProject.Application.DTO.Album;
 using CoinyProject.Application.Dto.AlbumElement;
 using CoinyProject.Application.Dto.Other;
 

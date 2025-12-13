@@ -1,10 +1,9 @@
-﻿
-using CoinyProject.Application.Dto.User;
+﻿using CoinyProject.Application.Dto.User;
 using CoinyProject.Domain.Enums;
 
-namespace CoinyProject.Application.DTO.Album
+namespace CoinyProject.Application.Features.Albums.Models
 {
-    public class AlbumViewGetDto
+    public class AlbumViewGetModel
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;

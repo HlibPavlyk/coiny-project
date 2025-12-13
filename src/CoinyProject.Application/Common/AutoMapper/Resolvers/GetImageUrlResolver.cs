@@ -3,7 +3,7 @@ using CoinyProject.Application.Abstractions.DataServices;
 using CoinyProject.Application.Dto.AlbumElement;
 using CoinyProject.Domain.Entities;
 
-namespace CoinyProject.Application.AutoMapper.Resolvers;
+namespace CoinyProject.Application.Common.AutoMapper.Resolvers;
 
 public class GetImageUrlResolver : IValueResolver<AlbumElement, AlbumElementGetDto, string>, IValueResolver<AlbumElement, AlbumElementViewGetDto, string>
 {

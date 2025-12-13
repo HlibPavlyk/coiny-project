@@ -1,4 +1,4 @@
-namespace CoinyProject.Application.Models;
+namespace CoinyProject.Application.Common.Querying.Models;
 
 public interface ISearchable
 {

@@ -1,5 +1,4 @@
 using System.Text.Json.Serialization;
-using CoinyProject.Application.AutoMapper;
 using CoinyProject.Infrastructure.Extensions;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi.Models;

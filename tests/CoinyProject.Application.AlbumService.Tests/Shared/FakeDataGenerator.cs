@@ -1,6 +1,5 @@
 ﻿using Bogus;
 using Castle.DynamicProxy;
-using CoinyProject.Application.DTO.Album;
 using System;
 using System.Collections.Generic;
 using System.Linq;

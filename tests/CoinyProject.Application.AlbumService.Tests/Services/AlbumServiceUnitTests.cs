@@ -2,7 +2,6 @@ using System.Security.Claims;
 using AutoMapper;
 using CoinyProject.Application.Abstractions.Repositories;
 using CoinyProject.Application.Dto.Album;
-using CoinyProject.Application.DTO.Album;
 using CoinyProject.Application.Dto.Other;
 using CoinyProject.Application.Services;
 using CoinyProject.Domain.Entities;

@@ -1,6 +1,6 @@
-using CoinyProject.Application.Models;
+using CoinyProject.Application.Common.Querying.Models;
 
-namespace CoinyProject.Application.Requests;
+namespace CoinyProject.Application.Common.Requests;
 
 public record GetItemsBaseRequest : ITextSearch
 {

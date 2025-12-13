@@ -1,9 +1,9 @@
 using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
-using CoinyProject.Application.Models;
+using CoinyProject.Application.Common.Querying.Models;
 
-namespace CoinyProject.Application.Querying;
+namespace CoinyProject.Application.Common.Querying;
 
 public class PlainTextSearch<T>
 {

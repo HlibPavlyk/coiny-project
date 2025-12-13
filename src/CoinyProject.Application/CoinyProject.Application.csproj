@@ -27,7 +27,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Extensions\" />
+    <Folder Include="Features\AlbumElements\Handlers\" />
+    <Folder Include="Features\AlbumElements\Requests\" />
+    <Folder Include="Features\Auth\Handlers\" />
+    <Folder Include="Features\Auth\Requests\" />
+    <Folder Include="Features\Discussions\Handlers\" />
+    <Folder Include="Features\Discussions\Requests\" />
+    <Folder Include="Features\Users\Handlers\" />
+    <Folder Include="Features\Users\Requests\" />
   </ItemGroup>
 
 </Project>

@@ -1,6 +1,6 @@
 using System.Linq.Expressions;
-using CoinyProject.Application.Models;
-using CoinyProject.Application.Querying;
+using CoinyProject.Application.Common.Querying;
+using CoinyProject.Application.Common.Querying.Models;
 
 namespace CoinyProject.Application.Common.Extensions;
 

@@ -1,30 +1,28 @@
 using AutoMapper;
 using CoinyProject.Application.Abstractions.Repositories;
 using CoinyProject.Application.Common.Extensions;
-using CoinyProject.Application.DTO.Album;
-using CoinyProject.Application.Models;
-using CoinyProject.Application.Requests.Albums;
-using CoinyProject.Domain.Enums;
+using CoinyProject.Application.Common.Querying.Models;
+using CoinyProject.Application.Features.Albums.Models;
+using CoinyProject.Application.Features.Albums.Requests;
 using MediatR;
-using Microsoft.AspNetCore.Hosting.Internal;
 
-namespace CoinyProject.Application.Handlers.Albums;
+namespace CoinyProject.Application.Features.Albums.Handlers;
 
 public class AlbumsHandler(IUnitOfWork unitOfWork, IMapper mapper) :
-    IRequestHandler<GetAlbumItemsRequest, PaginatedItemsModel<AlbumViewGetDto>>
+    IRequestHandler<GetAlbumItemsRequest, PaginatedItemsModel<AlbumViewGetModel>>
 {
-    public async Task<PaginatedItemsModel<AlbumViewGetDto>> Handle(GetAlbumItemsRequest request, CancellationToken cancellationToken)
+    public async Task<PaginatedItemsModel<AlbumViewGetModel>> Handle(GetAlbumItemsRequest request, CancellationToken cancellationToken)
     {
         var items = await GetAlbumItemsAsync(request, request.SortBy, cancellationToken);
 
-        return new PaginatedItemsModel<AlbumViewGetDto>
+        return new PaginatedItemsModel<AlbumViewGetModel>
         {
             TotalCount = items.Length,
             Items = items.Paginate(request).ToArray(),
         };
     }
     
-    private async Task<AlbumViewGetDto[]> GetAlbumItemsAsync(
+    private async Task<AlbumViewGetModel[]> GetAlbumItemsAsync(
         ITextSearch search,
         SortByModel[] sortBy,
         CancellationToken cancellationToken)
@@ -40,7 +38,7 @@ public class AlbumsHandler(IUnitOfWork unitOfWork, IMapper mapper) :
                 position => position.CreatedAt,
                 position => position.UpdatedAt
             )
-            .Select(mapper.Map<AlbumViewGetDto>)
+            .Select(mapper.Map<AlbumViewGetModel>)
             .ToArrayAsync(cancellationToken);
 
         return items.SortBy(sortBy).ToArray();

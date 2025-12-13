@@ -1,11 +1,10 @@
 using CoinyProject.Api.Responses;
 using CoinyProject.Application.Abstractions.Services;
+using CoinyProject.Application.Common.Querying.Models;
 using CoinyProject.Application.Dto.Album;
-using CoinyProject.Application.DTO.Album;
 using CoinyProject.Application.Dto.Other;
-using CoinyProject.Application.Models;
-using CoinyProject.Application.Requests;
-using CoinyProject.Application.Requests.Albums;
+using CoinyProject.Application.Features.Albums.Models;
+using CoinyProject.Application.Features.Albums.Requests;
 using CoinyProject.Domain.Exceptions;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -57,7 +56,7 @@ public class AlbumController(IAlbumService albumService, IMediator mediator) : C
     }
     
     [HttpPost("search")]
-    public Task<PaginatedItemsModel<AlbumViewGetDto>> GetAlbumItems(GetAlbumItemsRequest request, CancellationToken cancellationToken = default)
+    public Task<PaginatedItemsModel<AlbumViewGetModel>> GetAlbumItems(GetAlbumItemsRequest request, CancellationToken cancellationToken = default)
     {
         return mediator.Send(request, cancellationToken);
     }
