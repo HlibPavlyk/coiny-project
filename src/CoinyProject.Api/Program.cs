@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using CoinyProject.Api.Middleware;
 using CoinyProject.Infrastructure.Extensions;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi.Models;
@@ -42,7 +43,8 @@ builder.Services.AddSwaggerGen(options =>
 
 builder.Services.AddDependencies(builder.Configuration);
 
-
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 builder.Services.AddCors(options =>
 {
@@ -57,6 +59,8 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+app.UseExceptionHandler();
 
 if (app.Environment.IsDevelopment())
 {
