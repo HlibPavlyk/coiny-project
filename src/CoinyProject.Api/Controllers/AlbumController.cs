@@ -1,6 +1,6 @@
-using CoinyProject.Api.Responses;
 using CoinyProject.Application.Abstractions.Services;
 using CoinyProject.Application.Common.Querying.Models;
+using CoinyProject.Application.Common.Results;
 using CoinyProject.Application.Dto.Album;
 using CoinyProject.Application.Dto.Other;
 using CoinyProject.Application.Features.Albums.Models;
@@ -26,10 +26,7 @@ public class AlbumController(IAlbumService albumService, IMediator mediator) : C
             var id = await albumService.AddAlbumAsync(album);
             return CreatedAtAction(nameof(GetAlbumById), new { id }, await albumService.GetAlbumById(id));
         }
-        catch (UnauthorizedAccessException e)
-        {
-            return new CustomForbidResult(e.Message);
-        }
+        
         catch (ArgumentNullException e)
         {
             return BadRequest(e.Message);
@@ -103,10 +100,7 @@ public class AlbumController(IAlbumService albumService, IMediator mediator) : C
             var album = await albumService.GetAlbumById(id);
             return Ok(album);
         }
-        catch (UnauthorizedAccessException e)
-        {
-            return new CustomForbidResult(e.Message);
-        }
+        
         catch (NotFoundException e)
         {
             return NotFound(e.Message);
@@ -122,10 +116,7 @@ public class AlbumController(IAlbumService albumService, IMediator mediator) : C
             await albumService.UpdateAlbumAsync(id, album);
             return Ok(await albumService.GetAlbumById(id));
         }
-        catch (UnauthorizedAccessException e)
-        {
-            return new CustomForbidResult(e.Message);
-        }
+        
         catch (NotFoundException e)
         {
             return NotFound(e.Message);
@@ -141,10 +132,7 @@ public class AlbumController(IAlbumService albumService, IMediator mediator) : C
             await albumService.DeactivateAlbumAsync(id);
             return NoContent();
         }
-        catch (UnauthorizedAccessException e)
-        {
-            return new CustomForbidResult(e.Message);
-        }
+       
         catch (NotFoundException e)
         {
             return NotFound(e.Message);
@@ -160,10 +148,7 @@ public class AlbumController(IAlbumService albumService, IMediator mediator) : C
             await albumService.ActivateAlbumAsync(id);
             return NoContent();
         }
-        catch (UnauthorizedAccessException e)
-        {
-            return new CustomForbidResult(e.Message);
-        }
+      
         catch (NotFoundException e)
         {
             return NotFound(e.Message);
@@ -182,10 +167,7 @@ public class AlbumController(IAlbumService albumService, IMediator mediator) : C
             await albumService.ApproveAlbumAsync(id);
             return NoContent();
         }
-        catch (UnauthorizedAccessException e)
-        {
-            return new CustomForbidResult(e.Message);
-        }
+       
         catch (NotFoundException e)
         {
             return NotFound(e.Message);

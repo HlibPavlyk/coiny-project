@@ -1,21 +1,27 @@
 using System.Text.Json.Serialization;
+using CoinyProject.Api.Filters;
 using CoinyProject.Api.Middleware;
+using CoinyProject.Api.Swagger;
 using CoinyProject.Infrastructure.Extensions;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers()
+builder.Services.AddControllers(options =>
+    {
+        options.Filters.Add<ResultTransformFilter>();
+    })
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-        //options.JsonSerializerOptions.Converters.Add(new DateOnlyJsonConverter());
     });
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
+    options.OperationFilter<ResultOperationFilter>();
+
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,

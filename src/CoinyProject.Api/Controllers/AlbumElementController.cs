@@ -1,4 +1,3 @@
-using CoinyProject.Api.Responses;
 using CoinyProject.Application.Abstractions.Services;
 using CoinyProject.Application.Dto.AlbumElement;
 using CoinyProject.Application.Dto.Other;
@@ -29,10 +28,7 @@ public class AlbumElementController : Controller
             return CreatedAtAction(nameof(GetAlbumElementById), new { id },
                 await _albumElementService.GetAlbumElementByIdAsync(id));
         }
-        catch (UnauthorizedAccessException e)
-        {
-            return new CustomForbidResult(e.Message);
-        }
+        
         catch (ArgumentNullException e)
         {
             return BadRequest(e.Message);
@@ -49,10 +45,7 @@ public class AlbumElementController : Controller
                 new PageQueryDto(page, size), new SortByItemQueryDto(sortItem, isAscending), search);
             return Ok(elements);
         }
-        catch (UnauthorizedAccessException e)
-        {
-            return new CustomForbidResult(e.Message);
-        }
+      
         catch (NotFoundException e)
         {
             return NotFound(e.Message);
@@ -71,10 +64,7 @@ public class AlbumElementController : Controller
             var element = await _albumElementService.GetAlbumElementByIdAsync(id);
             return Ok(element);
         }
-        catch (UnauthorizedAccessException e)
-        {
-            return new CustomForbidResult(e.Message);
-        }
+       
         catch (NotFoundException e)
         {
             return NotFound(e.Message);
@@ -90,10 +80,7 @@ public class AlbumElementController : Controller
             await _albumElementService.UpdateAlbumElementAsync(id, element);
             return Ok(await _albumElementService.GetAlbumElementByIdAsync(id));
         }
-        catch (UnauthorizedAccessException e)
-        {
-            return new CustomForbidResult(e.Message);
-        }
+        
         catch (NotFoundException e)
         {
             return NotFound(e.Message);
@@ -109,10 +96,7 @@ public class AlbumElementController : Controller
             await _albumElementService.DeleteAlbumElementAsync(id);
             return NoContent();
         }
-        catch (UnauthorizedAccessException e)
-        {
-            return new CustomForbidResult(e.Message);
-        }
+       
         catch (NotFoundException e)
         {
             return NotFound(e.Message);
