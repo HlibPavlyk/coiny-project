@@ -1,56 +1,28 @@
-using CoinyProject.Application.Abstractions.Services;
-using CoinyProject.Domain.Exceptions;
+using CoinyProject.Application.Common.Querying;
+using CoinyProject.Application.Common.Requests;
+using CoinyProject.Application.Common.Results;
+using CoinyProject.Application.Features.Albums.Models;
+using CoinyProject.Application.Features.Albums.Requests;
+using CoinyProject.Application.Features.Users.Models;
+using CoinyProject.Application.Features.Users.Requests;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CoinyProject.Api.Controllers;
 
 [ApiController]
-[Route("api/users")]
-public class UserController : Controller
+[Route("api/v1/users")]
+public class UserController(IMediator mediator) : Controller
 {
-    private readonly IUserService _userService;
-
-    public UserController(IUserService userService)
+    [HttpPost("{id:guid}/albums/search")]
+    public Task<Result<Paginated<AlbumModel>>> GetAlbumsByUser(Guid id, GetPaginatedItemsBaseRequest model, CancellationToken cancellationToken)
     {
-        _userService = userService;
+        return mediator.Send(new GetUserAlbumsRequest(id) { Paginate = model }, cancellationToken);  
     }
 
-    [HttpGet("stats")]
-    public async Task<IActionResult> GetUser([FromQuery] Guid? id)
+    [HttpGet("{id:guid}/profile")]
+    public Task<Result<UserProfileModel>> GetUserProfile(Guid id, CancellationToken cancellationToken)
     {
-        try
-        {
-            if (id == null)
-            {
-                var currentUser = await _userService.GetCurrentUserStatsAsync();
-                return Ok(currentUser);
-            }
-
-            var user = await _userService.GetUserStatsAsync(id.Value);
-            return Ok(user);
-        }
-        catch (UnauthorizedAccessException e)
-        {
-            return BadRequest(e.Message);
-        }
-        catch (NotFoundException e)
-        {
-            return NotFound(e.Message);
-        }
+        return mediator.Send(new GetUserProfileRequest(id), cancellationToken);
     }
-    
-    [HttpGet("{id}/name")]
-    public async Task<IActionResult> GetUserName([FromRoute]Guid id)
-    {
-        try
-        {
-            var userName = await _userService.GetUserNameAsync(id);
-            return Ok(userName);
-        }
-        catch (NotFoundException e)
-        {
-            return NotFound(e.Message);
-        }
-    }
-
 }

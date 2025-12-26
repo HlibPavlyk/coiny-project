@@ -1,4 +1,5 @@
-using CoinyProject.Application.Common.Querying.Models;
+using CoinyProject.Application.Abstractions.Querying;
+using CoinyProject.Application.Common.Querying;
 
 namespace CoinyProject.Application.Common.Requests;
 

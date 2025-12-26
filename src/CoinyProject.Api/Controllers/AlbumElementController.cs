@@ -1,105 +1,48 @@
-using CoinyProject.Application.Abstractions.Services;
-using CoinyProject.Application.Dto.AlbumElement;
-using CoinyProject.Application.Dto.Other;
-using CoinyProject.Domain.Exceptions;
+using CoinyProject.Application.Common.Models;
+using CoinyProject.Application.Common.Querying;
+using CoinyProject.Application.Common.Requests;
+using CoinyProject.Application.Common.Results;
+using CoinyProject.Application.Features.AlbumElements.Models;
+using CoinyProject.Application.Features.AlbumElements.Requests;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CoinyProject.Api.Controllers;
 
 [ApiController]
-[Route("api/album-elements")]
-public class AlbumElementController : Controller
+[Route("api/v1/albums/{albumId:guid}/elements")]
+public class AlbumElementController(IMediator mediator) : Controller
 {
-    private readonly IAlbumElementService _albumElementService;
-
-    public AlbumElementController(IAlbumElementService albumElementService)
+    [HttpPost("search")]
+    public Task<Result<Paginated<AlbumElementListItemModel>>> GetAlbumElements(Guid albumId, GetPaginatedItemsBaseRequest model, CancellationToken cancellationToken)
     {
-        _albumElementService = albumElementService;
+        return mediator.Send(new GetAlbumElementsRequest(albumId) { Paginate = model }, cancellationToken);  
     }
-
-    [HttpPost]
-    [Authorize]
-    public async Task<IActionResult> AddAlbumElement([FromForm] AlbumElementPostDto element)
-    {
-        try
-        {
-            var id = await _albumElementService.AddAlbumElement(element);
-            return CreatedAtAction(nameof(GetAlbumElementById), new { id },
-                await _albumElementService.GetAlbumElementByIdAsync(id));
-        }
-        
-        catch (ArgumentNullException e)
-        {
-            return BadRequest(e.Message);
-        }
-    }
-
-    [HttpGet("by-album/{albumId:guid}")]
-    public async Task<IActionResult> GetPagedAlbumElementsByAlbumIdAsync([FromRoute] Guid albumId,[FromQuery] int page = 1,[FromQuery] int size = 10,
-        [FromQuery] string sortItem = "time", [FromQuery] bool isAscending = false, [FromQuery] string? search = null)
-    {
-        try
-        {
-            var elements = await _albumElementService.GetPagedAlbumElementsByAlbumIdAsync(albumId,
-                new PageQueryDto(page, size), new SortByItemQueryDto(sortItem, isAscending), search);
-            return Ok(elements);
-        }
-      
-        catch (NotFoundException e)
-        {
-            return NotFound(e.Message);
-        }
-        catch (ArgumentNullException e)
-        {
-            return BadRequest(e.Message);
-        }
-    }
-
+    
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetAlbumElementById([FromRoute] Guid id)
+    public Task<Result<AlbumElementModel>> GetAlbumElementById(Guid id, Guid albumId, CancellationToken cancellationToken)
     {
-        try
-        {
-            var element = await _albumElementService.GetAlbumElementByIdAsync(id);
-            return Ok(element);
-        }
-       
-        catch (NotFoundException e)
-        {
-            return NotFound(e.Message);
-        }
+        return mediator.Send(new GetAlbumElementByIdRequest(id, albumId), cancellationToken);
     }
     
-    [HttpPatch("{id:guid}")]
-    [Authorize]
-    public async Task<IActionResult> UpdateAlbumElement([FromRoute] Guid id, [FromForm] AlbumElementPatchDto element)
+    [Authorize, HttpPost]
+    public Task<Result<Guid>> AddAlbumElement(Guid albumId, [FromForm] UpdateAlbumElementModel model, IFormFile file, CancellationToken cancellationToken)
     {
-        try
-        {
-            await _albumElementService.UpdateAlbumElementAsync(id, element);
-            return Ok(await _albumElementService.GetAlbumElementByIdAsync(id));
-        }
-        
-        catch (NotFoundException e)
-        {
-            return NotFound(e.Message);
-        }
+        return mediator.Send(new AddAlbumElementRequest(
+            albumId, model, new FileStreamDataModel(file.FileName, file.OpenReadStream())), cancellationToken);
     }
     
-    [HttpDelete("{id:guid}")]
-    [Authorize]
-    public async Task<IActionResult> DeleteAlbumElement([FromRoute] Guid id)
+    [Authorize, HttpPatch("{id:guid}")]
+    public Task<Result<Guid>> UpdateAlbumElement(Guid id, Guid albumId, [FromForm] UpdateAlbumElementModel model, IFormFile file, CancellationToken cancellationToken)
     {
-        try
-        {
-            await _albumElementService.DeleteAlbumElementAsync(id);
-            return NoContent();
-        }
-       
-        catch (NotFoundException e)
-        {
-            return NotFound(e.Message);
-        }
+        return mediator.Send(new UpdateAlbumElementRequest(
+            id, albumId, model, new FileStreamDataModel(file.FileName, file.OpenReadStream())), cancellationToken);
+    }
+    
+    [Authorize, HttpDelete("{id:guid}")]
+    public Task<Result<Guid>> DeleteAlbumElement(Guid id, Guid albumId, CancellationToken cancellationToken)
+    {
+        return mediator.Send(new DeleteAlbumElementRequest(id, albumId), cancellationToken);
     }
 }

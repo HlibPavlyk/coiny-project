@@ -1,11 +1,7 @@
-using CoinyProject.Application.Abstractions.Services;
-using CoinyProject.Application.Common.Querying.Models;
+using CoinyProject.Application.Common.Querying;
 using CoinyProject.Application.Common.Results;
-using CoinyProject.Application.Dto.Album;
-using CoinyProject.Application.Dto.Other;
 using CoinyProject.Application.Features.Albums.Models;
 using CoinyProject.Application.Features.Albums.Requests;
-using CoinyProject.Domain.Exceptions;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,164 +9,48 @@ using Microsoft.AspNetCore.Mvc;
 namespace CoinyProject.Api.Controllers;
 
 [ApiController]
-[Route("api/albums")]
-public class AlbumController(IAlbumService albumService, IMediator mediator) : Controller
+[Route("api/v1/albums")]
+public class AlbumController(IMediator mediator) : Controller
 {
-
-    [HttpPost]
-    [Authorize]
-    public async Task<IActionResult> AddAlbum([FromBody] AlbumPostDto album)
-    {
-        try
-        {
-            var id = await albumService.AddAlbumAsync(album);
-            return CreatedAtAction(nameof(GetAlbumById), new { id }, await albumService.GetAlbumById(id));
-        }
-        
-        catch (ArgumentNullException e)
-        {
-            return BadRequest(e.Message);
-        }
-    }
-    
-    [HttpGet]
-    public async Task<IActionResult> GetPagedAlbums([FromQuery] int page = 1,[FromQuery] int size = 10,
-        [FromQuery] string sortItem = "time", [FromQuery] bool isAscending = false, [FromQuery] string? search = null)
-    {
-        try
-        {
-            var albums = await albumService.GetPagedAlbumsAsync(new PageQueryDto(page, size), new SortByItemQueryDto(sortItem, isAscending), search);
-            return Ok(albums);
-        }
-        catch (NotFoundException e)
-        {
-            return NotFound(e.Message);
-        }
-        catch (ArgumentException e)
-        {
-            return BadRequest(e.Message);
-        }
-    }
-    
     [HttpPost("search")]
-    public Task<PaginatedItemsModel<AlbumViewGetModel>> GetAlbumItems(GetAlbumItemsRequest request, CancellationToken cancellationToken = default)
+    public Task<Result<Paginated<AlbumModel>>> GetAlbums(GetAlbumsRequest request, CancellationToken cancellationToken)
     {
         return mediator.Send(request, cancellationToken);
     }
-    
-    [HttpGet("by-user")]
-    public async Task<IActionResult> GetPagedAlbums([FromQuery] Guid? userId, [FromQuery] int page = 1, [FromQuery] int size = 10,
-        [FromQuery] string sortItem = "time", [FromQuery] bool isAscending = false, [FromQuery] string? search = null)
+
+    [HttpGet("{id:guid}")]
+    public Task<Result<AlbumModel>> GetAlbumById(Guid id, CancellationToken cancellationToken)
     {
-        try
-        {
-            if (userId.HasValue)
-            {
-                var albums = await albumService.GetPagedActiveAlbumsByUserIdAsync(userId.Value, new PageQueryDto(page, size),
-                    new SortByItemQueryDto(sortItem, isAscending), search);
-                return Ok(albums);
-            }
-            else
-            {
-                var albums = await albumService.GetCurrentUserPagedAlbumsAsync(new PageQueryDto(page, size),
-                    new SortByItemQueryDto(sortItem, isAscending), search);
-                return Ok(albums);
-            }
-        }
-        catch (NotFoundException e)
-        {
-            return NotFound(e.Message);
-        }
-        catch (ArgumentException e)
-        {
-            return BadRequest(e.Message);
-        }
-        catch (UnauthorizedAccessException e)
-        {
-            return BadRequest(e.Message);
-        }
+        return mediator.Send(new GetAlbumByIdRequest(id), cancellationToken);
+    }
+    
+    [Authorize, HttpPost]
+    public Task<Result<Guid>> AddAlbum(CreateAlbumRequest request, CancellationToken cancellationToken)
+    { 
+        return mediator.Send(request, cancellationToken);
     }
 
-    
-    [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetAlbumById([FromRoute] Guid id)
+    [Authorize, HttpPatch("{id:guid}")]
+    public Task<Result<Guid>> UpdateAlbum(Guid id, UpdateAlbumModel model, CancellationToken cancellationToken)
     {
-        try
-        {
-            var album = await albumService.GetAlbumById(id);
-            return Ok(album);
-        }
-        
-        catch (NotFoundException e)
-        {
-            return NotFound(e.Message);
-        }
+        return mediator.Send(new UpdateAlbumRequest(id, model), cancellationToken);
     }
-    
-    [HttpPatch("{id:guid}")]
-    [Authorize]
-    public async Task<IActionResult> UpdateAlbum([FromRoute] Guid id, [FromBody] AlbumPatchDto album)
+
+    [Authorize, HttpPost("{id:guid}/deactivate")]
+    public Task<Result<Guid>> DeactivateAlbum(Guid id, CancellationToken cancellationToken)
     {
-        try
-        {
-            await albumService.UpdateAlbumAsync(id, album);
-            return Ok(await albumService.GetAlbumById(id));
-        }
-        
-        catch (NotFoundException e)
-        {
-            return NotFound(e.Message);
-        }
+        return mediator.Send(new DeactivateAlbumRequest(id), cancellationToken);
     }
-    
-    [HttpPost("{id:guid}/deactivate")]
-    [Authorize]
-    public async Task<IActionResult> DeactivateAlbum([FromRoute] Guid id)
+
+    [Authorize, HttpPost("{id:guid}/activate")]
+    public Task<Result<Guid>> ActivateAlbum(Guid id, CancellationToken cancellationToken)
     {
-        try
-        {
-            await albumService.DeactivateAlbumAsync(id);
-            return NoContent();
-        }
-       
-        catch (NotFoundException e)
-        {
-            return NotFound(e.Message);
-        }
+        return mediator.Send(new ActivateAlbumRequest(id), cancellationToken);
     }
-    
-    [HttpPost("{id:guid}/activate")]
-    [Authorize]
-    public async Task<IActionResult> ActivateAlbum([FromRoute] Guid id)
+
+    [Authorize, HttpPost("{id:guid}/approve")]
+    public Task<Result<Guid>> ApproveAlbum(Guid id, CancellationToken cancellationToken)
     {
-        try
-        {
-            await albumService.ActivateAlbumAsync(id);
-            return NoContent();
-        }
-      
-        catch (NotFoundException e)
-        {
-            return NotFound(e.Message);
-        }
-        catch (InvalidOperationException e)
-        {
-            return BadRequest(e.Message);
-        }
-    }
-    
-    [HttpPost("{id:guid}/approve")]
-    public async Task<IActionResult> ApproveAlbum([FromRoute] Guid id)
-    {
-        try
-        {
-            await albumService.ApproveAlbumAsync(id);
-            return NoContent();
-        }
-       
-        catch (NotFoundException e)
-        {
-            return NotFound(e.Message);
-        }
+        return mediator.Send(new ApproveAlbumRequest(id), cancellationToken);
     }
 }

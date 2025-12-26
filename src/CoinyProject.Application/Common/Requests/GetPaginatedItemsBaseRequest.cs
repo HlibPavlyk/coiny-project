@@ -1,5 +1,5 @@
 using System.ComponentModel;
-using CoinyProject.Application.Common.Querying.Models;
+using CoinyProject.Application.Abstractions.Querying;
 
 namespace CoinyProject.Application.Common.Requests;
 

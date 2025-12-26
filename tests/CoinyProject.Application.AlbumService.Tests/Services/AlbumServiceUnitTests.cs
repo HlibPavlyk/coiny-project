@@ -1,267 +1,155 @@
 using System.Security.Claims;
 using AutoMapper;
-using CoinyProject.Application.Abstractions.Repositories;
-using CoinyProject.Application.Dto.Album;
-using CoinyProject.Application.Dto.Other;
-using CoinyProject.Application.Services;
+using CoinyProject.Application.Abstractions.Data;
+using CoinyProject.Application.Abstractions.Identity;
+using CoinyProject.Application.Common.Results;
+using CoinyProject.Application.Features.Albums.Handlers;
+using CoinyProject.Application.Features.Albums.Models;
+using CoinyProject.Application.Features.Albums.Requests;
 using CoinyProject.Domain.Entities;
 using CoinyProject.Domain.Enums;
-using CoinyProject.Domain.Exceptions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Moq;
 
 namespace CoinyProject.UnitTests.Services;
 
-public class AlbumServiceUnitTests
+public class AlbumsHandlerUnitTests
 {
     private readonly Mock<IMapper> _mapperMock;
-    private readonly Mock<IUnitOfWork> _unitOfWorkMock;
+    private readonly Mock<IApplicationDbContext> _contextMock;
     private readonly Mock<IHttpContextAccessor> _httpContextAccessorMock;
-    private readonly AlbumService _albumService;
+    private readonly Mock<IIdentityService> _identityServiceMock;
+    private readonly AlbumsHandler _handler;
 
-    public AlbumServiceUnitTests()
+    public AlbumsHandlerUnitTests()
     {
         _mapperMock = new Mock<IMapper>();
-        _unitOfWorkMock = new Mock<IUnitOfWork>();
+        _contextMock = new Mock<IApplicationDbContext>();
         _httpContextAccessorMock = new Mock<IHttpContextAccessor>();
-        _albumService = new AlbumService(_mapperMock.Object, _unitOfWorkMock.Object, _httpContextAccessorMock.Object);
+        _handler = new AlbumsHandler(_contextMock.Object, _mapperMock.Object, _identityServiceMock.Object);
     }
 
-    private ClaimsPrincipal GetUser(bool isAuthenticated, string userId)
+    private static DefaultHttpContext CreateHttpContext(bool isAuthenticated, string userId)
     {
         var claims = new[]
         {
             new Claim(ClaimTypes.NameIdentifier, userId)
         };
-        return new ClaimsPrincipal(new ClaimsIdentity(claims, isAuthenticated ? "auth" : ""));
+        var identity = new ClaimsIdentity(claims, isAuthenticated ? "auth" : "");
+        var user = new ClaimsPrincipal(identity);
+
+        return new DefaultHttpContext { User = user };
+    }
+
+    private static Mock<DbSet<T>> CreateMockDbSet<T>(List<T> data) where T : class
+    {
+        var queryable = data.AsQueryable();
+        var mockSet = new Mock<DbSet<T>>();
+
+        mockSet.As<IQueryable<T>>().Setup(m => m.Provider).Returns(queryable.Provider);
+        mockSet.As<IQueryable<T>>().Setup(m => m.Expression).Returns(queryable.Expression);
+        mockSet.As<IQueryable<T>>().Setup(m => m.ElementType).Returns(queryable.ElementType);
+        mockSet.As<IQueryable<T>>().Setup(m => m.GetEnumerator()).Returns(queryable.GetEnumerator());
+
+        return mockSet;
     }
 
     [Fact]
-    public async Task AddAlbumAsync_ThrowsUnauthorizedAccess_WhenUserIsNotAuthenticated()
+    public async Task CreateAlbum_ReturnsFailure_WhenUserIsNotAuthenticated()
     {
         // Arrange
-        var albumPostDto = new AlbumPostDto("test_name", "test_description");
-        _httpContextAccessorMock.Setup(x => x.HttpContext.User).Returns(new ClaimsPrincipal());
+        var request = new CreateAlbumRequest
+        {
+            Name = "test_name",
+            Description = "test_description"
+        };
 
-        // Act & Assert
-        await Assert.ThrowsAsync<UnauthorizedAccessException>(async () => await _albumService.AddAlbumAsync(albumPostDto));
-    }
-
-    [Fact]
-    public async Task AddAlbumAsync_ReturnsAlbumId_WhenSuccessful()
-    {
-        // Arrange
-        var userId = Guid.NewGuid();
-        var albumPostDto = new AlbumPostDto("test_name", "test_description");
-        var albumEntity = new Album { Id = Guid.NewGuid(), UserId = userId };
-
-        _httpContextAccessorMock.Setup(x => x.HttpContext.User).Returns(GetUser(true, userId.ToString()));
-        _mapperMock.Setup(x => x.Map<Album>(albumPostDto)).Returns(albumEntity);
-        _unitOfWorkMock.Setup(x => x.Albums.AddAsync(albumEntity)).Returns(Task.CompletedTask);
+        _httpContextAccessorMock.Setup(x => x.HttpContext).Returns(CreateHttpContext(false, string.Empty));
 
         // Act
-        var result = await _albumService.AddAlbumAsync(albumPostDto);
+        var result = await _handler.Handle(request, CancellationToken.None);
 
         // Assert
-        Assert.Equal(albumEntity.Id, result);
-        _unitOfWorkMock.Verify(x => x.Albums.AddAsync(albumEntity), Times.Once);
-        _unitOfWorkMock.Verify(x => x.SaveChangesAsync(), Times.Once);
-    }
-
-    /*[Fact]
-    public async Task GetPagedAlbumsAsync_ThrowsNotFoundException_WhenNoAlbumsFound()
-    {
-        // Arrange
-        var pagedAlbums = new PagedResponse<Album> { TotalPages = 0 };
-        _unitOfWorkMock.Setup(x => x.Albums.GetPagedActiveAlbumsWithElementsAsync(It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(pagedAlbums);
-
-        // Act & Assert
-        await Assert.ThrowsAsync<NotFoundException>(async () => await _albumService.GetPagedAlbumsAsync(1, 10));
+        Assert.True(result.IsFailure);
+        Assert.Equal(ErrorType.Unauthorized, result.Error.Type);
     }
 
     [Fact]
-    public async Task GetPagedAlbumsAsync_ReturnsPagedAlbums_WhenFound()
+    public async Task UpdateAlbum_ReturnsFailure_WhenUserIsNotAuthenticated()
     {
         // Arrange
-        var pagedAlbums = new PagedResponse<Album> { TotalPages = 1, Items = new[] { new Album() } };
-        var pagedAlbumDtos = new PagedResponse<AlbumViewGetDto>();
-
-        _unitOfWorkMock.Setup(x => x.Albums.GetPagedActiveAlbumsWithElementsAsync(It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(pagedAlbums);
-        _mapperMock.Setup(x => x.Map<PagedResponse<AlbumViewGetDto>>(pagedAlbums)).Returns(pagedAlbumDtos);
+        var request = new UpdateAlbumRequest(Guid.NewGuid(),
+            new UpdateAlbumModel
+            {
+                Name = "test_name", Description = "test_description"
+            });
+        
+        _httpContextAccessorMock.Setup(x => x.HttpContext).Returns(CreateHttpContext(false, string.Empty));
 
         // Act
-        var result = await _albumService.GetPagedAlbumsAsync(1, 10);
+        var result = await _handler.Handle(request, CancellationToken.None);
 
         // Assert
-        Assert.Equal(pagedAlbumDtos, result);
-    }*/
-
-    [Fact]
-    public async Task GetAlbumById_ThrowsNotFoundException_WhenAlbumNotFound()
-    {
-        // Arrange
-        _unitOfWorkMock.Setup(x => x.Albums.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Album)null!);
-
-        // Act & Assert
-        await Assert.ThrowsAsync<NotFoundException>(async () => await _albumService.GetAlbumById(Guid.NewGuid()));
+        Assert.True(result.IsFailure);
+        Assert.Equal(ErrorType.Unauthorized, result.Error.Type);
     }
 
-    /*
     [Fact]
-    public async Task GetAlbumById_ReturnsAlbumDto_WhenAlbumIsActiveAndUserIsOwner()
+    public async Task DeactivateAlbum_ReturnsFailure_WhenUserIsNotAuthenticated()
     {
         // Arrange
-        var userId = Guid.NewGuid();
-        var album = new Album { Id = Guid.NewGuid(), UserId = userId, Status = AlbumStatus.Active };
-        var albumDto = new AlbumGetDto();
-
-        _httpContextAccessorMock.Setup(x => x.HttpContext.User).Returns(GetUser(true, userId.ToString()));
-        _unitOfWorkMock.Setup(x => x.Albums.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(album);
-        _mapperMock.Setup(x => x.Map<AlbumGetDto>(album)).Returns(albumDto);
+        var request = new DeactivateAlbumRequest(Guid.NewGuid());
+        _httpContextAccessorMock.Setup(x => x.HttpContext).Returns(CreateHttpContext(false, string.Empty));
 
         // Act
-        var result = await _albumService.GetAlbumById(album.Id);
+        var result = await _handler.Handle(request, CancellationToken.None);
 
         // Assert
-        Assert.Equal(albumDto, result);
-    }*/
-
-    [Fact]
-    public async Task UpdateAlbumAsync_ThrowsUnauthorizedAccess_WhenUserIsNotOwner()
-    {
-        // Arrange
-        var albumDto = new AlbumPatchDto("test_name", "test_description");
-        var userId = Guid.NewGuid();
-        var album = new Album { UserId = Guid.NewGuid() };
-        _httpContextAccessorMock.Setup(x => x.HttpContext.User).Returns(GetUser(true, userId.ToString()));
-        _unitOfWorkMock.Setup(x => x.Albums.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(album);
-
-        // Act & Assert
-        await Assert.ThrowsAsync<UnauthorizedAccessException>(async () => 
-            await _albumService.UpdateAlbumAsync(Guid.NewGuid(), albumDto));
+        Assert.True(result.IsFailure);
+        Assert.Equal(ErrorType.Unauthorized, result.Error.Type);
     }
 
     [Fact]
-    public async Task DeactivateAlbumAsync_CallsChangeAlbumStatus_WithCorrectParameters()
+    public async Task ApproveAlbum_ReturnsFailure_WhenAlbumNotFound()
     {
         // Arrange
         var albumId = Guid.NewGuid();
-        var userId = Guid.NewGuid();
-        var album = new Album { UserId = userId, Status = AlbumStatus.Active };
+        var request = new ApproveAlbumRequest(albumId);
 
-        _httpContextAccessorMock.Setup(x => x.HttpContext.User).Returns(GetUser(true, userId.ToString()));
-        _unitOfWorkMock.Setup(x => x.Albums.GetByIdAsync(albumId)).ReturnsAsync(album);
+        var mockDbSet = new Mock<DbSet<Album>>();
+        mockDbSet.Setup(x => x.FindAsync(new object[] { albumId }, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Album?)null);
+        _contextMock.Setup(x => x.Albums).Returns(mockDbSet.Object);
 
         // Act
-        await _albumService.DeactivateAlbumAsync(albumId);
+        var result = await _handler.Handle(request, CancellationToken.None);
 
         // Assert
-        _unitOfWorkMock.Verify(x => x.SaveChangesAsync(), Times.Once);
-        Assert.Equal(AlbumStatus.Inactive, album.Status);
-    }
-
-      /*[Fact]
-    public async Task ActivateAlbumAsync_ThrowsInvalidOperationException_WhenAlbumHasLessThan4Elements()
-    {
-        // Arrange
-        var albumId = Guid.NewGuid();
-        var pagedAlbumElements = new PagedResponse<AlbumElement> { Items = new[] { new AlbumElement(), new AlbumElement(), new AlbumElement() } };
-
-        _unitOfWorkMock.Setup(x => x.AlbumElements.GetPagedAlbumElementsByAlbumIdAsync(albumId, 1, 10)).ReturnsAsync(pagedAlbumElements);
-
-        // Act & Assert
-        await Assert.ThrowsAsync<InvalidOperationException>(async () => await _albumService.ActivateAlbumAsync(albumId));
+        Assert.True(result.IsFailure);
+        Assert.Equal(ErrorType.NotFound, result.Error.Type);
     }
 
     [Fact]
-    public async Task ActivateAlbumAsync_ChangesAlbumStatusToNotApproved_WhenAlbumHas4OrMoreElements()
+    public async Task ApproveAlbum_ChangesStatusToActive_WhenAlbumIsNotApproved()
     {
         // Arrange
         var albumId = Guid.NewGuid();
-        var userId = Guid.NewGuid();
-        var pagedAlbumElements = new PagedResponse<AlbumElement> { Items = new[] { new AlbumElement(), new AlbumElement(), new AlbumElement(), new AlbumElement() } };
-        var album = new Album { Id = albumId, UserId = userId, Status = AlbumStatus.Inactive };
+        var album = new Album { Id = albumId, Name = "Test", Status = AlbumStatus.NotApproved };
+        var request = new ApproveAlbumRequest(albumId);
 
-        _httpContextAccessorMock.Setup(x => x.HttpContext.User).Returns(GetUser(true, userId.ToString()));
-        _unitOfWorkMock.Setup(x => x.AlbumElements.GetPagedAlbumElementsByAlbumIdAsync(albumId, 1, 10)).ReturnsAsync(pagedAlbumElements);
-        _unitOfWorkMock.Setup(x => x.Albums.GetByIdAsync(albumId)).ReturnsAsync(album);
-
-        // Act
-        await _albumService.ActivateAlbumAsync(albumId);
-
-        // Assert
-        _unitOfWorkMock.Verify(x => x.SaveChangesAsync(), Times.Once);
-        Assert.Equal(AlbumStatus.NotApproved, album.Status);
-    }*/
-
-    [Fact]
-    public async Task ApproveAlbumAsync_ThrowsNotFoundException_WhenAlbumNotFound()
-    {
-        // Arrange
-        _unitOfWorkMock.Setup(x => x.Albums.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Album)null!);
-
-        // Act & Assert
-        await Assert.ThrowsAsync<NotFoundException>(async () => await _albumService.ApproveAlbumAsync(Guid.NewGuid()));
-    }
-
-    [Fact]
-    public async Task ApproveAlbumAsync_ChangesAlbumStatusToActive_WhenAlbumIsNotApproved()
-    {
-        // Arrange
-        var albumId = Guid.NewGuid();
-        var album = new Album { Id = albumId, Status = AlbumStatus.NotApproved };
-
-        _unitOfWorkMock.Setup(x => x.Albums.GetByIdAsync(albumId)).ReturnsAsync(album);
+        var mockDbSet = new Mock<DbSet<Album>>();
+        mockDbSet.Setup(x => x.FindAsync(new object[] { albumId }, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(album);
+        _contextMock.Setup(x => x.Albums).Returns(mockDbSet.Object);
+        _contextMock.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
 
         // Act
-        await _albumService.ApproveAlbumAsync(albumId);
+        var result = await _handler.Handle(request, CancellationToken.None);
 
         // Assert
-        _unitOfWorkMock.Verify(x => x.SaveChangesAsync(), Times.Once);
+        Assert.True(result.IsSuccess);
         Assert.Equal(AlbumStatus.Active, album.Status);
-    }
-
-    [Fact]
-    public async Task ChangeAlbumStatus_ThrowsUnauthorizedAccessException_WhenUserIsNotAuthenticated()
-    {
-        // Arrange
-        var albumId = Guid.NewGuid();
-        _httpContextAccessorMock.Setup(x => x.HttpContext.User).Returns(GetUser(false, string.Empty));
-
-        // Act & Assert
-        await Assert.ThrowsAsync<UnauthorizedAccessException>(async () => await _albumService.DeactivateAlbumAsync(albumId));
-    }
-
-    [Fact]
-    public async Task ChangeAlbumStatus_ThrowsUnauthorizedAccessException_WhenUserIsNotOwner()
-    {
-        // Arrange
-        var userId = Guid.NewGuid();
-        var album = new Album { UserId = Guid.NewGuid(), Status = AlbumStatus.Active };
-
-        _httpContextAccessorMock.Setup(x => x.HttpContext.User).Returns(GetUser(true, userId.ToString()));
-        _unitOfWorkMock.Setup(x => x.Albums.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(album);
-
-        // Act & Assert
-        await Assert.ThrowsAsync<UnauthorizedAccessException>(async () => await _albumService.DeactivateAlbumAsync(Guid.NewGuid()));
-    }
-
-    [Fact]
-    public async Task ChangeAlbumStatus_ChangesStatus_WhenConditionsAreMet()
-    {
-        // Arrange
-        var userId = Guid.NewGuid();
-        var albumId = Guid.NewGuid();
-        var album = new Album { Id = albumId, UserId = userId, Status = AlbumStatus.Active };
-
-        _httpContextAccessorMock.Setup(x => x.HttpContext.User).Returns(GetUser(true, userId.ToString()));
-        _unitOfWorkMock.Setup(x => x.Albums.GetByIdAsync(albumId)).ReturnsAsync(album);
-
-        // Act
-        await _albumService.DeactivateAlbumAsync(albumId);
-
-        // Assert
-        Assert.Equal(AlbumStatus.Inactive, album.Status);
-        _unitOfWorkMock.Verify(x => x.SaveChangesAsync(), Times.Once);
+        _contextMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 }

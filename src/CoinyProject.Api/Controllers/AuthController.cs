@@ -1,46 +1,24 @@
-using System.Security.Authentication;
-using CoinyProject.Application.Abstractions.Services;
-using CoinyProject.Application.DTO.Auth;
+using CoinyProject.Application.Common.Results;
+using CoinyProject.Application.Features.Identity.Models;
+using CoinyProject.Application.Features.Identity.Requests;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CoinyProject.Api.Controllers;
 
 [ApiController]
-[Route("api/auth")]
-public class AuthController : Controller
+[Route("api/v1/auth")]
+public class AuthController(IMediator mediator) : Controller
 {
-    private readonly IAuthService _authService;
-
-    public AuthController(IAuthService authService)
-    {
-        _authService = authService;
-    }
-
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
+    public Task<Result<Guid>> Register(RegisterRequest request, CancellationToken cancellationToken)
     {
-        try
-        {
-            var id = await _authService.RegisterUserAsync(registerDto);
-            return Created($"/api/auth/{id}", id);
-        }
-        catch (AuthenticationException e)
-        {
-            return BadRequest(e.Message);
-        }
+        return mediator.Send(request, cancellationToken);
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] LoginRequestDto loginDto)
+    public Task<Result<LoginResponseModel>> Login(LoginRequest request, CancellationToken cancellationToken)
     {
-        try
-        {
-            var token = await _authService.LoginAsync(loginDto);
-            return Ok(token);
-        }
-        catch (AuthenticationException e)
-        {
-            return BadRequest(e.Message);
-        }
+        return mediator.Send(request, cancellationToken);
     }
 }

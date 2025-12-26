@@ -1,13 +1,10 @@
-using System.Reflection;
 using CoinyProject.Application;
-using CoinyProject.Application.Abstractions.DataServices;
-using CoinyProject.Application.Abstractions.Repositories;
-using CoinyProject.Application.Abstractions.Services;
-using CoinyProject.Application.Common.AutoMapper;
+using CoinyProject.Application.Abstractions.Data;
+using CoinyProject.Application.Abstractions.Identity;
 using CoinyProject.Application.Common.AutoMapper.Resolvers;
-using CoinyProject.Application.Services;
-using CoinyProject.Infrastructure.DataService;
-using CoinyProject.Infrastructure.Repositories;
+using CoinyProject.Application.Common.Extensions;
+using CoinyProject.Infrastructure.Services.Data;
+using CoinyProject.Infrastructure.Services.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -22,16 +19,16 @@ public static class DependencyContainerExtension
 
         services.AddScoped<IFileService, FileService>();
         services.AddTransient<GetImageUrlResolver>();
-        services.AddTransient<GetISeveralImageUrlsResolver>();
+        //services.AddTransient<GetISeveralImageUrlsResolver>();
         services.AddAutoMapperService();
 
-        services.AddScoped<IUnitOfWork, UnitOfWork>();
-        services.AddScoped<IAlbumService, AlbumService>();
-        services.AddScoped<IAlbumElementService, AlbumElementService>();
-        services.AddScoped<IAuthService, AuthService>();
-        services.AddScoped<ITokenService, TokenService>();
-        services.AddScoped<IUserService, UserService>();
-        
+        services.AddScoped<IApplicationDbContext>(provider =>
+            provider.GetRequiredService<ApplicationDbContext>());
+
+        // Identity services
+        services.AddScoped<IIdentityService, IdentityService>();
+        services.AddScoped<ITokenGenerator, JwtTokenGenerator>();
+
         // register mediator handlers
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(
             typeof(ApplicationAssemblyType).Assembly

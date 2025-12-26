@@ -1,13 +1,13 @@
-﻿using CoinyProject.Domain.Abstractions;
+using CoinyProject.Application.Abstractions.Data;
+using CoinyProject.Domain.Abstractions;
 using CoinyProject.Domain.Entities;
 using CoinyProject.Infrastructure.Extensions;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace CoinyProject.Infrastructure
 {
-    public class ApplicationDbContext : IdentityDbContext<User, ApplicationRole, Guid>
+    public class ApplicationDbContext : IdentityDbContext<User, ApplicationRole, Guid>, IApplicationDbContext
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
@@ -57,7 +57,5 @@ namespace CoinyProject.Infrastructure
 
             return await base.SaveChangesAsync(cancellationToken);
         }
-
-
     }
 }

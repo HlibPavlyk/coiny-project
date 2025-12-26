@@ -2,7 +2,7 @@
 
 namespace CoinyProject.Domain.Entities
 {
-    public class User : IdentityUser<Guid>
+    public sealed class User : IdentityUser<Guid>
     {
         public User(string userName, string email) : base(userName)
         {

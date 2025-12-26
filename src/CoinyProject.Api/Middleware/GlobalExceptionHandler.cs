@@ -1,5 +1,4 @@
 using System.Net;
-using CoinyProject.Domain.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
@@ -42,7 +41,6 @@ public class GlobalExceptionHandler : IExceptionHandler
     {
         return exception switch
         {
-            NotFoundException => (HttpStatusCode.NotFound, "Resource Not Found"),
             NullReferenceException => (HttpStatusCode.BadRequest, "Null Reference Exception"),
             ArgumentNullException => (HttpStatusCode.BadRequest, "Invalid Argument"),
             ArgumentException => (HttpStatusCode.BadRequest, "Invalid Argument"),

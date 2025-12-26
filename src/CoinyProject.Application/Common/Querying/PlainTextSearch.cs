@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
-using CoinyProject.Application.Common.Querying.Models;
+using CoinyProject.Application.Abstractions.Querying;
 
 namespace CoinyProject.Application.Common.Querying;
 

@@ -1,5 +1,4 @@
-﻿
-using CoinyProject.Domain.Abstractions;
+﻿using CoinyProject.Domain.Abstractions;
 
 namespace CoinyProject.Domain.Entities
 {
@@ -7,7 +6,7 @@ namespace CoinyProject.Domain.Entities
     {
         public Guid Id { get; init; }
         public string Name { get; set; }
-        public string? Description { get; set; }
+        public string Description { get; set; }
         public int  Rate { get; init; }
         public string ImageUrl { get; set; }
         public Guid AlbumId { get; init; }
@@ -16,7 +15,7 @@ namespace CoinyProject.Domain.Entities
         public DateTime CreatedAt { get; set; }
         
         public Album Album { get; init; }
-        public Auction? Auction { get; init; }
+        public Auction Auction { get; init; }
         public ICollection<FavoriteAlbumElements> FavoriteAlbumElements { get; init; }
     }
 }

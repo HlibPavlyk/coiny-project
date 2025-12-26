@@ -1,30 +1,23 @@
 ﻿using Bogus;
-using Castle.DynamicProxy;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
-using CoinyProject.Application.Dto.Album;
+using CoinyProject.Application.Features.Albums.Models;
 
 namespace CoinyProject.UnitTests.Shared
 {
     public class FakeDataGenerator
     {
-        Faker<AlbumPostDto> inputAlbumFake;
+        Faker<UpdateAlbumModel> inputAlbumFake;
 
         public FakeDataGenerator()
         {
             Randomizer.Seed = new Random(8675309);
 
-            inputAlbumFake = new Faker<AlbumPostDto>()
+            inputAlbumFake = new Faker<UpdateAlbumModel>()
                 .WithRecord()
                 .RuleFor(a => a.Name, f => f.Lorem.Word())
                 .RuleFor(a => a.Description, f => f.Lorem.Sentence());
         }
 
-        public AlbumPostDto GetInputAlbum()
+        public UpdateAlbumModel GetInputAlbum()
         {
             return inputAlbumFake.Generate();
         }
