@@ -9,7 +9,7 @@ namespace CoinyProject.Domain.Entities
         public string Description { get; set; }
         public int  Rate { get; init; }
         public string ImageUrl { get; set; }
-        public Guid AlbumId { get; init; }
+        public Guid AlbumId { get; set; }
         public Guid? AuctionId { get; init; }
         public DateTime UpdatedAt { get; set; }
         public DateTime CreatedAt { get; set; }

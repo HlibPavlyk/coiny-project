@@ -28,7 +28,7 @@ public class AlbumsHandler(IApplicationDbContext context, IMapper mapper, IIdent
 {
     public async Task<Result<Paginated<AlbumModel>>> Handle(GetAlbumsRequest request, CancellationToken cancellationToken)
     {
-        var items = await GetAlbumItemsAsync(request, request.SortBy, null, cancellationToken);
+        var items = await GetAlbumItemsAsync(request, request.SortBy, x => x.Status == AlbumStatus.Active, cancellationToken);
 
         return new Paginated<AlbumModel>
         {

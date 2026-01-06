@@ -19,7 +19,8 @@ public class AlbumElementsHandler(IApplicationDbContext context, IIdentityServic
     IRequestHandler<UpdateAlbumElementRequest, Result<Guid>>,
     IRequestHandler<GetAlbumElementsRequest, Result<Paginated<AlbumElementListItemModel>>>,
     IRequestHandler<GetAlbumElementByIdRequest, Result<AlbumElementModel>>,
-    IRequestHandler<DeleteAlbumElementRequest, Result<Guid>>
+    IRequestHandler<DeleteAlbumElementRequest, Result<Guid>>,
+    IRequestHandler<MoveAlbumElementRequest, Result<Guid>>
 {
     public async Task<Result<Guid>> Handle(AddAlbumElementRequest request, CancellationToken cancellationToken)
     {
@@ -143,7 +144,50 @@ public class AlbumElementsHandler(IApplicationDbContext context, IIdentityServic
 
         return request.Id;
     }
-    
+
+    public async Task<Result<Guid>> Handle(MoveAlbumElementRequest request, CancellationToken cancellationToken)
+    {
+        var userIdResult = identityService.GetCurrentUserId();
+        if (userIdResult.IsFailure)
+            return Result.Failure<Guid>(userIdResult.Error);
+
+        if (request.AlbumId == request.Model.TargetAlbumId)
+            return Result.Failure<Guid>(Error.Validation("Source and target albums must be different"));
+
+        var element = await context.AlbumElements.FindAsync([request.Id], cancellationToken);
+        if (element is null)
+            return Result.Failure<Guid>(Error.NotFound("Element not found"));
+
+        if (element.AlbumId != request.AlbumId)
+            return Result.Failure<Guid>(Error.Validation("Element does not belong to the source album"));
+
+        var sourceAlbum = await context.Albums.FindAsync([request.AlbumId], cancellationToken);
+        if (sourceAlbum is null)
+            return Result.Failure<Guid>(Error.NotFound("Source album not found"));
+
+        if (sourceAlbum.UserId != userIdResult.Value)
+            return Result.Failure<Guid>(Error.Forbidden("User is not the owner of the source album"));
+
+        var targetAlbum = await context.Albums.FindAsync([request.Model.TargetAlbumId], cancellationToken);
+        if (targetAlbum is null)
+            return Result.Failure<Guid>(Error.NotFound("Target album not found"));
+
+        if (targetAlbum.UserId != userIdResult.Value)
+            return Result.Failure<Guid>(Error.Forbidden("User is not the owner of the target album"));
+
+        element.AlbumId = request.Model.TargetAlbumId;
+
+        if (sourceAlbum.Status == AlbumStatus.Active)
+            sourceAlbum.Status = AlbumStatus.NotApproved;
+
+        if (targetAlbum.Status == AlbumStatus.Active)
+            targetAlbum.Status = AlbumStatus.NotApproved;
+
+        await context.SaveChangesAsync(cancellationToken);
+
+        return request.Id;
+    }
+
     private async Task<AlbumElementListItemModel[]> GetAlbumElementItemsAsync(
         Guid albumId,
         GetPaginatedItemsBaseRequest search,
