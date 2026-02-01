@@ -1,4 +1,5 @@
 ﻿using CoinyProject.Application.Common.Models;
+using CoinyProject.Domain.Enums;
 
 namespace CoinyProject.Application.Features.AlbumElements.Models;
 
@@ -9,6 +10,7 @@ public class AlbumElementModel
     public string Description { get; set; }
     public int  Rate { get; init; }
     public Uri ImageUrl { get; set; }
+    public AlbumElementStatus Status { get; set; }
     public BaseLink Album { get; set; }
     public BaseLink Author { get; set; }
     public DateTime UpdatedAt { get; set; }

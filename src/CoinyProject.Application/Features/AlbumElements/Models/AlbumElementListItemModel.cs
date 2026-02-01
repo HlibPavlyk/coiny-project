@@ -1,4 +1,6 @@
-﻿namespace CoinyProject.Application.Features.AlbumElements.Models;
+﻿using CoinyProject.Domain.Enums;
+
+namespace CoinyProject.Application.Features.AlbumElements.Models;
 
 public class AlbumElementListItemModel
 {
@@ -7,5 +9,6 @@ public class AlbumElementListItemModel
     public string Description { get; set; }
     public int  Rate { get; init; }
     public Uri ImageUrl { get; set; }
+    public AlbumElementStatus Status { get; set; }
     public DateTime UpdatedAt { get; set; }
 }

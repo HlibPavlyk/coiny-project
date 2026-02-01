@@ -47,10 +47,4 @@ public class AlbumController(IMediator mediator) : Controller
     {
         return mediator.Send(new ActivateAlbumRequest(id), cancellationToken);
     }
-
-    [Authorize, HttpPost("{id:guid}/approve")]
-    public Task<Result<Guid>> ApproveAlbum(Guid id, CancellationToken cancellationToken)
-    {
-        return mediator.Send(new ApproveAlbumRequest(id), cancellationToken);
-    }
 }

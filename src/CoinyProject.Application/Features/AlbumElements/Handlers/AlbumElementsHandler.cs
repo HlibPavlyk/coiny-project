@@ -20,7 +20,9 @@ public class AlbumElementsHandler(IApplicationDbContext context, IIdentityServic
     IRequestHandler<GetAlbumElementsRequest, Result<Paginated<AlbumElementListItemModel>>>,
     IRequestHandler<GetAlbumElementByIdRequest, Result<AlbumElementModel>>,
     IRequestHandler<DeleteAlbumElementRequest, Result<Guid>>,
-    IRequestHandler<MoveAlbumElementRequest, Result<Guid>>
+    IRequestHandler<MoveAlbumElementRequest, Result<Guid>>,
+    IRequestHandler<ActivateAlbumElementRequest, Result<Guid>>,
+    IRequestHandler<DeactivateAlbumElementRequest, Result<Guid>>
 {
     public async Task<Result<Guid>> Handle(AddAlbumElementRequest request, CancellationToken cancellationToken)
     {
@@ -40,11 +42,10 @@ public class AlbumElementsHandler(IApplicationDbContext context, IIdentityServic
             Name = request.Model.Name,
             Description = request.Model.Description,
             AlbumId = request.AlbumId,
-            ImageUrl = await fileService.SaveImageAsync(request.File)
+            ImageUrl = await fileService.SaveImageAsync(request.File),
+            // TODO: Change to NotApproved when moderation is implemented
+            Status = AlbumElementStatus.Approved
         };
-
-        if (album.Status == AlbumStatus.Active)
-            album.Status = AlbumStatus.NotApproved;
 
         await context.AlbumElements.AddAsync(entity, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
@@ -54,15 +55,21 @@ public class AlbumElementsHandler(IApplicationDbContext context, IIdentityServic
 
     public async Task<Result<Paginated<AlbumElementListItemModel>>> Handle(GetAlbumElementsRequest request, CancellationToken cancellationToken)
     {
-        var album = await context.Albums.FindAsync([request.AlbumId], cancellationToken);
+        var album = await context.Albums
+            .Include(x => x.Elements)
+            .FirstOrDefaultAsync(x => x.Id == request.AlbumId, cancellationToken);
+
         if (album is null)
             return Result.Failure<Paginated<AlbumElementListItemModel>>(Error.NotFound("Album not found"));
 
-        var accessResult = CheckAlbumAccess(album);
+        var currentUserId = identityService.GetCurrentUserId();
+        var isOwner = currentUserId.IsSuccess && album.UserId == currentUserId.Value;
+
+        var accessResult = CheckAlbumAccess(album, isOwner);
         if (accessResult.IsFailure)
             return Result.Failure<Paginated<AlbumElementListItemModel>>(accessResult.Error);
 
-        var items = await GetAlbumElementItemsAsync(request.AlbumId, request.Paginate, cancellationToken);
+        var items = await GetAlbumElementItemsAsync(request.AlbumId, request.Paginate, isOwner, cancellationToken);
 
         return new Paginated<AlbumElementListItemModel>
         {
@@ -76,15 +83,23 @@ public class AlbumElementsHandler(IApplicationDbContext context, IIdentityServic
         var element = await context.AlbumElements
             .Include(x => x.Album)
             .ThenInclude(x => x.User)
+            .Include(x => x.Album.Elements)
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
 
         if (element is null)
             return Result.Failure<AlbumElementModel>(Error.NotFound("Element not found"));
 
-        var accessResult = CheckAlbumAccess(element.Album);
+        var currentUserId = identityService.GetCurrentUserId();
+        var isOwner = currentUserId.IsSuccess && element.Album.UserId == currentUserId.Value;
+
+        var accessResult = CheckAlbumAccess(element.Album, isOwner);
         if (accessResult.IsFailure)
             return Result.Failure<AlbumElementModel>(accessResult.Error);
+
+        // Non-owners can only see Approved elements
+        if (!isOwner && element.Status != AlbumElementStatus.Approved)
+            return Result.Failure<AlbumElementModel>(Error.Forbidden("Element is not accessible"));
 
         return mapper.Map<AlbumElementModel>(element);
     }
@@ -115,8 +130,10 @@ public class AlbumElementsHandler(IApplicationDbContext context, IIdentityServic
         if (request.File is not null)
             existingElement.ImageUrl = await fileService.SaveImageAsync(request.File);
 
-        if (album.Status == AlbumStatus.Active)
-            album.Status = AlbumStatus.NotApproved;
+        // TODO: Change to NotApproved when moderation is implemented
+        // If element was Approved, it needs re-approval after edit
+        if (existingElement.Status == AlbumElementStatus.Approved)
+            existingElement.Status = AlbumElementStatus.Approved; // Auto-approve for now
 
         await context.SaveChangesAsync(cancellationToken);
         return request.Id;
@@ -175,32 +192,92 @@ public class AlbumElementsHandler(IApplicationDbContext context, IIdentityServic
         if (targetAlbum.UserId != userIdResult.Value)
             return Result.Failure<Guid>(Error.Forbidden("User is not the owner of the target album"));
 
+        // Move element - status remains unchanged
         element.AlbumId = request.Model.TargetAlbumId;
-
-        if (sourceAlbum.Status == AlbumStatus.Active)
-            sourceAlbum.Status = AlbumStatus.NotApproved;
-
-        if (targetAlbum.Status == AlbumStatus.Active)
-            targetAlbum.Status = AlbumStatus.NotApproved;
 
         await context.SaveChangesAsync(cancellationToken);
 
         return request.Id;
     }
 
+    public async Task<Result<Guid>> Handle(ActivateAlbumElementRequest request, CancellationToken cancellationToken)
+    {
+        var userIdResult = identityService.GetCurrentUserId();
+        if (userIdResult.IsFailure)
+            return Result.Failure<Guid>(userIdResult.Error);
+
+        var element = await context.AlbumElements.FindAsync([request.Id], cancellationToken);
+        if (element is null)
+            return Result.Failure<Guid>(Error.NotFound("Element not found"));
+
+        if (element.AlbumId != request.AlbumId)
+            return Result.Failure<Guid>(Error.Validation("Element does not belong to the specified album"));
+
+        var album = await context.Albums.FindAsync([request.AlbumId], cancellationToken);
+        if (album is null)
+            return Result.Failure<Guid>(Error.NotFound("Album not found"));
+
+        if (album.UserId != userIdResult.Value)
+            return Result.Failure<Guid>(Error.Forbidden("User is not the owner of the album"));
+
+        if (element.Status == AlbumElementStatus.Inactive)
+        {
+            // TODO: Change to NotApproved when moderation is implemented
+            element.Status = AlbumElementStatus.Approved; // Auto-approve for now
+        }
+
+        await context.SaveChangesAsync(cancellationToken);
+        return Result.Success(element.Id);
+    }
+
+    public async Task<Result<Guid>> Handle(DeactivateAlbumElementRequest request, CancellationToken cancellationToken)
+    {
+        var userIdResult = identityService.GetCurrentUserId();
+        if (userIdResult.IsFailure)
+            return Result.Failure<Guid>(userIdResult.Error);
+
+        var element = await context.AlbumElements.FindAsync([request.Id], cancellationToken);
+        if (element is null)
+            return Result.Failure<Guid>(Error.NotFound("Element not found"));
+
+        if (element.AlbumId != request.AlbumId)
+            return Result.Failure<Guid>(Error.Validation("Element does not belong to the specified album"));
+
+        var album = await context.Albums.FindAsync([request.AlbumId], cancellationToken);
+        if (album is null)
+            return Result.Failure<Guid>(Error.NotFound("Album not found"));
+
+        if (album.UserId != userIdResult.Value)
+            return Result.Failure<Guid>(Error.Forbidden("User is not the owner of the album"));
+
+        element.Status = AlbumElementStatus.Inactive;
+
+        await context.SaveChangesAsync(cancellationToken);
+        return Result.Success(element.Id);
+    }
+    
+    
     private async Task<AlbumElementListItemModel[]> GetAlbumElementItemsAsync(
         Guid albumId,
         GetPaginatedItemsBaseRequest search,
+        bool isOwner,
         CancellationToken cancellationToken)
     {
-        var items = await context.AlbumElements
-            .Where(x => x.AlbumId == albumId)
+        var query = context.AlbumElements
+            .Where(x => x.AlbumId == albumId);
+
+        // Non-owners can only see Approved elements
+        if (!isOwner)
+            query = query.Where(x => x.Status == AlbumElementStatus.Approved);
+
+        var items = await query
             .AsNoTracking()
             .AsAsyncEnumerable()
             .Search(
                 search,
                 element => element.Name,
                 element => element.Description,
+                element => element.Status,
                 element => element.Rate,
                 element => element.UpdatedAt)
             .Select(MapToListItemModel)
@@ -217,25 +294,24 @@ public class AlbumElementsHandler(IApplicationDbContext context, IIdentityServic
             Name = element.Name,
             Description = element.Description,
             Rate = element.Rate,
+            Status = element.Status,
             ImageUrl = fileService.GetImageUrl(element.ImageUrl),
             UpdatedAt = element.UpdatedAt
         };
     }
 
-    private Result CheckAlbumAccess(Album album)
+    private Result CheckAlbumAccess(Album album, bool isOwner)
     {
-        var userIdResult = identityService.GetCurrentUserId();
+        if (isOwner)
+            return Result.Success();
 
-        if (userIdResult.IsSuccess)
-        {
-            if (album.UserId != userIdResult.Value && album.Status != AlbumStatus.Active)
-                return Result.Failure(Error.Forbidden("User is not the owner of the album or album is not active"));
-        }
-        else
-        {
-            if (album.Status != AlbumStatus.Active)
-                return Result.Failure(Error.Forbidden("Album is not active"));
-        }
+        // Non-owners can only access Active albums with >= 4 Approved elements
+        if (album.Status != AlbumStatus.Active)
+            return Result.Failure(Error.Forbidden("Album is not active"));
+
+        var approvedCount = album.Elements?.Count(e => e.Status == AlbumElementStatus.Approved) ?? 0;
+        if (approvedCount < 4)
+            return Result.Failure(Error.Forbidden("Album is not accessible"));
 
         return Result.Success();
     }

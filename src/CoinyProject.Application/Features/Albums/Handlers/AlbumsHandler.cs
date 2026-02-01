@@ -23,12 +23,16 @@ public class AlbumsHandler(IApplicationDbContext context, IMapper mapper, IIdent
     IRequestHandler<CreateAlbumRequest, Result<Guid>>,
     IRequestHandler<UpdateAlbumRequest, Result<Guid>>,
     IRequestHandler<ActivateAlbumRequest, Result<Guid>>,
-    IRequestHandler<DeactivateAlbumRequest, Result<Guid>>,
-    IRequestHandler<ApproveAlbumRequest, Result<Guid>>
+    IRequestHandler<DeactivateAlbumRequest, Result<Guid>>
 {
     public async Task<Result<Paginated<AlbumModel>>> Handle(GetAlbumsRequest request, CancellationToken cancellationToken)
     {
-        var items = await GetAlbumItemsAsync(request, request.SortBy, x => x.Status == AlbumStatus.Active, cancellationToken);
+        // For public: Active albums with >= 4 Approved elements
+        var items = await GetAlbumItemsAsync(
+            request,
+            request.SortBy,
+            x => x.Status == AlbumStatus.Active && x.Elements.Count(e => e.Status == AlbumElementStatus.Approved) >= 4,
+            cancellationToken);
 
         return new Paginated<AlbumModel>
         {
@@ -42,10 +46,15 @@ public class AlbumsHandler(IApplicationDbContext context, IMapper mapper, IIdent
         CancellationToken cancellationToken)
     {
         var currentUserId = identityService.GetCurrentUserId();
-        Expression<Func<Album, bool>> predicate = currentUserId.IsSuccess && request.UserId != currentUserId.Value
-            ? x => x.Status == AlbumStatus.Active
-            : null;
-        
+        var isOwner = currentUserId.IsSuccess && request.UserId == currentUserId.Value;
+
+        // Owner sees all their albums, others see only Active + >= 4 Approved elements
+        Expression<Func<Album, bool>> predicate = isOwner
+            ? x => x.UserId == request.UserId
+            : x => x.UserId == request.UserId &&
+                   x.Status == AlbumStatus.Active &&
+                   x.Elements.Count(e => e.Status == AlbumElementStatus.Approved) >= 4;
+
         var items = await GetAlbumItemsAsync(request.Paginate, request.Paginate.SortBy, predicate, cancellationToken);
 
         return new Paginated<AlbumModel>
@@ -67,15 +76,13 @@ public class AlbumsHandler(IApplicationDbContext context, IMapper mapper, IIdent
             return Result.Failure<AlbumModel>(Error.NotFound("Album not found"));
 
         var currentUserId = identityService.GetCurrentUserId();
-        if (currentUserId.IsSuccess)
+        var isOwner = currentUserId.IsSuccess && album.UserId == currentUserId.Value;
+
+        if (!isOwner)
         {
-            if (album.UserId != currentUserId.Value && album.Status != AlbumStatus.Active)
-                return Result.Failure<AlbumModel>(Error.Forbidden("User is not the owner of the album or album is not active"));
-        }
-        else
-        {
-            if (album.Status != AlbumStatus.Active)
-                return Result.Failure<AlbumModel>(Error.Forbidden("Album is not active"));
+            var approvedCount = album.Elements?.Count(e => e.Status == AlbumElementStatus.Approved) ?? 0;
+            if (album.Status != AlbumStatus.Active || approvedCount < 4)
+                return Result.Failure<AlbumModel>(Error.Forbidden("Album is not accessible"));
         }
 
         return MapToAlbumModel(album);
@@ -92,13 +99,13 @@ public class AlbumsHandler(IApplicationDbContext context, IMapper mapper, IIdent
             Name = request.Name,
             Description = request.Description,
             UserId = currentUserId.Value,
-            Status = AlbumStatus.Inactive
+            Status = AlbumStatus.Active
         };
 
         await context.Albums.AddAsync(album, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
-        return Guid.NewGuid();
+        return album.Id;
     }
 
     public async Task<Result<Guid>> Handle(UpdateAlbumRequest request, CancellationToken cancellationToken)
@@ -114,9 +121,7 @@ public class AlbumsHandler(IApplicationDbContext context, IMapper mapper, IIdent
         if (album.UserId != userIdResult.Value)
             return Result.Failure<Guid>(Error.Forbidden("User is not the owner of the album"));
 
-        if (album.Status == AlbumStatus.Active)
-            album.Status = AlbumStatus.NotApproved;
-
+        // Status stays the same on update
         album.Name = request.Model.Name;
         album.Description = request.Model.Description;
 
@@ -125,38 +130,20 @@ public class AlbumsHandler(IApplicationDbContext context, IMapper mapper, IIdent
         return album.Id;
     }
 
-    public async Task<Result<Guid>> Handle(ActivateAlbumRequest request, CancellationToken cancellationToken)
+    public Task<Result<Guid>> Handle(ActivateAlbumRequest request, CancellationToken cancellationToken)
     {
-        var elementCount = await context.AlbumElements.CountAsync(x => x.AlbumId == request.Id, cancellationToken);
-        if (elementCount < 4)
-            return Result.Failure<Guid>(Error.Validation("Album should have at least 4 elements to activate"));
-
-        return await ChangeAlbumStatusAsync(request.Id, AlbumStatus.NotApproved, AlbumStatus.Inactive, cancellationToken);
+        return ChangeAlbumStatusAsync(request.Id, AlbumStatus.Active, cancellationToken);
     }
 
-    public async Task<Result<Guid>> Handle(DeactivateAlbumRequest request, CancellationToken cancellationToken)
+    public Task<Result<Guid>> Handle(DeactivateAlbumRequest request, CancellationToken cancellationToken)
     {
-        return await ChangeAlbumStatusAsync(request.Id, AlbumStatus.Inactive, null, cancellationToken);
-    }
-
-    public async Task<Result<Guid>> Handle(ApproveAlbumRequest request, CancellationToken cancellationToken)
-    {
-        var album = await context.Albums.FindAsync([request.Id], cancellationToken);
-        if (album is null)
-            return Result.Failure<Guid>(Error.NotFound("Album not found"));
-
-        if (album.Status == AlbumStatus.NotApproved)
-            album.Status = AlbumStatus.Active;
-
-        await context.SaveChangesAsync(cancellationToken);
-        return Result.Success(album.Id);
+        return ChangeAlbumStatusAsync(request.Id, AlbumStatus.Inactive, cancellationToken);
     }
 
     // Private helper methods
     private async Task<Result<Guid>> ChangeAlbumStatusAsync(
         Guid id,
-        AlbumStatus endStatus,
-        AlbumStatus? startStatus,
+        AlbumStatus status,
         CancellationToken cancellationToken)
     {
         var userIdResult = identityService.GetCurrentUserId();
@@ -170,11 +157,13 @@ public class AlbumsHandler(IApplicationDbContext context, IMapper mapper, IIdent
         if (album.UserId != userIdResult.Value)
             return Result.Failure<Guid>(Error.Forbidden("User is not the owner of the album"));
 
-        if (startStatus is null || album.Status == startStatus)
-            album.Status = endStatus;
+        if (album.Status != status)
+        {
+            album.Status = status;
+            await context.SaveChangesAsync(cancellationToken);
+        }
 
-        await context.SaveChangesAsync(cancellationToken);
-        return Result.Success(id);
+        return Result.Success(album.Id);
     }
 
     private async Task<AlbumModel[]> GetAlbumItemsAsync(

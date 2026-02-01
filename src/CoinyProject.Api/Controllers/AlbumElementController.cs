@@ -51,4 +51,16 @@ public class AlbumElementController(IMediator mediator) : Controller
     {
         return mediator.Send(new MoveAlbumElementRequest(id, albumId, model), cancellationToken);
     }
+
+    [Authorize, HttpPost("{id:guid}/activate")]
+    public Task<Result<Guid>> ActivateAlbumElement(Guid id, Guid albumId, CancellationToken cancellationToken)
+    {
+        return mediator.Send(new ActivateAlbumElementRequest(id, albumId), cancellationToken);
+    }
+
+    [Authorize, HttpPost("{id:guid}/deactivate")]
+    public Task<Result<Guid>> DeactivateAlbumElement(Guid id, Guid albumId, CancellationToken cancellationToken)
+    {
+        return mediator.Send(new DeactivateAlbumElementRequest(id, albumId), cancellationToken);
+    }
 }

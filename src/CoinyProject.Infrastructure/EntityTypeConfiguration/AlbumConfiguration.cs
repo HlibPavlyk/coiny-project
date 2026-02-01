@@ -22,8 +22,7 @@ namespace CoinyProject.Infrastructure.EntityTypeConfiguration
 
             builder.Property(al => al.Status)
                 .IsRequired()
-                .HasConversion<string>()
-                .HasDefaultValue(AlbumStatus.NotApproved);
+                .HasConversion<string>();
 
             builder.Property(al => al.Rate)
                 .IsRequired()

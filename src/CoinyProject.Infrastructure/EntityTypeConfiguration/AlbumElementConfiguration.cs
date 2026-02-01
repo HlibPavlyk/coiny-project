@@ -1,4 +1,5 @@
 ﻿using CoinyProject.Domain.Entities;
+using CoinyProject.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -18,10 +19,15 @@ namespace CoinyProject.Infrastructure.EntityTypeConfiguration
             builder.Property(x => x.Description)
                 .HasMaxLength(200)
                 .IsRequired(false);
-            
+
             builder.Property(x => x.Rate)
                 .IsRequired()
                 .HasDefaultValue(0);
+
+            builder.Property(x => x.Status)
+                .IsRequired()
+                .HasConversion<string>()
+                .HasDefaultValue(AlbumElementStatus.NotApproved);
             
             builder.HasOne(x => x.Album)
                 .WithMany(x => x.Elements)

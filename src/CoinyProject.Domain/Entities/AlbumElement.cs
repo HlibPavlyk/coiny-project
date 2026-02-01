@@ -1,4 +1,5 @@
 ﻿using CoinyProject.Domain.Abstractions;
+using CoinyProject.Domain.Enums;
 
 namespace CoinyProject.Domain.Entities
 {
@@ -9,6 +10,7 @@ namespace CoinyProject.Domain.Entities
         public string Description { get; set; }
         public int  Rate { get; init; }
         public string ImageUrl { get; set; }
+        public AlbumElementStatus Status { get; set; } = AlbumElementStatus.NotApproved;
         public Guid AlbumId { get; set; }
         public Guid? AuctionId { get; init; }
         public DateTime UpdatedAt { get; set; }
