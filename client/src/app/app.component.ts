@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import {AlbumsViewComponent} from "./album/albums-view/albums-view.component";
-import {AlbumComponent} from "./album/album.component";
-import {TopBarComponent} from "./top-bar/top-bar.component";
+import {AlbumsViewComponent} from "@features/albums/components/albums-view/albums-view.component";
+import {AlbumComponent} from "@features/albums/components/album.component";
+import {TopBarComponent} from "./layout/top-bar/top-bar.component";
 import {CommonModule} from "@angular/common";
 
 @Component({

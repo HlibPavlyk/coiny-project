@@ -1,14 +1,14 @@
 import { Routes } from '@angular/router';
-import {InfoComponent} from "./info/info.component";
-import {AlbumComponent} from "./album/album.component";
-import {LoginComponent} from "./login/login.component";
-import {RegisterComponent} from "./register/register.component";
-import {AlbumFormComponent} from "./album/album-form/album-form.component";
-import {authGuard} from "./guards/auth.guard";
-import {ProfileComponent} from "./profile/profile.component";
-import {AlbumViewComponent} from "./album/album-view/album-view.component";
-import {AlbumElementViewComponent} from "./album-element/album-element-view/album-element-view.component";
-import {AlbumElementFormComponent} from "./album-element/album-element-form/album-element-form.component";
+import {InfoComponent} from "./features/info/info.component";
+import {AlbumComponent} from "@features/albums/components/album.component";
+import {LoginComponent} from "./features/login/login.component";
+import {RegisterComponent} from "./features/register/register.component";
+import {AlbumFormComponent} from "@features/albums/components/album-form/album-form.component";
+import {authGuard} from "./core/guards/auth.guard";
+import {ProfileComponent} from "./features/profile/profile.component";
+import {AlbumViewComponent} from "@features/albums/components/album-view/album-view.component";
+import {AlbumElementViewComponent} from "./features/album-element/album-element-view/album-element-view.component";
+import {AlbumElementFormComponent} from "./features/album-element/album-element-form/album-element-form.component";
 
 export const routes: Routes = [
   { path: '', redirectTo: 'albums', pathMatch: 'full' },
