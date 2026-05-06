@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <RootNamespace>Coiny.Api</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Coiny.Application\Coiny.Application.csproj" />
+    <ProjectReference Include="..\Coiny.Infrastructure\Coiny.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

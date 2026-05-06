@@ -1,0 +1,78 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+
+  <ItemGroup Label="EF Core + Postgres">
+    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.0" />
+    <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
+  </ItemGroup>
+
+  <ItemGroup Label="ASP.NET Core Identity + Auth">
+    <PackageVersion Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.Google" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.IdentityModel.Tokens" Version="8.3.2" />
+    <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.3.2" />
+  </ItemGroup>
+
+  <ItemGroup Label="MediatR (pinned v12 — MIT line; do NOT upgrade to v13)">
+    <PackageVersion Include="MediatR" Version="12.4.1" />
+  </ItemGroup>
+
+  <ItemGroup Label="AutoMapper">
+    <PackageVersion Include="AutoMapper" Version="14.0.0" />
+  </ItemGroup>
+
+  <ItemGroup Label="FluentValidation">
+    <PackageVersion Include="FluentValidation" Version="11.11.0" />
+    <PackageVersion Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0" />
+  </ItemGroup>
+
+  <ItemGroup Label="OpenAPI + Scalar (replaces Swashbuckle)">
+    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0" />
+    <PackageVersion Include="Scalar.AspNetCore" Version="2.0.22" />
+  </ItemGroup>
+
+  <ItemGroup Label="Stripe">
+    <PackageVersion Include="Stripe.net" Version="47.3.0" />
+  </ItemGroup>
+
+  <ItemGroup Label="Resend email">
+    <PackageVersion Include="Resend" Version="0.7.0" />
+  </ItemGroup>
+
+  <ItemGroup Label="Hangfire">
+    <PackageVersion Include="Hangfire.AspNetCore" Version="1.8.18" />
+    <PackageVersion Include="Hangfire.PostgreSql" Version="1.20.9" />
+  </ItemGroup>
+
+  <ItemGroup Label="Meilisearch">
+    <PackageVersion Include="Meilisearch" Version="0.21.0" />
+  </ItemGroup>
+
+  <ItemGroup Label="Cloudflare R2 (S3-compatible)">
+    <PackageVersion Include="AWSSDK.S3" Version="3.7.414.4" />
+  </ItemGroup>
+
+  <ItemGroup Label="Image processing">
+    <PackageVersion Include="SixLabors.ImageSharp" Version="3.1.6" />
+  </ItemGroup>
+
+  <ItemGroup Label="UUIDv7">
+    <PackageVersion Include="Medo.Uuid7" Version="5.0.8" />
+  </ItemGroup>
+
+  <ItemGroup Label="Async LINQ">
+    <PackageVersion Include="System.Linq.Async" Version="6.0.1" />
+  </ItemGroup>
+
+  <ItemGroup Label="Test packages (used in sprint 4 tests project)">
+    <PackageVersion Include="xunit" Version="2.9.2" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="2.8.2" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageVersion Include="FluentAssertions" Version="7.0.0" />
+    <PackageVersion Include="Bogus" Version="35.6.1" />
+  </ItemGroup>
+</Project>

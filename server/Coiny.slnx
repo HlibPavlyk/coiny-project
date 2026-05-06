@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="src/Coiny.Domain/Coiny.Domain.csproj" />
+  <Project Path="src/Coiny.Application/Coiny.Application.csproj" />
+  <Project Path="src/Coiny.Infrastructure/Coiny.Infrastructure.csproj" />
+  <Project Path="src/Coiny.Api/Coiny.Api.csproj" />
+</Solution>
