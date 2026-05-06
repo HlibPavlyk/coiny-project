@@ -16,6 +16,9 @@
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
     <PackageReference Include="Microsoft.IdentityModel.Tokens" />
     <PackageReference Include="System.Security.Cryptography.Xml" />
+    <PackageReference Include="Resend" />
+    <PackageReference Include="Hangfire.AspNetCore" />
+    <PackageReference Include="Hangfire.PostgreSql" />
   </ItemGroup>
 
   <ItemGroup>

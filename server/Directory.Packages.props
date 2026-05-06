@@ -41,7 +41,7 @@
   </ItemGroup>
 
   <ItemGroup Label="Resend email">
-    <PackageVersion Include="Resend" Version="0.7.0" />
+    <PackageVersion Include="Resend" Version="0.5.0" />
   </ItemGroup>
 
   <ItemGroup Label="Hangfire">

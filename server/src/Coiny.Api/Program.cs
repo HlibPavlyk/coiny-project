@@ -2,6 +2,8 @@ using Coiny.Api.Filters;
 using Coiny.Api.Middleware;
 using Coiny.Api.OpenApi;
 using Coiny.Infrastructure.Extensions;
+using Coiny.Infrastructure.Jobs;
+using Hangfire;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -31,6 +33,14 @@ app.MapScalarApiReference(opts =>
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+if (app.Environment.IsDevelopment())
+    app.UseHangfireDashboard();
+
+RecurringJob.AddOrUpdate<EmailOutboxFlushJob>(
+    "email-outbox-flush",
+    job => job.RunAsync(CancellationToken.None),
+    Cron.Minutely());
 
 app.MapControllers();
 app.Run();
