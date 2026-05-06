@@ -1,4 +1,4 @@
-namespace Coiny.Application.Abstractions.Time;
+namespace Coiny.Application.Abstractions.Providers;
 
 /// <summary>
 /// The only permitted source of the current time in Application code.
