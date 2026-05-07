@@ -12,12 +12,12 @@ namespace Coiny.Application.Features.Categories.Handlers;
 public class GetCategoryTreeHandler(IApplicationDbContext db, IMemoryCache cache)
     : IRequestHandler<GetCategoryTreeRequest, Result<CategoryTreeModel>>
 {
-    private const string CacheKey = "categories:tree";
-    private static readonly TimeSpan CacheTtl = TimeSpan.FromMinutes(5);
+    private const string _cacheKey = "categories:tree";
+    private static readonly TimeSpan _cacheTtl = TimeSpan.FromMinutes(5);
 
     public async Task<Result<CategoryTreeModel>> Handle(GetCategoryTreeRequest request, CancellationToken ct)
     {
-        if (cache.TryGetValue(CacheKey, out CategoryTreeModel? cached) && cached is not null)
+        if (cache.TryGetValue(_cacheKey, out CategoryTreeModel? cached) && cached is not null)
             return Result.Success(cached);
 
         List<Category> rows = await db.Categories
@@ -28,9 +28,9 @@ public class GetCategoryTreeHandler(IApplicationDbContext db, IMemoryCache cache
 
         CategoryTreeModel tree = BuildTree(rows);
 
-        cache.Set(CacheKey, tree, new MemoryCacheEntryOptions
+        cache.Set(_cacheKey, tree, new MemoryCacheEntryOptions
         {
-            AbsoluteExpirationRelativeToNow = CacheTtl,
+            AbsoluteExpirationRelativeToNow = _cacheTtl,
         });
 
         return Result.Success(tree);
@@ -38,12 +38,12 @@ public class GetCategoryTreeHandler(IApplicationDbContext db, IMemoryCache cache
 
     private static CategoryTreeModel BuildTree(List<Category> rows)
     {
-        Dictionary<int, List<CategoryNodeModel>> childrenByParent = rows
+        var childrenByParent = rows
             .Where(c => c.ParentId is not null)
             .GroupBy(c => c.ParentId!.Value)
             .ToDictionary(g => g.Key, g => g.Select(MapNode).ToList());
 
-        List<CategoryNodeModel> roots = rows
+        var roots = rows
             .Where(c => c.ParentId is null)
             .Select(MapNode)
             .ToList();
@@ -52,7 +52,7 @@ public class GetCategoryTreeHandler(IApplicationDbContext db, IMemoryCache cache
 
         return new CategoryTreeModel(roots);
 
-        CategoryNodeModel MapNode(Category c) => new(
+        CategoryNodeModel MapNode(Category c) => new (
             c.Id,
             c.Slug,
             c.Name,
