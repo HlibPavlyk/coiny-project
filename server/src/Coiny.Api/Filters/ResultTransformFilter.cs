@@ -53,22 +53,24 @@ public class ResultTransformFilter : IAsyncResultFilter
 
     internal static int GetStatus(ErrorType type) => type switch
     {
-        ErrorType.Validation  => StatusCodes.Status400BadRequest,
+        ErrorType.Validation   => StatusCodes.Status400BadRequest,
         ErrorType.Unauthorized => StatusCodes.Status401Unauthorized,
-        ErrorType.Forbidden   => StatusCodes.Status403Forbidden,
-        ErrorType.NotFound    => StatusCodes.Status404NotFound,
-        ErrorType.Conflict    => StatusCodes.Status409Conflict,
-        _                     => StatusCodes.Status500InternalServerError,
+        ErrorType.Forbidden    => StatusCodes.Status403Forbidden,
+        ErrorType.NotFound     => StatusCodes.Status404NotFound,
+        ErrorType.Conflict     => StatusCodes.Status409Conflict,
+        ErrorType.RateLimited  => StatusCodes.Status429TooManyRequests,
+        _                      => StatusCodes.Status500InternalServerError,
     };
 
     private static string GetTitle(ErrorType type) => type switch
     {
-        ErrorType.Validation  => "Validation Error",
+        ErrorType.Validation   => "Validation Error",
         ErrorType.Unauthorized => "Unauthorized",
-        ErrorType.Forbidden   => "Forbidden",
-        ErrorType.NotFound    => "Resource Not Found",
-        ErrorType.Conflict    => "Conflict",
-        _                     => "Internal Server Error",
+        ErrorType.Forbidden    => "Forbidden",
+        ErrorType.NotFound     => "Resource Not Found",
+        ErrorType.Conflict     => "Conflict",
+        ErrorType.RateLimited  => "Too Many Requests",
+        _                      => "Internal Server Error",
     };
 
     private sealed class ResultReflector

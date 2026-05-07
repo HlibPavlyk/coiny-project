@@ -1,5 +1,3 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using Coiny.Application.Abstractions.Data;
 using Coiny.Application.Abstractions.Providers;
 using Coiny.Infrastructure.Providers;
@@ -11,13 +9,6 @@ namespace Coiny.Infrastructure.Persistence.Extensions;
 
 public static class DbConnectionExtensions
 {
-    /// <summary>Shared JSON options used by both Npgsql JSONB serialization and ASP.NET Core JSON (task 14).</summary>
-    public static readonly JsonSerializerOptions SharedJsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-    };
-
     public static void AddDatabase(this IServiceCollection services, IConfiguration configuration)
     {
         string connectionString = configuration.GetConnectionString("Default")

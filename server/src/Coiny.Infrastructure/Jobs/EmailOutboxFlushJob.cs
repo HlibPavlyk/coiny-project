@@ -1,6 +1,6 @@
-using System.Text.Json;
 using Coiny.Application.Abstractions.Data;
 using Coiny.Application.Abstractions.Email;
+using Coiny.Application.Features.Auth;
 using Coiny.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -47,7 +47,7 @@ public class EmailOutboxFlushJob(
     {
         switch (evt.EventType)
         {
-            case "EmailVerificationRequested":
+            case EmailVerificationPayload.EventType:
                 await HandleVerificationAsync(evt, ct);
                 break;
 
@@ -60,19 +60,13 @@ public class EmailOutboxFlushJob(
 
     private async Task HandleVerificationAsync(EmailOutboxEvent evt, CancellationToken ct)
     {
-        using var doc = JsonDocument.Parse(evt.Payload);
-
-        string toAddress = doc.RootElement.GetProperty("toAddress").GetString()
-            ?? throw new InvalidOperationException($"Event {evt.Id}: missing toAddress in payload.");
-
-        string token = doc.RootElement.GetProperty("token").GetString()
-            ?? throw new InvalidOperationException($"Event {evt.Id}: missing token in payload.");
+        var payload = EmailVerificationPayload.Deserialize(evt.Payload);
 
         string frontendBase = configuration["Frontend:BaseUrl"]?.TrimEnd('/')
             ?? throw new InvalidOperationException("Frontend:BaseUrl is not configured.");
 
-        string verificationUrl = $"{frontendBase}/verify-email?token={Uri.EscapeDataString(token)}";
+        string verificationUrl = $"{frontendBase}/verify-email?token={Uri.EscapeDataString(payload.Token)}";
 
-        await emailSender.SendVerificationEmailAsync(toAddress, verificationUrl, ct);
+        await emailSender.SendVerificationEmailAsync(payload.ToAddress, verificationUrl, ct);
     }
 }

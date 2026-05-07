@@ -1,5 +1,6 @@
 using Coiny.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Coiny.Application.Abstractions.Data;
 
@@ -13,6 +14,9 @@ public interface IApplicationDbContext
     DbSet<EmailVerificationToken> EmailVerificationTokens { get; }
     DbSet<OutboxEvent> OutboxEvents { get; }
     DbSet<EmailOutboxEvent> EmailOutboxEvents { get; }
+
+    /// <summary>Exposed so handlers can wrap multi-step writes in an explicit transaction.</summary>
+    DatabaseFacade Database { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

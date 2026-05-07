@@ -13,7 +13,7 @@ namespace Coiny.Api.OpenApi;
 /// </summary>
 public class ResultResponsesOperationTransformer : IOpenApiOperationTransformer
 {
-    private static readonly string[] ErrorStatuses = ["400", "401", "403", "404", "409", "500"];
+    private static readonly string[] ErrorStatuses = ["400", "401", "403", "404", "409", "429", "500"];
 
     private static readonly Dictionary<string, string> StatusDescriptions = new()
     {
@@ -22,6 +22,7 @@ public class ResultResponsesOperationTransformer : IOpenApiOperationTransformer
         ["403"] = "Forbidden",
         ["404"] = "Resource Not Found",
         ["409"] = "Conflict",
+        ["429"] = "Too Many Requests",
         ["500"] = "Internal Server Error",
     };
 

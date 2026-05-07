@@ -95,6 +95,14 @@ public sealed record Error
         [CallerMemberName] string? memberName = null) =>
         new(code, description, ErrorType.Internal, source, line, memberName);
 
+    public static Error RateLimited(
+        string code,
+        string description,
+        [CallerFilePath] string? source = null,
+        [CallerLineNumber] int? line = null,
+        [CallerMemberName] string? memberName = null) =>
+        new(code, description, ErrorType.RateLimited, source, line, memberName);
+
     public string GetDetailedMessage()
     {
         if (Source is null)

@@ -1,6 +1,9 @@
 using Coiny.Api.Filters;
 using Coiny.Api.Middleware;
 using Coiny.Api.OpenApi;
+using Coiny.Api.Services;
+using Coiny.Application.Abstractions.Identity;
+using Coiny.Application.Extensions;
 using Coiny.Infrastructure.Extensions;
 using Coiny.Infrastructure.Jobs;
 using Hangfire;
@@ -9,6 +12,10 @@ using Scalar.AspNetCore;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddApplication();
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUserService, HttpContextCurrentUserService>();
 
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
