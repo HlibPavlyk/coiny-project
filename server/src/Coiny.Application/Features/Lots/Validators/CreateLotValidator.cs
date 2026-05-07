@@ -1,0 +1,41 @@
+using System.Text.Json;
+using Coiny.Application.Abstractions.Providers;
+using Coiny.Application.Features.Lots.Requests;
+using Coiny.Domain.Enums;
+using FluentValidation;
+
+namespace Coiny.Application.Features.Lots.Validators;
+
+public class CreateLotValidator : AbstractValidator<CreateLotRequest>
+{
+    public CreateLotValidator(IDateTimeProvider clock)
+    {
+        RuleFor(x => x.Title)
+            .NotEmpty()
+            .MaximumLength(120);
+
+        RuleFor(x => x.Description)
+            .NotEmpty()
+            .MaximumLength(10_000);
+
+        RuleFor(x => x.CategoryId)
+            .GreaterThan(0);
+
+        RuleFor(x => x.Condition)
+            .IsInEnum();
+
+        RuleFor(x => x.StartingPriceUahKopiykas)
+            .GreaterThanOrEqualTo(100)
+            .WithMessage("Starting price must be at least 1 UAH (100 kopiykas).");
+
+        RuleFor(x => x.EndsAt)
+            .Must((_, endsAt) => endsAt >= clock.UtcNow.AddHours(1))
+                .WithMessage("EndsAt must be at least 1 hour in the future.")
+            .Must((_, endsAt) => endsAt <= clock.UtcNow.AddDays(7))
+                .WithMessage("EndsAt must be within 7 days from now.");
+
+        RuleFor(x => x.Attributes)
+            .Must(LotAttributesValidator.IsJsonObject)
+            .WithMessage("Attributes must be a JSON object.");
+    }
+}

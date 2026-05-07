@@ -2,6 +2,7 @@ using Amazon.Runtime;
 using Amazon.S3;
 using Coiny.Application.Abstractions.Email;
 using Coiny.Application.Abstractions.Files;
+using Coiny.Application.Abstractions.Jobs;
 using Coiny.Infrastructure.ExternalServices.Resend;
 using Coiny.Infrastructure.Files;
 using Coiny.Infrastructure.Identity;
@@ -86,5 +87,7 @@ public static class DependencyContainerExtension
             opts.WorkerCount = Math.Min(Environment.ProcessorCount, 4));
 
         services.AddScoped<EmailOutboxFlushJob>();
+        services.AddScoped<IAuctionCloseJob, AuctionCloseJobStub>();
+        services.AddScoped<IJobScheduler, HangfireJobScheduler>();
     }
 }
