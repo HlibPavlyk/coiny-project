@@ -3,6 +3,7 @@ using Coiny.Application.Abstractions.Identity;
 using Coiny.Domain.Entities;
 using Coiny.Domain.Identity;
 using Coiny.Infrastructure.Persistence;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -64,6 +65,13 @@ public static class IdentityExtensions
                         return Task.CompletedTask;
                     },
                 };
+            })
+            .AddGoogle(GoogleDefaults.AuthenticationScheme, opts =>
+            {
+                opts.ClientId = configuration["Google:ClientId"] ?? string.Empty;
+                opts.ClientSecret = configuration["Google:ClientSecret"] ?? string.Empty;
+                opts.SaveTokens = false;
+                opts.SignInScheme = IdentityConstants.ExternalScheme;
             });
 
         services.AddAuthorization();

@@ -23,5 +23,6 @@ public interface IIdentityService
     Task<Result<(User User, bool IsNew)>> FindOrCreateGoogleUserAsync(
         string email,
         string googleSubject,
+        string displayName,
         CancellationToken cancellationToken = default);
 }

@@ -45,29 +45,35 @@ public class IdentityService(UserManager<User> userManager) : IIdentityService
     public async Task<Result<(User User, bool IsNew)>> FindOrCreateGoogleUserAsync(
         string email,
         string googleSubject,
+        string displayName,
         CancellationToken cancellationToken = default)
     {
-        User? existing = await userManager.FindByEmailAsync(email);
+        string normalizedEmail = email.Trim().ToLowerInvariant();
+        User? existing = await userManager.FindByEmailAsync(normalizedEmail);
 
         if (existing is not null)
         {
             if (existing.GoogleSubject is null)
             {
                 existing.GoogleSubject = googleSubject;
+                existing.UpdatedAt = DateTime.UtcNow;
                 await userManager.UpdateAsync(existing);
             }
             return Result.Success<(User, bool)>((existing, false));
         }
 
+        DateTime now = DateTime.UtcNow;
         var newUser = new User
         {
-            UserName = email,
-            Email = email,
+            UserName = normalizedEmail,
+            Email = normalizedEmail,
             EmailVerified = true,
             GoogleSubject = googleSubject,
-            DisplayName = email.Split('@')[0],
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow,
+            DisplayName = string.IsNullOrWhiteSpace(displayName)
+                ? normalizedEmail.Split('@')[0]
+                : displayName.Trim(),
+            CreatedAt = now,
+            UpdatedAt = now,
         };
 
         IdentityResult createResult = await userManager.CreateAsync(newUser);

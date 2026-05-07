@@ -13,6 +13,7 @@
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
     <PackageReference Include="Microsoft.IdentityModel.Tokens" />
     <PackageReference Include="System.Security.Cryptography.Xml" />
