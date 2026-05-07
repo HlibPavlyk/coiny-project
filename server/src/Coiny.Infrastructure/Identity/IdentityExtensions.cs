@@ -69,7 +69,7 @@ public static class IdentityExtensions
         services.AddAuthorization();
 
         services.AddScoped<IIdentityService, IdentityService>();
-        services.AddSingleton<JwtTokenGenerator>();
+        services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
 
         return services;
     }

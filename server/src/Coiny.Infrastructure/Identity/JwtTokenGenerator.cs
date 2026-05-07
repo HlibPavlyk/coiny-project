@@ -1,15 +1,16 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Coiny.Application.Abstractions.Identity;
 using Coiny.Domain.Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Coiny.Infrastructure.Identity;
 
-public class JwtTokenGenerator(IConfiguration configuration)
+public class JwtTokenGenerator(IConfiguration configuration) : IJwtTokenGenerator
 {
-    public (string Token, DateTime ExpiresAt) IssueToken(User user, IList<string> roles)
+    public AccessToken IssueToken(User user, IList<string> roles)
     {
         int lifetimeMinutes = configuration.GetValue("Jwt:AccessTokenLifetimeMinutes", 60);
         DateTime expiresAt = DateTime.UtcNow.AddMinutes(lifetimeMinutes);
@@ -36,6 +37,6 @@ public class JwtTokenGenerator(IConfiguration configuration)
             expires: expiresAt,
             signingCredentials: credentials);
 
-        return (new JwtSecurityTokenHandler().WriteToken(token), expiresAt);
+        return new AccessToken(new JwtSecurityTokenHandler().WriteToken(token), expiresAt);
     }
 }
