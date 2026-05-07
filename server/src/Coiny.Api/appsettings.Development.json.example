@@ -27,5 +27,12 @@
   },
   "Frontend": {
     "BaseUrl": "http://localhost:5173"
+  },
+  "R2": {
+    "AccountId": "your-cloudflare-account-id",
+    "AccessKeyId": "your-r2-access-key-id",
+    "SecretAccessKey": "your-r2-secret-access-key",
+    "BucketName": "coiny-dev",
+    "PublicUrlBase": "https://pub-xxxxx.r2.dev"
   }
 }

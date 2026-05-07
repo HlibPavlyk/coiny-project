@@ -1,5 +1,9 @@
+using Amazon.Runtime;
+using Amazon.S3;
 using Coiny.Application.Abstractions.Email;
+using Coiny.Application.Abstractions.Files;
 using Coiny.Infrastructure.ExternalServices.Resend;
+using Coiny.Infrastructure.Files;
 using Coiny.Infrastructure.Identity;
 using Coiny.Infrastructure.Jobs;
 using Coiny.Infrastructure.Persistence.Extensions;
@@ -21,6 +25,31 @@ public static class DependencyContainerExtension
         services.AddIdentityInfrastructure(configuration);
         services.AddResendEmail(configuration);
         services.AddHangfireInfrastructure(configuration);
+        services.AddR2FileStorage(configuration);
+    }
+
+    private static void AddR2FileStorage(this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        services.AddOptions<R2Options>()
+            .Bind(configuration.GetSection(R2Options.Section))
+            .ValidateOnStart();
+
+        services.AddSingleton<IValidateOptions<R2Options>, R2OptionsValidator>();
+
+        services.AddSingleton<IAmazonS3>(sp =>
+        {
+            R2Options opts = sp.GetRequiredService<IOptions<R2Options>>().Value;
+            var credentials = new BasicAWSCredentials(opts.AccessKeyId, opts.SecretAccessKey);
+            var config = new AmazonS3Config
+            {
+                ServiceURL = $"https://{opts.AccountId}.r2.cloudflarestorage.com",
+                ForcePathStyle = true,
+            };
+            return new AmazonS3Client(credentials, config);
+        });
+
+        services.AddScoped<IFileService, R2FileService>();
     }
 
     private static void AddResendEmail(this IServiceCollection services,
