@@ -5,4 +5,4 @@ using MediatR;
 namespace Coiny.Application.Features.Auth.Requests;
 
 public record RegisterRequest(string Email, string Password, string? DisplayName)
-    : IRequest<Result<MeModel>>;
+    : IRequest<Result<LoginSuccessModel>>;

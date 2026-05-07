@@ -6,7 +6,7 @@
     }
   },
   "ConnectionStrings": {
-    "Default": "Host=localhost;Port=61876;Database=coiny;Username=postgres;Password=DevPassword123!"
+    "Default": "Host=localhost;Port=5432;Database=coiny;Username=postgres;Password=changeme"
   },
   "Jwt": {
     "Issuer": "http://localhost:5000",

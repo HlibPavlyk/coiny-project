@@ -12,18 +12,19 @@ namespace Coiny.Application.Features.Auth.Handlers;
 
 public class RegisterHandler(
     IIdentityService identityService,
+    IJwtTokenGenerator tokenGenerator,
     IApplicationDbContext db,
     IDateTimeProvider clock)
-    : IRequestHandler<RegisterRequest, Result<MeModel>>
+    : IRequestHandler<RegisterRequest, Result<LoginSuccessModel>>
 {
     private const string _defaultRole = "User";
 
-    public async Task<Result<MeModel>> Handle(RegisterRequest request, CancellationToken ct)
+    public async Task<Result<LoginSuccessModel>> Handle(RegisterRequest request, CancellationToken ct)
     {
         string normalizedEmail = request.Email.Trim().ToLowerInvariant();
 
         if (await db.Users.AnyAsync(u => u.Email == normalizedEmail, ct))
-            return Result.Failure<MeModel>(Error.Conflict("User.EmailInUse", "Email already in use."));
+            return Result.Failure<LoginSuccessModel>(Error.Conflict("User.EmailInUse", "Email already in use."));
 
         DateTime now = clock.UtcNow;
 
@@ -43,11 +44,11 @@ public class RegisterHandler(
 
         Result<User> createResult = await identityService.CreateAsync(user, request.Password, ct);
         if (createResult.IsFailure)
-            return Result.Failure<MeModel>(createResult.Error);
+            return Result.Failure<LoginSuccessModel>(createResult.Error);
 
         Result assignResult = await identityService.AssignRoleAsync(user, _defaultRole, ct);
         if (assignResult.IsFailure)
-            return Result.Failure<MeModel>(assignResult.Error);
+            return Result.Failure<LoginSuccessModel>(assignResult.Error);
 
         string rawToken = VerificationTokenFactory.NewRawToken();
         string tokenHash = VerificationTokenFactory.Hash(rawToken);
@@ -75,15 +76,18 @@ public class RegisterHandler(
         await tx.CommitAsync(ct);
 
         IList<string> roles = await identityService.GetRolesAsync(user);
+        AccessToken accessToken = tokenGenerator.IssueToken(user, roles);
 
-        return Result.Success(new MeModel(
+        MeModel me = new(
             user.Id,
-            user.Email,
+            user.Email!,
             user.EmailVerified,
             user.DisplayName,
             user.TrustScore,
             user.IsBanned,
             user.StripeOnboarded,
-            [.. roles]));
+            [.. roles]);
+
+        return Result.Success(new LoginSuccessModel(accessToken, me));
     }
 }

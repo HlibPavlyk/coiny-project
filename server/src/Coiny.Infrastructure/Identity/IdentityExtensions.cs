@@ -3,6 +3,7 @@ using Coiny.Application.Abstractions.Identity;
 using Coiny.Domain.Entities;
 using Coiny.Domain.Identity;
 using Coiny.Infrastructure.Persistence;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -72,6 +73,7 @@ public static class IdentityExtensions
                 opts.ClientSecret = configuration["Google:ClientSecret"] ?? string.Empty;
                 opts.SaveTokens = false;
                 opts.SignInScheme = IdentityConstants.ExternalScheme;
+                opts.ClaimActions.MapJsonKey("email_verified", "email_verified", "boolean");
             });
 
         services.AddAuthorization();
