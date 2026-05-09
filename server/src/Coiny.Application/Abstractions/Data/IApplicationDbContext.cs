@@ -14,6 +14,7 @@ public interface IApplicationDbContext
     DbSet<EmailVerificationToken> EmailVerificationTokens { get; }
     DbSet<OutboxEvent> OutboxEvents { get; }
     DbSet<EmailOutboxEvent> EmailOutboxEvents { get; }
+    DbSet<Report> Reports { get; }
 
     /// <summary>Exposed so handlers can wrap multi-step writes in an explicit transaction.</summary>
     DatabaseFacade Database { get; }

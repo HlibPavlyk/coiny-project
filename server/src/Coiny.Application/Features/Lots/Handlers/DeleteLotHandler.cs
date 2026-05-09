@@ -1,6 +1,6 @@
 using Coiny.Application.Abstractions.Data;
 using Coiny.Application.Abstractions.Files;
-using Coiny.Application.Abstractions.Identity;
+using Coiny.Application.Abstractions.Http;
 using Coiny.Application.Abstractions.Providers;
 using Coiny.Application.Common.Results;
 using Coiny.Application.Features.Lots.Requests;

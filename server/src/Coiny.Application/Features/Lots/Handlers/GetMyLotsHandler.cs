@@ -1,5 +1,5 @@
 using Coiny.Application.Abstractions.Data;
-using Coiny.Application.Abstractions.Identity;
+using Coiny.Application.Abstractions.Http;
 using Coiny.Application.Common.Extensions;
 using Coiny.Application.Common.Querying;
 using Coiny.Application.Common.Results;

@@ -2,7 +2,7 @@ using Coiny.Api.Filters;
 using Coiny.Api.Middleware;
 using Coiny.Api.OpenApi;
 using Coiny.Api.Services;
-using Coiny.Application.Abstractions.Identity;
+using Coiny.Application.Abstractions.Http;
 using Coiny.Application.Extensions;
 using Coiny.Infrastructure.Extensions;
 using Coiny.Infrastructure.Jobs;
@@ -17,6 +17,7 @@ builder.Services.AddMemoryCache();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserService, HttpContextCurrentUserService>();
+builder.Services.AddScoped<IIpAddressResolver, HttpContextIpAddressResolver>();
 
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
