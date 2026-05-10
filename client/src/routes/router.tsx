@@ -1,6 +1,11 @@
 import { createBrowserRouter } from 'react-router-dom';
 import { Stub } from './Stub';
 import { RequireAuth } from '@/components/RequireAuth';
+import SignInPage from './SignInPage';
+import SignUpPage from './SignUpPage';
+import VerifyEmailPage from './VerifyEmailPage';
+import AuthCallbackPage from './AuthCallbackPage';
+import MyProfilePage from './MyProfilePage';
 
 /**
  * Stub routing tree mirroring /docs/03-frontend-structure.md.
@@ -14,10 +19,10 @@ export const router = createBrowserRouter([
   { path: '/search', element: <Stub name="Search" /> },
 
   // Auth
-  { path: '/sign-in', element: <Stub name="Sign in" /> },
-  { path: '/sign-up', element: <Stub name="Sign up" /> },
-  { path: '/auth/callback', element: <Stub name="Auth callback" /> },
-  { path: '/verify-email', element: <Stub name="Verify email" /> },
+  { path: '/sign-in', element: <SignInPage /> },
+  { path: '/sign-up', element: <SignUpPage /> },
+  { path: '/auth/callback', element: <AuthCallbackPage /> },
+  { path: '/verify-email', element: <VerifyEmailPage /> },
 
   // Public profile
   { path: '/profile/:userId', element: <Stub name="Public profile" /> },
@@ -27,7 +32,7 @@ export const router = createBrowserRouter([
     path: '/profile',
     element: (
       <RequireAuth>
-        <Stub name="My profile" />
+        <MyProfilePage />
       </RequireAuth>
     ),
   },
