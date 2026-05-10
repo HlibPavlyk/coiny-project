@@ -4,8 +4,8 @@ using System.Text.Json.Serialization;
 namespace Coiny.Application.Common.Json;
 
 /// <summary>
-/// Project-wide JSON serialization defaults: camelCase property names, omit-null on write.
-/// Used by outbox payload contracts, ASP.NET Core JSON (task 14), and Npgsql JSONB serialization.
+/// Project-wide JSON serialization defaults: camelCase property names, omit-null on write,
+/// enums as strings. Used by outbox payload contracts and ASP.NET Core JSON (mirrored in Program.cs).
 /// </summary>
 public static class JsonDefaults
 {
@@ -14,5 +14,6 @@ public static class JsonDefaults
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         PropertyNameCaseInsensitive = true,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        Converters = { new JsonStringEnumConverter() },
     };
 }

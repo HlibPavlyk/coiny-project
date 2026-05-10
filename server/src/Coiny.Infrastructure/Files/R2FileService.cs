@@ -46,6 +46,7 @@ public class R2FileService(IAmazonS3 s3, IOptions<R2Options> options) : IFileSer
         await using MemoryStream encoded = new();
         await image.SaveAsJpegAsync(encoded, new JpegEncoder { Quality = JpegQuality }, cancellationToken);
         encoded.Position = 0;
+        var sizeBytes = (int)encoded.Length;
 
         var key = $"{keyPrefix.Trim('/')}/{Guid.NewGuid():N}.jpg";
 
@@ -55,6 +56,9 @@ public class R2FileService(IAmazonS3 s3, IOptions<R2Options> options) : IFileSer
             Key = key,
             InputStream = encoded,
             ContentType = "image/jpeg",
+            // R2 doesn't support streaming SigV4 (chunked-encoded payloads).
+            UseChunkEncoding = false,
+            DisablePayloadSigning = false,
         };
         putRequest.Headers.CacheControl = "public, max-age=31536000, immutable";
 
@@ -67,7 +71,7 @@ public class R2FileService(IAmazonS3 s3, IOptions<R2Options> options) : IFileSer
             PublicUrl: publicUrl,
             Width: image.Width,
             Height: image.Height,
-            SizeBytes: (int)encoded.Length);
+            SizeBytes: sizeBytes);
     }
 
     public async Task DeleteAsync(string storageKey, CancellationToken cancellationToken = default)

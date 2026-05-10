@@ -1,8 +1,10 @@
+using System.Text.Json.Serialization;
 using Coiny.Api.Filters;
 using Coiny.Api.Middleware;
 using Coiny.Api.OpenApi;
 using Coiny.Api.Services;
 using Coiny.Application.Abstractions.Http;
+using Coiny.Application.Common.Json;
 using Coiny.Application.Extensions;
 using Coiny.Infrastructure.Extensions;
 using Coiny.Infrastructure.Jobs;
@@ -21,7 +23,20 @@ builder.Services.AddScoped<IIpAddressResolver, HttpContextIpAddressResolver>();
 
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
-builder.Services.AddControllers(opts => opts.Filters.Add<ResultTransformFilter>());
+builder.Services
+    .AddControllers(opts => opts.Filters.Add<ResultTransformFilter>())
+    .AddJsonOptions(opts => ApplyJsonDefaults(opts.JsonSerializerOptions));
+
+// Mirrors AddJsonOptions for OpenAPI schema generation — .NET reads schemas from Http.Json options.
+builder.Services.ConfigureHttpJsonOptions(opts => ApplyJsonDefaults(opts.SerializerOptions));
+
+static void ApplyJsonDefaults(System.Text.Json.JsonSerializerOptions opts)
+{
+    opts.PropertyNamingPolicy = JsonDefaults.Options.PropertyNamingPolicy;
+    opts.PropertyNameCaseInsensitive = JsonDefaults.Options.PropertyNameCaseInsensitive;
+    opts.DefaultIgnoreCondition = JsonDefaults.Options.DefaultIgnoreCondition;
+    opts.Converters.Add(new JsonStringEnumConverter());
+}
 
 builder.Services.AddOpenApi("v1", opts =>
 {

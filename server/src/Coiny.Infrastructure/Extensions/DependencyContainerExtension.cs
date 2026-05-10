@@ -46,6 +46,10 @@ public static class DependencyContainerExtension
             {
                 ServiceURL = $"https://{opts.AccountId}.r2.cloudflarestorage.com",
                 ForcePathStyle = true,
+                // Cloudflare R2 doesn't support the new "streaming SigV4 + trailing checksum" mode
+                // that AWSSDK.S3 3.7.400+ uses by default. Disable it.
+                RequestChecksumCalculation = Amazon.Runtime.RequestChecksumCalculation.WHEN_REQUIRED,
+                ResponseChecksumValidation = Amazon.Runtime.ResponseChecksumValidation.WHEN_REQUIRED,
             };
             return new AmazonS3Client(credentials, config);
         });

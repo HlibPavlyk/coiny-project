@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Coiny.Application.Common.Results;
+using Coiny.Application.Features.Lots.Models;
 using Coiny.Domain.Enums;
 using MediatR;
 
@@ -12,4 +13,4 @@ public record CreateLotRequest(
     LotCondition Condition,
     long StartingPriceUahKopiykas,
     DateTime EndsAt,
-    JsonElement Attributes) : IRequest<Result<Guid>>;
+    JsonElement Attributes) : IRequest<Result<LotCreatedModel>>;

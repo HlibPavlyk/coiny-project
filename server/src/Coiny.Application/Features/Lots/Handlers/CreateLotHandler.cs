@@ -2,6 +2,7 @@ using Coiny.Application.Abstractions.Data;
 using Coiny.Application.Abstractions.Http;
 using Coiny.Application.Abstractions.Providers;
 using Coiny.Application.Common.Results;
+using Coiny.Application.Features.Lots.Models;
 using Coiny.Application.Features.Lots.Requests;
 using Coiny.Domain.Entities;
 using Coiny.Domain.Enums;
@@ -14,29 +15,29 @@ public class CreateLotHandler(
     IApplicationDbContext db,
     ICurrentUserService currentUser,
     IDateTimeProvider clock)
-    : IRequestHandler<CreateLotRequest, Result<Guid>>
+    : IRequestHandler<CreateLotRequest, Result<LotCreatedModel>>
 {
-    public async Task<Result<Guid>> Handle(CreateLotRequest request, CancellationToken ct)
+    public async Task<Result<LotCreatedModel>> Handle(CreateLotRequest request, CancellationToken ct)
     {
         if (!currentUser.IsAuthenticated || currentUser.UserId is not { } userId)
-            return Result.Failure<Guid>(Error.Unauthorized("Auth.NotAuthenticated", "Authentication required."));
+            return Result.Failure<LotCreatedModel>(Error.Unauthorized("Auth.NotAuthenticated", "Authentication required."));
 
         User? seller = await db.Users.FirstOrDefaultAsync(u => u.Id == userId, ct);
         if (seller is null)
-            return Result.Failure<Guid>(Error.Unauthorized("Auth.NotAuthenticated", "Authentication required."));
+            return Result.Failure<LotCreatedModel>(Error.Unauthorized("Auth.NotAuthenticated", "Authentication required."));
 
         if (!seller.EmailVerified)
-            return Result.Failure<Guid>(Error.Forbidden("Lot.EmailNotVerified", "Verify your email before creating lots."));
+            return Result.Failure<LotCreatedModel>(Error.Forbidden("Lot.EmailNotVerified", "Verify your email before creating lots."));
 
         if (!seller.StripeOnboarded)
-            return Result.Failure<Guid>(Error.Forbidden("Lot.StripeNotOnboarded", "Complete Stripe Connect onboarding before creating lots."));
+            return Result.Failure<LotCreatedModel>(Error.Forbidden("Lot.StripeNotOnboarded", "Complete Stripe Connect onboarding before creating lots."));
 
         Category? category = await db.Categories.FirstOrDefaultAsync(c => c.Id == request.CategoryId, ct);
         if (category is null)
-            return Result.Failure<Guid>(Error.NotFound("Category.NotFound", $"Category {request.CategoryId} does not exist."));
+            return Result.Failure<LotCreatedModel>(Error.NotFound("Category.NotFound", $"Category {request.CategoryId} does not exist."));
 
         if (!category.IsLeaf)
-            return Result.Failure<Guid>(Error.Validation("Category.NotLeaf", "Lots can only be attached to leaf categories."));
+            return Result.Failure<LotCreatedModel>(Error.Validation("Category.NotLeaf", "Lots can only be attached to leaf categories."));
 
         DateTime now = clock.UtcNow;
 
@@ -64,6 +65,6 @@ public class CreateLotHandler(
         db.Lots.Add(lot);
         await db.SaveChangesAsync(ct);
 
-        return Result.Success(lot.Id);
+        return Result.Success(new LotCreatedModel(lot.Id));
     }
 }
