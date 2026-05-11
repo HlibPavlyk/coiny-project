@@ -6,13 +6,11 @@ import { Breadcrumb, type BreadcrumbPart } from '@/components/Breadcrumb';
 import { ImageGallery } from '@/components/ImageGallery';
 import { AttributesTable } from '@/components/AttributesTable';
 import { MarkdownView } from '@/components/MarkdownView';
+import { BidPanel } from '@/components/BidPanel';
 import { ConditionBadge } from '@/components/ConditionBadge';
-import { CountdownTimer } from '@/components/CountdownTimer';
 import { Icon } from '@/components/Icon';
 import { useLot } from '@/api/lots';
 import { useCategoryTree, findCategoryPath } from '@/api/categories';
-import { useAuthStore } from '@/state/useAuthStore';
-import { formatKopiykasAsUah } from '@/lib/money';
 import { formatLocal } from '@/lib/datetime';
 import { ApiError } from '@/api/fetch';
 
@@ -90,7 +88,6 @@ export default function LotPage() {
   const { id } = useParams<{ id: string }>();
   const { data: lot, isLoading, error } = useLot(id);
   const { data: tree } = useCategoryTree();
-  const user = useAuthStore((s) => s.user);
 
   const breadcrumbParts: BreadcrumbPart[] = useMemo(() => {
     const head: BreadcrumbPart = { label: 'Home', href: '/' };
@@ -182,66 +179,18 @@ export default function LotPage() {
         {/* RIGHT — bid panel stack (static, aligned to top of gallery) */}
         <div>
           <div className="flex flex-col gap-3">
-            {/* Bid panel (read-only) with embedded seller section */}
-            <div
-              className="bg-surface border border-border rounded-lg p-5"
-              style={{ boxShadow: 'var(--shadow-card)' }}
-            >
-              <div className="text-[12px] text-text-3 font-medium mb-1">Current price</div>
-              <div
-                className="mono font-bold text-text"
-                style={{ fontSize: 36, letterSpacing: '-0.02em', lineHeight: 1.1 }}
-              >
-                {formatKopiykasAsUah(lot.currentPriceUahKopiykas, { integer: true })}
-              </div>
-              <div className="text-[12px] text-text-3 mt-1">
-                {lot.bidCount} {lot.bidCount === 1 ? 'bid' : 'bids'} · starts at{' '}
-                <span className="mono">
-                  {formatKopiykasAsUah(lot.startingPriceUahKopiykas, { integer: true })}
-                </span>
-              </div>
+            <BidPanel
+              lotId={lot.id}
+              sellerId={lot.seller.id}
+              status={lot.status}
+              startingPriceUahKopiykas={lot.startingPriceUahKopiykas}
+              currentPriceUahKopiykas={lot.currentPriceUahKopiykas}
+              bidCount={lot.bidCount}
+              endsAt={lot.endsAt}
+              winnerDisplayName={lot.winningBid?.bidderDisplayName}
+              winningPriceUahKopiykas={lot.winningBid?.amountUahKopiykas}
+            />
 
-              {lot.status === 'Active' && (
-                <div
-                  className="mt-4 px-3.5 py-3 rounded-md flex items-center gap-2.5"
-                  style={{ background: 'var(--color-accent-tint)', border: '1px solid var(--color-accent-soft)' }}
-                >
-                  <Icon name="clock" size={14} color="var(--color-accent-deep)" />
-                  <div className="flex-1">
-                    <div className="text-[10px] uppercase tracking-wider font-semibold text-text-3 mb-0.5">
-                      Time left
-                    </div>
-                    <CountdownTimer endsAt={lot.endsAt} size="md" showIcon={false} />
-                  </div>
-                </div>
-              )}
-
-              <div className="mt-4">
-                {lot.status !== 'Active' ? (
-                  <div className="text-[13px] text-text-3 text-center py-2">
-                    Bidding is closed for this lot.
-                  </div>
-                ) : !user ? (
-                  <Link
-                    to={`/sign-in?return=/lot/${lot.id}`}
-                    className="inline-flex w-full items-center justify-center rounded-md bg-accent hover:bg-accent-deep text-white font-medium px-4 py-3 text-[14px] no-underline"
-                  >
-                    Sign in to bid
-                  </Link>
-                ) : (
-                  <div
-                    className="rounded-md border border-dashed border-border-strong px-4 py-3 text-center text-[12.5px] text-text-3"
-                  >
-                    Bidding panel ships in sprint 2.
-                  </div>
-                )}
-              </div>
-
-              <div className="flex items-center justify-center gap-1.5 mt-3 text-[11.5px] text-text-3">
-                <Icon name="shield" size={11} color="var(--color-accent-deep)" />
-                Stripe escrow protects every transaction
-              </div>
-            </div>
 
             {/* Seller card — separate block under bid panel */}
             <div className="bg-surface border border-border rounded-lg p-3.5">
