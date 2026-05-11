@@ -7,6 +7,7 @@ import { ImageGallery } from '@/components/ImageGallery';
 import { AttributesTable } from '@/components/AttributesTable';
 import { MarkdownView } from '@/components/MarkdownView';
 import { BidPanel } from '@/components/BidPanel';
+import { BidHistory } from '@/components/BidHistory';
 import { ConditionBadge } from '@/components/ConditionBadge';
 import { Icon } from '@/components/Icon';
 import { useLot } from '@/api/lots';
@@ -285,8 +286,8 @@ export default function LotPage() {
               Bidder names anonymized until close
             </span>
           </div>
-          <div className="text-[13px] text-text-3 border-t border-border-soft pt-4">
-            Live bid history ships in sprint 2.
+          <div className="border-t border-border-soft pt-4">
+            <BidHistory lotId={lot.id} />
           </div>
         </section>
       </div>

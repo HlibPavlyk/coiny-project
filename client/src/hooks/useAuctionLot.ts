@@ -37,6 +37,8 @@ export function useAuctionLot(lotId: string | undefined): void {
           liveCurrentPriceUahKopiykas: e.currentPriceUahKopiykas,
           liveBidCount: e.bidCount,
         });
+        // Refresh paginated bid history so the new row appears with server-side anonymization.
+        queryClient.invalidateQueries({ queryKey: ['bid-history', lotId] });
         pushToast({
           kind: 'info',
           title: `New bid: ${formatKopiykasAsUah(e.currentPriceUahKopiykas, { integer: true })}`,
@@ -57,8 +59,9 @@ export function useAuctionLot(lotId: string | undefined): void {
           liveStatus: e.winnerDisplayName ? 'Sold' : 'EndedNoSale',
           liveWinner: { finalPriceUahKopiykas: e.finalPriceUahKopiykas, winnerDisplayName: e.winnerDisplayName },
         });
-        // Refresh the cached lot + bid-history so anonymized names flip to real ones.
+        // Refresh the cached lot + bid history so anonymized names flip to real ones.
         queryClient.invalidateQueries({ queryKey: ['lot', lotId] });
+        queryClient.invalidateQueries({ queryKey: ['bid-history', lotId] });
         pushToast({
           kind: e.winnerDisplayName ? 'success' : 'info',
           title: e.winnerDisplayName ? 'Auction won' : 'Auction ended with no sale',
