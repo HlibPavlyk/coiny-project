@@ -28,6 +28,25 @@ export function useCategoryTree() {
   });
 }
 
+/** Walk the tree and return the ancestor path (root → … → match) for a given category id, or undefined. */
+export function findCategoryPath(tree: CategoryTree | undefined, categoryId: number): CategoryNode[] | undefined {
+  if (!tree) return undefined;
+  function walk(node: CategoryNode, trail: CategoryNode[]): CategoryNode[] | undefined {
+    const next = [...trail, node];
+    if (node.id === categoryId) return next;
+    for (const child of node.children) {
+      const found = walk(child, next);
+      if (found) return found;
+    }
+    return undefined;
+  }
+  for (const root of tree.roots) {
+    const found = walk(root, []);
+    if (found) return found;
+  }
+  return undefined;
+}
+
 /** Walk the tree and return the node matching slug, or undefined. */
 export function findCategoryBySlug(tree: CategoryTree | undefined, slug: string): CategoryNode | undefined {
   if (!tree) return undefined;

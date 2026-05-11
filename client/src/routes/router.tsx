@@ -8,6 +8,7 @@ import AuthCallbackPage from './AuthCallbackPage';
 import MyProfilePage from './MyProfilePage';
 import HomePage from './HomePage';
 import CategoryPage from './CategoryPage';
+import LotPage from './LotPage';
 
 /**
  * Stub routing tree mirroring /docs/03-frontend-structure.md.
@@ -17,7 +18,7 @@ export const router = createBrowserRouter([
   // Public
   { path: '/', element: <HomePage /> },
   { path: '/category/:slug', element: <CategoryPage /> },
-  { path: '/lot/:id', element: <Stub name="Lot detail" /> },
+  { path: '/lot/:id', element: <LotPage /> },
   { path: '/search', element: <Stub name="Search" /> },
 
   // Auth
