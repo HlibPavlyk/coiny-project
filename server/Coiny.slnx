@@ -3,4 +3,5 @@
   <Project Path="src/Coiny.Application/Coiny.Application.csproj" />
   <Project Path="src/Coiny.Infrastructure/Coiny.Infrastructure.csproj" />
   <Project Path="src/Coiny.Api/Coiny.Api.csproj" />
+  <Project Path="tests/Coiny.Application.Tests/Coiny.Application.Tests.csproj" />
 </Solution>
