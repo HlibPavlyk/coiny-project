@@ -79,10 +79,9 @@ public class PublishLotHandler(
             .Where(c => c.Id == lot.CategoryId)
             .ExecuteUpdateAsync(s => s.SetProperty(c => c.LotCountActive, c => c.LotCountActive + 1), ct);
 
+        lot.AuctionCloseJobId = jobScheduler.ScheduleAuctionClose(lot.Id, lot.EndsAt);
+
         await db.SaveChangesAsync(ct);
-
-        jobScheduler.ScheduleAuctionClose(lot.Id, lot.EndsAt);
-
         await tx.CommitAsync(ct);
 
         return Result.Success(new PublishedLotModel(lot.Id, lot.Status, lot.StartsAt, lot.EndsAt));

@@ -22,6 +22,9 @@ public class LotConfiguration : IEntityTypeConfiguration<Lot>
             .HasConversion<string>()
             .HasMaxLength(20);
 
+        builder.Property(l => l.AuctionCloseJobId)
+            .HasMaxLength(64);
+
         builder.Property(l => l.Condition)
             .HasConversion<string>()
             .HasMaxLength(20);

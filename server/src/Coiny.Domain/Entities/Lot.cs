@@ -33,6 +33,12 @@ public class Lot
     /// <summary>FK to Bid.Id. Null until auction closes. Populated with the winning (highest) bid.</summary>
     public Guid? WinningBidId { get; set; }
 
+    /// <summary>
+    /// Hangfire job id of the scheduled <c>AuctionCloseJob</c>. Set by <c>PublishLotHandler</c> and
+    /// refreshed by <c>PlaceBidHandler</c> on every anti-snipe extension. Null for Draft/closed lots.
+    /// </summary>
+    public string? AuctionCloseJobId { get; set; }
+
     /// <summary>Subcategory-specific attributes stored as JSON. Maps to a jsonb column (EF config in task 05).</summary>
     public string Attributes { get; set; } = "{}";
 

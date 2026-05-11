@@ -10,9 +10,9 @@ public interface IJobScheduler
     string ScheduleAuctionClose(Guid lotId, DateTime endsAtUtc);
 
     /// <summary>
-    /// Reschedule the auction-close job after an anti-snipe extension. Schedules a fresh job at the new
-    /// <paramref name="endsAtUtc"/>; any previously-scheduled job for the same lot becomes a no-op because
-    /// AuctionCloseJob (task 08) reads the lot's current EndsAt and bails out when it has moved.
+    /// Reschedule the auction-close job after an anti-snipe extension. Deletes the
+    /// <paramref name="previousJobId"/> (when present) and schedules a fresh job at
+    /// <paramref name="endsAtUtc"/>. Returns the new Hangfire job id so the caller can persist it.
     /// </summary>
-    string ReScheduleAuctionClose(Guid lotId, DateTime endsAtUtc);
+    string ReScheduleAuctionClose(string? previousJobId, Guid lotId, DateTime endsAtUtc);
 }

@@ -84,7 +84,10 @@ public class PlaceBidHandler(
 
         bool extended = lot.EndsAt - now < AntiSnipeWindow;
         if (extended)
+        {
             lot.EndsAt = now + AntiSnipeWindow;
+            lot.AuctionCloseJobId = jobScheduler.ReScheduleAuctionClose(lot.AuctionCloseJobId, lot.Id, lot.EndsAt);
+        }
 
         var payload = new LotPriceChangedPayload(lot.Id, lot.CurrentPriceUahKopiykas, lot.BidCount, lot.EndsAt);
         db.OutboxEvents.Add(new OutboxEvent
@@ -98,9 +101,6 @@ public class PlaceBidHandler(
 
         await db.SaveChangesAsync(ct);
         await tx.CommitAsync(ct);
-
-        if (extended)
-            jobScheduler.ReScheduleAuctionClose(lot.Id, lot.EndsAt);
 
         string leaderDisplayName = bidder.DisplayName;
         await notifier.BidPlacedAsync(lot.Id, lot.CurrentPriceUahKopiykas, lot.BidCount, leaderDisplayName, ct);

@@ -309,6 +309,7 @@ public class PlaceBidHandlerTests
     {
         public int ScheduleCalls { get; private set; }
         public int RescheduleCalls { get; private set; }
+        public string? LastPreviousJobId { get; private set; }
 
         public string ScheduleAuctionClose(Guid lotId, DateTime endsAtUtc)
         {
@@ -316,10 +317,11 @@ public class PlaceBidHandlerTests
             return "test-job-id";
         }
 
-        public string ReScheduleAuctionClose(Guid lotId, DateTime endsAtUtc)
+        public string ReScheduleAuctionClose(string? previousJobId, Guid lotId, DateTime endsAtUtc)
         {
             RescheduleCalls++;
-            return "test-job-id";
+            LastPreviousJobId = previousJobId;
+            return "test-rescheduled-job-id";
         }
     }
 
