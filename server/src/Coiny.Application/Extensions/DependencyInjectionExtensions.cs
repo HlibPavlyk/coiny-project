@@ -7,7 +7,7 @@ namespace Coiny.Application.Extensions;
 
 public static class DependencyInjectionExtensions
 {
-    public static IServiceCollection AddApplication(this IServiceCollection services)
+    public static void AddApplication(this IServiceCollection services)
     {
         services.AddMediatR(cfg =>
             cfg.RegisterServicesFromAssembly(typeof(IApplicationMarker).Assembly));
@@ -15,7 +15,5 @@ public static class DependencyInjectionExtensions
         services.AddValidatorsFromAssemblyContaining<IApplicationMarker>();
 
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
-
-        return services;
     }
 }
