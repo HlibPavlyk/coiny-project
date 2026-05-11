@@ -3,8 +3,8 @@ import { useBidHistory } from '@/api/bids';
 import { formatKopiykasAsUah } from '@/lib/money';
 import { formatLocal } from '@/lib/datetime';
 
-const INITIAL_PAGE_SIZE = 20;
-const STEP = 20;
+const INITIAL_PAGE_SIZE = 10;
+const STEP = 10;
 
 interface BidHistoryProps {
   lotId: string;

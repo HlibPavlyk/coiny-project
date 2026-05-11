@@ -12,6 +12,7 @@ import LotPage from './LotPage';
 import CreateLotPage from './CreateLotPage';
 import EditLotPage from './EditLotPage';
 import MyLotsPage from './MyLotsPage';
+import MyBidsPage from './MyBidsPage';
 
 /**
  * Stub routing tree mirroring /docs/03-frontend-structure.md.
@@ -54,7 +55,7 @@ export const router = createBrowserRouter([
     path: '/my-bids',
     element: (
       <RequireAuth>
-        <Stub name="My bids" />
+        <MyBidsPage />
       </RequireAuth>
     ),
   },

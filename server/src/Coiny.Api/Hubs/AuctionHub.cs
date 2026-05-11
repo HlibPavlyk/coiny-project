@@ -1,7 +1,5 @@
-using Coiny.Application.Abstractions.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
 
 namespace Coiny.Api.Hubs;
 
@@ -9,25 +7,18 @@ namespace Coiny.Api.Hubs;
 /// Real-time hub for auction events. Connections are authenticated — anonymous clients are
 /// rejected at connect time. Browsing a lot anonymously stays possible; those visitors don't
 /// get live updates and the frontend falls back to TanStack Query polling.
+///
+/// Pure transport: the hub no longer validates lot existence on join. A subscriber to a
+/// non-existent group simply receives no broadcasts — the source of truth is whatever
+/// <see cref="Realtime.SignalRAuctionNotifier"/> sends to real lot groups after committed writes.
 /// </summary>
 [Authorize]
-public class AuctionHub(IApplicationDbContext db, ILogger<AuctionHub> logger) : Hub
+public class AuctionHub(ILogger<AuctionHub> logger) : Hub
 {
-    /// <summary>
-    /// Subscribe the calling connection to <c>lot:{lotId:N}</c>. Returns nothing on success;
-    /// throws <see cref="HubException"/> when the lot doesn't exist (the client surfaces this
-    /// as a thrown promise rejection).
-    /// </summary>
-    public async Task JoinLotGroup(Guid lotId, CancellationToken ct)
+    /// <summary>Subscribe the calling connection to <c>lot:{lotId:N}</c>.</summary>
+    public async Task JoinLotGroup(Guid lotId)
     {
-        bool exists = await db.Lots
-            .AsNoTracking()
-            .AnyAsync(l => l.Id == lotId && !l.IsDeleted, ct);
-
-        if (!exists)
-            throw new HubException($"Lot {lotId:N} not found.");
-
-        await Groups.AddToGroupAsync(Context.ConnectionId, GroupName(lotId), ct);
+        await Groups.AddToGroupAsync(Context.ConnectionId, GroupName(lotId), Context.ConnectionAborted);
         logger.LogDebug("AuctionHub: connection {Conn} joined {Group}", Context.ConnectionId, GroupName(lotId));
     }
 
@@ -35,9 +26,9 @@ public class AuctionHub(IApplicationDbContext db, ILogger<AuctionHub> logger) : 
     /// Unsubscribe the calling connection from <c>lot:{lotId:N}</c>. Idempotent — leaving a
     /// group the connection isn't in is a no-op.
     /// </summary>
-    public async Task LeaveLotGroup(Guid lotId, CancellationToken ct)
+    public async Task LeaveLotGroup(Guid lotId)
     {
-        await Groups.RemoveFromGroupAsync(Context.ConnectionId, GroupName(lotId), ct);
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, GroupName(lotId), Context.ConnectionAborted);
         logger.LogDebug("AuctionHub: connection {Conn} left {Group}", Context.ConnectionId, GroupName(lotId));
     }
 

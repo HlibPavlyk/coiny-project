@@ -102,10 +102,8 @@ public class PlaceBidHandler(
         await db.SaveChangesAsync(ct);
         await tx.CommitAsync(ct);
 
-        string leaderDisplayName = bidder.DisplayName;
-        await notifier.BidPlacedAsync(lot.Id, lot.CurrentPriceUahKopiykas, lot.BidCount, leaderDisplayName, ct);
-        if (extended)
-            await notifier.AuctionExtendedAsync(lot.Id, lot.EndsAt, ct);
+        // Signal subscribers that the lot changed — they re-fetch authoritative state from REST.
+        await notifier.NotifyLotChangedAsync(lot.Id, ct);
 
         return Result.Success(new PlaceBidModel(
             bid.Id,

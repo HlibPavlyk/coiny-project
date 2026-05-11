@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Coiny.Application.Abstractions.Data;
+using Coiny.Application.Abstractions.Http;
 using Coiny.Application.Common.Results;
 using Coiny.Application.Features.Lots.Models;
 using Coiny.Application.Features.Lots.Requests;
@@ -9,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Coiny.Application.Features.Lots.Handlers;
 
-public class GetLotByIdHandler(IApplicationDbContext db)
+public class GetLotByIdHandler(IApplicationDbContext db, ICurrentUserService currentUser)
     : IRequestHandler<GetLotByIdRequest, Result<LotDetailModel>>
 {
     public async Task<Result<LotDetailModel>> Handle(GetLotByIdRequest request, CancellationToken ct)
@@ -33,6 +34,22 @@ public class GetLotByIdHandler(IApplicationDbContext db)
             .Select(i => new LotImageModel(i.Id, i.PublicUrl, i.DisplayOrder, i.Width, i.Height))
             .ToList();
 
+        // "Leading" = the top bid (highest amount, earliest CreatedAt tie-break) is the caller's.
+        // Only computed for authenticated callers; anonymous viewers always see false.
+        bool isCallerLeading = false;
+        if (currentUser.IsAuthenticated && currentUser.UserId is { } userId)
+        {
+            Guid? topBidderId = await db.Bids
+                .AsNoTracking()
+                .Where(b => b.LotId == lot.Id)
+                .OrderByDescending(b => b.AmountUahKopiykas)
+                .ThenBy(b => b.CreatedAt)
+                .Select(b => (Guid?)b.BidderId)
+                .FirstOrDefaultAsync(ct);
+
+            isCallerLeading = topBidderId == userId;
+        }
+
         return Result.Success(new LotDetailModel(
             lot.Id,
             lot.Title,
@@ -55,7 +72,8 @@ public class GetLotByIdHandler(IApplicationDbContext db)
                 lot.SellerId,
                 lot.Seller?.DisplayName ?? string.Empty,
                 lot.Seller?.TrustScore ?? 0),
-            WinningBid: null));
+            WinningBid: null,
+            IsCallerLeading: isCallerLeading));
     }
 
     private async Task<IReadOnlyList<string>> BuildCategoryPathAsync(int leafId, CancellationToken ct)

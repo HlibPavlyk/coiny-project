@@ -71,9 +71,6 @@ public class AuctionCloseJob(
             .ThenBy(b => b.CreatedAt)
             .FirstOrDefaultAsync(ct);
 
-        long? finalPrice = null;
-        string? winnerDisplay = null;
-
         if (topBid is null)
         {
             lot.Status = LotStatus.EndedNoSale;
@@ -93,7 +90,6 @@ public class AuctionCloseJob(
             lot.Status = LotStatus.Sold;
             lot.WinningBidId = topBid.Id;
             lot.UpdatedAt = now;
-            finalPrice = topBid.AmountUahKopiykas;
 
             db.OutboxEvents.Add(new OutboxEvent
             {
@@ -113,12 +109,6 @@ public class AuctionCloseJob(
                     lot.Id, lot.Title, topBid.AmountUahKopiykas, now.AddHours(96)).Serialize(),
                 CreatedAt = now,
             });
-
-            winnerDisplay = await db.Users
-                .AsNoTracking()
-                .Where(u => u.Id == topBid.BidderId)
-                .Select(u => u.DisplayName)
-                .FirstOrDefaultAsync(ct);
         }
 
         await DecrementCategoryActiveCount(lot.CategoryId, ct);
@@ -133,11 +123,11 @@ public class AuctionCloseJob(
         // doesn't undo the DB transition — the source of truth is the committed Lot row.
         try
         {
-            await notifier.AuctionClosedAsync(lot.Id, finalPrice, winnerDisplay, ct);
+            await notifier.NotifyLotChangedAsync(lot.Id, ct);
         }
         catch (Exception ex)
         {
-            logger.LogWarning(ex, "AuctionCloseJob: notifier.AuctionClosedAsync failed for lot {LotId}", lotId);
+            logger.LogWarning(ex, "AuctionCloseJob: notifier.NotifyLotChangedAsync failed for lot {LotId}", lotId);
         }
     }
 

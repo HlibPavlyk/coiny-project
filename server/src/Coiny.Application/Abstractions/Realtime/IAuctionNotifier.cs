@@ -1,18 +1,12 @@
 namespace Coiny.Application.Abstractions.Realtime;
 
 /// <summary>
-/// Real-time broadcaster for auction events. SignalR-backed in production
-/// (<c>SignalRAuctionNotifier</c>, task 10); a no-op stub is wired in sprint 2 task 03
-/// so handlers can call this without depending on SignalR yet.
+/// Real-time signal that something about a lot changed (new bid, anti-snipe extension, auction
+/// close). Carries only the lot id — receivers re-fetch the authoritative state from REST.
+/// Concrete impl is <c>SignalRAuctionNotifier</c> in <c>Coiny.Api/Realtime</c>.
 /// </summary>
 public interface IAuctionNotifier
 {
-    /// <summary>Broadcast <c>BidPlaced</c> to subscribers of <c>lot:{lotId}</c>.</summary>
-    Task BidPlacedAsync(Guid lotId, long currentPriceUahKopiykas, int bidCount, string leaderDisplayName, CancellationToken ct);
-
-    /// <summary>Broadcast <c>AuctionExtended</c> after an anti-snipe extension moved <c>EndsAt</c>.</summary>
-    Task AuctionExtendedAsync(Guid lotId, DateTime newEndsAtUtc, CancellationToken ct);
-
-    /// <summary>Broadcast <c>AuctionClosed</c> with the final price + winner (if any).</summary>
-    Task AuctionClosedAsync(Guid lotId, long? finalPriceUahKopiykas, string? winnerDisplayName, CancellationToken ct);
+    /// <summary>Broadcast a "lot changed" signal to subscribers of <c>lot:{lotId:N}</c>.</summary>
+    Task NotifyLotChangedAsync(Guid lotId, CancellationToken ct);
 }

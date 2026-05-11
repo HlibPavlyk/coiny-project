@@ -1,12 +1,11 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuctionLot } from '@/hooks/useAuctionLot';
 import { useAuthStore } from '@/state/useAuthStore';
-import { useLotPageStore } from '@/state/useLotPageStore';
 import { useToastStore } from '@/state/useToastStore';
 import { ApiError } from '@/api/fetch';
-import { usePlaceBid, type PlaceBidModel } from '@/api/bids';
+import { usePlaceBid } from '@/api/bids';
 import { auth } from '@/api/auth';
 import type { LotStatus } from '@/api/lots';
 import { CountdownTimer } from './CountdownTimer';
@@ -22,22 +21,26 @@ interface BidPanelProps {
   currentPriceUahKopiykas: number;
   bidCount: number;
   endsAt: string;
+  /** True when the authenticated caller is currently the top bidder. */
+  isCallerLeading: boolean;
   winnerDisplayName?: string | null;
   winningPriceUahKopiykas?: number | null;
 }
 
 /**
- * Right-column bid panel. Wires SignalR live updates via useAuctionLot, branches by user state,
- * and submits new bids with optimistic UI + 409 outbid handling.
+ * Right-column bid panel. Subscribes to the auction hub via useAuctionLot (thin-push); when the
+ * server signals a change, React Query invalidates ['lot', lotId] and the page re-renders this
+ * panel with fresh props. No client-side overlay store needed — props ARE the source of truth.
  */
 export function BidPanel({
   lotId,
   sellerId,
-  status: initialStatus,
+  status,
   startingPriceUahKopiykas,
   currentPriceUahKopiykas,
   bidCount,
   endsAt,
+  isCallerLeading,
   winnerDisplayName,
   winningPriceUahKopiykas,
 }: BidPanelProps) {
@@ -46,37 +49,17 @@ export function BidPanel({
   const user = useAuthStore((s) => s.user);
   const pushToast = useToastStore((s) => s.push);
   const queryClient = useQueryClient();
-  const live = useLotPageStore();
 
-  const currentPrice = live.liveCurrentPriceUahKopiykas ?? currentPriceUahKopiykas;
-  const liveBidCount = live.liveBidCount ?? bidCount;
-  const liveEndsAt = live.liveEndsAt ?? endsAt;
-  const status: LotStatus = live.liveStatus ?? initialStatus;
-  const liveWinner = live.liveWinner;
-
-  const minBidKop = minNextBidKopiykas(currentPrice);
-  const minIncrementKop = minIncrementKopiykas(currentPrice);
+  const minBidKop = minNextBidKopiykas(currentPriceUahKopiykas);
+  const minIncrementKop = minIncrementKopiykas(currentPriceUahKopiykas);
 
   const [amountUah, setAmountUah] = useState('');
-  const [extensionFlash, setExtensionFlash] = useState(false);
   const [resending, setResending] = useState(false);
 
-  // Pulse the countdown for ~1s whenever liveEndsAt moves (anti-snipe extension fired).
-  useEffect(() => {
-    if (live.liveEndsAt === null) return;
-    setExtensionFlash(true);
-    const id = setTimeout(() => setExtensionFlash(false), 1100);
-    return () => clearTimeout(id);
-  }, [live.liveEndsAt]);
-
   const placeBid = usePlaceBid(lotId, {
-    onSuccess: (model: PlaceBidModel) => {
-      // Optimistic overlay until SignalR's BidPlaced reconfirms (~1s).
-      useLotPageStore.getState().setSnapshot({
-        liveCurrentPriceUahKopiykas: model.newCurrentPriceUahKopiykas,
-        liveBidCount: model.newBidCount,
-        liveEndsAt: model.newEndsAt,
-      });
+    onSuccess: () => {
+      // The server emits LotChanged immediately after commit — useAuctionLot will invalidate
+      // ['lot', lotId] and the page re-renders with the new state. We just acknowledge.
       pushToast({ kind: 'success', title: 'Your bid was accepted.' });
       setAmountUah('');
     },
@@ -148,20 +131,44 @@ export function BidPanel({
         style={{ fontSize: 36, letterSpacing: '-0.02em', lineHeight: 1.1 }}
         aria-live="polite"
       >
-        {formatKopiykasAsUah(currentPrice, { integer: true })}
+        {formatKopiykasAsUah(currentPriceUahKopiykas, { integer: true })}
       </div>
       <div className="text-[12px] text-text-3 mt-1">
-        {liveBidCount} {liveBidCount === 1 ? 'bid' : 'bids'} · starts at{' '}
+        {bidCount} {bidCount === 1 ? 'bid' : 'bids'} · starts at{' '}
         <span className="mono">
           {formatKopiykasAsUah(startingPriceUahKopiykas, { integer: true })}
         </span>
       </div>
 
+      {status === 'Active' && isCallerLeading && !isSeller && (
+        <div
+          className="mt-4 px-3.5 py-2.5 rounded-md flex items-center gap-2.5"
+          style={{
+            background: 'var(--color-success-soft)',
+            border: '1px solid #BBE5C9',
+          }}
+        >
+          <div
+            className="flex items-center justify-center rounded-full text-white font-bold flex-shrink-0"
+            style={{ width: 22, height: 22, background: '#16A34A', fontSize: 13, lineHeight: 1 }}
+            aria-hidden="true"
+          >
+            ✓
+          </div>
+          <div className="flex-1">
+            <div className="text-[12.5px] font-semibold" style={{ color: '#166534' }}>
+              You're leading
+            </div>
+            <div className="text-[11.5px]" style={{ color: '#15803D' }}>
+              Yours is the top bid right now.
+            </div>
+          </div>
+        </div>
+      )}
+
       {status === 'Active' && (
         <div
-          className={`mt-4 px-3.5 py-3 rounded-md flex items-center gap-2.5 ${
-            extensionFlash ? 'animate-pulse' : ''
-          }`}
+          className="mt-4 px-3.5 py-3 rounded-md flex items-center gap-2.5"
           style={{
             background: 'var(--color-accent-tint)',
             border: '1px solid var(--color-accent-soft)',
@@ -172,7 +179,7 @@ export function BidPanel({
             <div className="text-[10px] uppercase tracking-wider font-semibold text-text-3 mb-0.5">
               Time left
             </div>
-            <CountdownTimer endsAt={liveEndsAt} size="md" showIcon={false} />
+            <CountdownTimer endsAt={endsAt} size="md" showIcon={false} />
           </div>
         </div>
       )}
@@ -181,10 +188,8 @@ export function BidPanel({
         {isClosed ? (
           <ClosedState
             status={status}
-            winnerDisplayName={liveWinner?.winnerDisplayName ?? winnerDisplayName ?? null}
-            finalPriceUahKopiykas={
-              liveWinner?.finalPriceUahKopiykas ?? winningPriceUahKopiykas ?? null
-            }
+            winnerDisplayName={winnerDisplayName ?? null}
+            finalPriceUahKopiykas={winningPriceUahKopiykas ?? null}
           />
         ) : !isAuthenticated ? (
           <Link
@@ -224,6 +229,12 @@ export function BidPanel({
             tone="info"
             title="You can't bid on your own lot"
             body="Sellers can't place bids. Track activity instead."
+          />
+        ) : isCallerLeading ? (
+          <NotePanel
+            tone="info"
+            title="Nothing to do — you're already winning"
+            body="Wait for another bidder to challenge your bid. We'll update this panel in real time when they do."
           />
         ) : (
           <form onSubmit={onSubmit} className="flex flex-col gap-2">

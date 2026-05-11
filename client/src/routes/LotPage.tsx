@@ -188,6 +188,7 @@ export default function LotPage() {
               currentPriceUahKopiykas={lot.currentPriceUahKopiykas}
               bidCount={lot.bidCount}
               endsAt={lot.endsAt}
+              isCallerLeading={lot.isCallerLeading}
               winnerDisplayName={lot.winningBid?.bidderDisplayName}
               winningPriceUahKopiykas={lot.winningBid?.amountUahKopiykas}
             />
@@ -252,44 +253,48 @@ export default function LotPage() {
         </div>
       </div>
 
-      {/* Full-width info stack below the grid */}
-      <div className="max-w-[1280px] mx-auto px-7 pt-10 pb-14 flex flex-col gap-10">
-        <div className="grid gap-9" style={{ gridTemplateColumns: '3fr 2fr' }}>
-          <section className="min-w-0">
-            <h2 className="text-[11px] font-semibold uppercase tracking-wider text-text-3 m-0 mb-2">
-              Attributes
-            </h2>
-            <AttributesTable
-              attributes={lot.attributes ?? {}}
-              subcategoryKind={subcategoryKind}
-              headerRows={[
-                { label: 'Condition', value: lot.condition },
-                { label: 'Category', value: lot.category.namePath.join(' › ') },
-              ]}
-            />
-          </section>
+      {/* Two-column info section. Left column stacks Attributes → Description so the
+          description sits directly under the attributes block at the same width.
+          Right column hosts the Bid history table. */}
+      <div className="max-w-[1280px] mx-auto px-7 pt-10 pb-14">
+        <div className="grid gap-9 items-start" style={{ gridTemplateColumns: '3fr 2fr' }}>
+          <div className="flex flex-col gap-8 min-w-0">
+            <section>
+              <h2 className="text-[11px] font-semibold uppercase tracking-wider text-text-3 m-0 mb-2">
+                Attributes
+              </h2>
+              <AttributesTable
+                attributes={lot.attributes ?? {}}
+                subcategoryKind={subcategoryKind}
+                headerRows={[
+                  { label: 'Condition', value: lot.condition },
+                  { label: 'Category', value: lot.category.namePath.join(' › ') },
+                ]}
+              />
+            </section>
+
+            <section>
+              <h2 className="text-[11px] font-semibold uppercase tracking-wider text-text-3 m-0 mb-2.5">
+                Description
+              </h2>
+              <MarkdownView source={lot.description} />
+            </section>
+          </div>
 
           <section className="min-w-0">
-            <h2 className="text-[11px] font-semibold uppercase tracking-wider text-text-3 m-0 mb-2.5">
-              Description
-            </h2>
-            <MarkdownView source={lot.description} />
+            <div className="flex items-baseline justify-between mb-3">
+              <h2 className="text-[11px] font-semibold uppercase tracking-wider text-text-3 m-0">
+                Bid history · {lot.bidCount}
+              </h2>
+              <span className="text-[12px] text-text-3">
+                Anonymized until close
+              </span>
+            </div>
+            <div className="border-t border-border-soft pt-4">
+              <BidHistory lotId={lot.id} />
+            </div>
           </section>
         </div>
-
-        <section>
-          <div className="flex items-baseline justify-between mb-3">
-            <h2 className="text-[11px] font-semibold uppercase tracking-wider text-text-3 m-0">
-              Bid history · {lot.bidCount}
-            </h2>
-            <span className="text-[12px] text-text-3">
-              Bidder names anonymized until close
-            </span>
-          </div>
-          <div className="border-t border-border-soft pt-4">
-            <BidHistory lotId={lot.id} />
-          </div>
-        </section>
       </div>
 
       <Footer />

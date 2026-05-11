@@ -49,8 +49,8 @@ public class PlaceBidHandlerTests
 
         ctx.Bids.Should().HaveCount(1);
         ctx.OutboxEvents.Should().ContainSingle(o => o.EventType == "LotPriceChanged");
-        m.Notifier.BidPlacedCalls.Should().Be(1);
-        m.Notifier.AuctionExtendedCalls.Should().Be(0);
+        m.Notifier.NotifyLotChangedCalls.Should().Be(1);
+        m.Notifier.LastLotId.Should().Be(_lotId);
         m.Scheduler.RescheduleCalls.Should().Be(0);
     }
 
@@ -205,7 +205,9 @@ public class PlaceBidHandlerTests
         result.IsSuccess.Should().BeTrue();
         result.Value.NewEndsAt.Should().Be(Now.AddMinutes(5));
         m.Scheduler.RescheduleCalls.Should().Be(1);
-        m.Notifier.AuctionExtendedCalls.Should().Be(1);
+        // Extension shares the single NotifyLotChanged broadcast — clients refetch and see the
+        // new EndsAt from REST. No separate "extension" event in the thin-push model.
+        m.Notifier.NotifyLotChangedCalls.Should().Be(1);
     }
 
     [Fact]
@@ -226,7 +228,7 @@ public class PlaceBidHandlerTests
         result.IsSuccess.Should().BeTrue();
         result.Value.NewEndsAt.Should().Be(originalEndsAt);
         m.Scheduler.RescheduleCalls.Should().Be(0);
-        m.Notifier.AuctionExtendedCalls.Should().Be(0);
+        m.Notifier.NotifyLotChangedCalls.Should().Be(1);
     }
 
     // ── helpers ────────────────────────────────────────────────────────────
@@ -327,25 +329,13 @@ public class PlaceBidHandlerTests
 
     private sealed class TestAuctionNotifier : IAuctionNotifier
     {
-        public int BidPlacedCalls { get; private set; }
-        public int AuctionExtendedCalls { get; private set; }
-        public int AuctionClosedCalls { get; private set; }
+        public int NotifyLotChangedCalls { get; private set; }
+        public Guid? LastLotId { get; private set; }
 
-        public Task BidPlacedAsync(Guid lotId, long currentPriceUahKopiykas, int bidCount, string leaderDisplayName, CancellationToken ct)
+        public Task NotifyLotChangedAsync(Guid lotId, CancellationToken ct)
         {
-            BidPlacedCalls++;
-            return Task.CompletedTask;
-        }
-
-        public Task AuctionExtendedAsync(Guid lotId, DateTime newEndsAtUtc, CancellationToken ct)
-        {
-            AuctionExtendedCalls++;
-            return Task.CompletedTask;
-        }
-
-        public Task AuctionClosedAsync(Guid lotId, long? finalPriceUahKopiykas, string? winnerDisplayName, CancellationToken ct)
-        {
-            AuctionClosedCalls++;
+            NotifyLotChangedCalls++;
+            LastLotId = lotId;
             return Task.CompletedTask;
         }
     }

@@ -19,7 +19,8 @@ public record LotDetailModel(
     JsonElement Attributes,
     IReadOnlyList<LotImageModel> Images,
     LotSellerModel Seller,
-    LotWinningBidModel? WinningBid);
+    LotWinningBidModel? WinningBid,
+    bool IsCallerLeading);
 
 public record LotCategoryBreadcrumbModel(int Id, string Slug, IReadOnlyList<string> NamePath);
 

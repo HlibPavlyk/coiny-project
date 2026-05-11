@@ -47,8 +47,8 @@ public class AuctionCloseJobTests
         ctx.OutboxEvents.Should().ContainSingle(o => o.EventType == "LotEnded" && o.AggregateId == _lotId);
         ctx.EmailOutboxEvents.Should().BeEmpty();
         (await ctx.Categories.AsNoTracking().FirstAsync(c => c.Id == 1)).LotCountActive.Should().Be(0);
-        f.Notifier.AuctionClosedCalls.Should().Be(1);
-        f.Notifier.LastFinalPrice.Should().BeNull();
+        f.Notifier.NotifyLotChangedCalls.Should().Be(1);
+        f.Notifier.LastLotId.Should().Be(_lotId);
     }
 
     [Fact]
@@ -77,9 +77,8 @@ public class AuctionCloseJobTests
             e.EventType == "AuctionWonPayWithin96h" && e.AggregateId == _bidderB);
         (await ctx.Categories.AsNoTracking().FirstAsync(c => c.Id == 1)).LotCountActive.Should().Be(0);
 
-        f.Notifier.AuctionClosedCalls.Should().Be(1);
-        f.Notifier.LastFinalPrice.Should().Be(1_500_00);
-        f.Notifier.LastWinnerDisplay.Should().Be("bidder-b");
+        f.Notifier.NotifyLotChangedCalls.Should().Be(1);
+        f.Notifier.LastLotId.Should().Be(_lotId);
     }
 
     [Fact]
@@ -99,7 +98,7 @@ public class AuctionCloseJobTests
         lot.Status.Should().Be(LotStatus.Sold); // unchanged
         ctx.OutboxEvents.Should().BeEmpty();
         ctx.EmailOutboxEvents.Should().BeEmpty();
-        f.Notifier.AuctionClosedCalls.Should().Be(0);
+        f.Notifier.NotifyLotChangedCalls.Should().Be(0);
         f.Scheduler.RescheduleCalls.Should().Be(0);
     }
 
@@ -128,7 +127,7 @@ public class AuctionCloseJobTests
         f.Scheduler.RescheduleCalls.Should().Be(1);
         f.Scheduler.LastPreviousJobId.Should().Be("old-job-id");
         f.Scheduler.LastEndsAt.Should().Be(newEndsAt);
-        f.Notifier.AuctionClosedCalls.Should().Be(0);
+        f.Notifier.NotifyLotChangedCalls.Should().Be(0);
         ctx.OutboxEvents.Should().BeEmpty();
     }
 
@@ -239,21 +238,13 @@ public class AuctionCloseJobTests
 
     private sealed class TestNotifier : IAuctionNotifier
     {
-        public int AuctionClosedCalls { get; private set; }
-        public long? LastFinalPrice { get; private set; }
-        public string? LastWinnerDisplay { get; private set; }
+        public int NotifyLotChangedCalls { get; private set; }
+        public Guid? LastLotId { get; private set; }
 
-        public Task BidPlacedAsync(Guid lotId, long currentPriceUahKopiykas, int bidCount, string leaderDisplayName, CancellationToken ct) =>
-            Task.CompletedTask;
-
-        public Task AuctionExtendedAsync(Guid lotId, DateTime newEndsAtUtc, CancellationToken ct) =>
-            Task.CompletedTask;
-
-        public Task AuctionClosedAsync(Guid lotId, long? finalPriceUahKopiykas, string? winnerDisplayName, CancellationToken ct)
+        public Task NotifyLotChangedAsync(Guid lotId, CancellationToken ct)
         {
-            AuctionClosedCalls++;
-            LastFinalPrice = finalPriceUahKopiykas;
-            LastWinnerDisplay = winnerDisplayName;
+            NotifyLotChangedCalls++;
+            LastLotId = lotId;
             return Task.CompletedTask;
         }
     }

@@ -48,7 +48,11 @@ builder.Services.AddOpenApi("v1", opts =>
     opts.AddDocumentTransformer<JwtBearerSecuritySchemeTransformer>();
 });
 
-builder.Services.AddSignalR();
+builder.Services.AddSignalR(options =>
+{
+    // Surface hub exception messages to clients in development; mask in production.
+    options.EnableDetailedErrors = builder.Environment.IsDevelopment();
+});
 builder.Services.AddScoped<IAuctionNotifier, SignalRAuctionNotifier>();
 
 var app = builder.Build();

@@ -435,3 +435,8 @@ CLAUDE.md
 # Local dev secrets — copy from appsettings.Development.json.example
 **/appsettings.Development.json
 **/appsettings.Local.json
+
+# Local-only manual smoke scripts + session artifacts (auth cookies, log captures).
+# The folder itself is committed (README documents the workflow), but session-bound
+# files inside are not.
+local-testing/

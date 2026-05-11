@@ -11,6 +11,21 @@ import { ErrorBand } from '@/components/auth/ErrorBand';
 import { OrDivider } from '@/components/auth/Divider';
 import { FieldLabel, FieldInput } from '@/components/auth/FieldHint';
 
+interface FieldErrors {
+  email?: string;
+  password?: string;
+}
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function validateClient(email: string, password: string): FieldErrors {
+  const e: FieldErrors = {};
+  if (!email.trim()) e.email = 'Email is required.';
+  else if (!EMAIL_RE.test(email)) e.email = 'Enter a valid email address.';
+  if (!password) e.password = 'Password is required.';
+  return e;
+}
+
 export default function SignInPage() {
   const user = useAuthStore((s) => s.user);
   const signIn = useAuthStore((s) => s.signIn);
@@ -21,14 +36,20 @@ export default function SignInPage() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState<{ title: string; body?: string } | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+  const [formError, setFormError] = useState<{ title: string; body?: string } | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   if (user) return <Navigate to={next} replace />;
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setError(null);
+    setFormError(null);
+
+    const errors = validateClient(email, password);
+    setFieldErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+
     setSubmitting(true);
     try {
       await signIn({ email, password });
@@ -42,15 +63,15 @@ export default function SignInPage() {
             description: err.detail ?? 'Your account has been suspended.',
           });
         } else if (err.status === 401) {
-          setError({
+          setFormError({
             title: 'Wrong email or password',
             body: 'Check your credentials and try again.',
           });
         } else {
-          setError({ title: err.detail ?? err.message });
+          setFormError({ title: err.detail ?? err.message });
         }
       } else {
-        setError({ title: 'Network error', body: 'Please try again.' });
+        setFormError({ title: 'Network error', body: 'Please try again.' });
       }
     } finally {
       setSubmitting(false);
@@ -63,7 +84,7 @@ export default function SignInPage() {
         <h1 className="text-[26px] font-bold tracking-tight m-0 mb-1.5">Welcome back</h1>
         <p className="text-sm text-text-3 m-0 mb-6">Sign in to your Coiny account</p>
 
-        {error && <ErrorBand title={error.title} body={error.body} />}
+        {formError && <ErrorBand title={formError.title} body={formError.body} />}
 
         <GoogleButton onClick={() => auth.googleStart(next)} disabled={submitting} />
 
@@ -76,27 +97,48 @@ export default function SignInPage() {
               id="email"
               type="email"
               autoComplete="email"
-              required
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (fieldErrors.email) setFieldErrors({ ...fieldErrors, email: undefined });
+              }}
               placeholder="you@example.com"
+              aria-invalid={!!fieldErrors.email}
+              aria-describedby="email-hint"
             />
+            {fieldErrors.email && (
+              <p id="email-hint" className="text-xs mt-1.5" style={{ color: '#B91C1C' }}>
+                {fieldErrors.email}
+              </p>
+            )}
           </div>
 
           <div className="mb-5">
             <div className="flex justify-between items-baseline mb-1.5">
-              <label htmlFor="password" className="block text-sm font-medium">Password</label>
-              <a className="text-xs text-accent-deep cursor-pointer hover:underline">Forgot password?</a>
+              <label htmlFor="password" className="block text-sm font-medium">
+                Password
+              </label>
+              <a className="text-xs text-accent-deep cursor-pointer hover:underline">
+                Forgot password?
+              </a>
             </div>
             <FieldInput
               id="password"
               type="password"
               autoComplete="current-password"
-              required
-              minLength={8}
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                if (fieldErrors.password) setFieldErrors({ ...fieldErrors, password: undefined });
+              }}
+              aria-invalid={!!fieldErrors.password}
+              aria-describedby="password-hint"
             />
+            {fieldErrors.password && (
+              <p id="password-hint" className="text-xs mt-1.5" style={{ color: '#B91C1C' }}>
+                {fieldErrors.password}
+              </p>
+            )}
           </div>
 
           <button

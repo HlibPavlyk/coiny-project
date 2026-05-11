@@ -1,38 +1,26 @@
 import { HubConnection, HubConnectionBuilder, LogLevel, HubConnectionState } from '@microsoft/signalr';
 
-export interface BidPlacedPayload {
+export interface LotChangedPayload {
   lotId: string;
-  currentPriceUahKopiykas: number;
-  bidCount: number;
-  leaderDisplayName: string;
-}
-
-export interface AuctionExtendedPayload {
-  lotId: string;
-  newEndsAt: string;
-}
-
-export interface AuctionClosedPayload {
-  lotId: string;
-  finalPriceUahKopiykas: number | null;
-  winnerDisplayName: string | null;
 }
 
 export interface AuctionHubHandlers {
-  onBidPlaced?: (e: BidPlacedPayload) => void;
-  onAuctionExtended?: (e: AuctionExtendedPayload) => void;
-  onAuctionClosed?: (e: AuctionClosedPayload) => void;
+  onLotChanged?: (e: LotChangedPayload) => void;
   onConnectionLost?: () => void;
 }
 
 /**
  * Singleton SignalR client for the auction hub.
  *
- * Lifecycle per /docs/03-frontend-structure.md:
+ * Thin-push model: server emits a single <c>LotChanged</c> event with only the lot id; the
+ * client invalidates its cached lot + bid history queries and re-fetches authoritative state
+ * from REST. No payload state is duplicated on the client.
+ *
+ * Lifecycle:
  *  - One HubConnection per app, lazily started on first subscription.
  *  - Never torn down by the client — survives route changes.
- *  - Three event names ("BidPlaced", "AuctionExtended", "AuctionClosed") are registered once at
- *    construction; payloads dispatch to per-lot handlers via the subscribers Map.
+ *  - One event listener registered once at construction; dispatches to per-lot handlers via
+ *    the subscribers Map.
  */
 
 const HUB_URL = '/auctionHub';
@@ -49,19 +37,12 @@ function buildConnection(): HubConnection {
     .configureLogging(LogLevel.Warning)
     .build();
 
-  conn.on('BidPlaced', (payload: BidPlacedPayload) => {
-    subscribers.get(payload.lotId)?.onBidPlaced?.(payload);
-  });
-  conn.on('AuctionExtended', (payload: AuctionExtendedPayload) => {
-    subscribers.get(payload.lotId)?.onAuctionExtended?.(payload);
-  });
-  conn.on('AuctionClosed', (payload: AuctionClosedPayload) => {
-    subscribers.get(payload.lotId)?.onAuctionClosed?.(payload);
+  conn.on('LotChanged', (payload: LotChangedPayload) => {
+    subscribers.get(payload.lotId)?.onLotChanged?.(payload);
   });
 
   conn.onreconnected(async () => {
     connectionLostNotified = false;
-    // Re-join every lot the app is still subscribed to. Per-lot failures log but don't throw.
     await Promise.allSettled(
       Array.from(joinedLots).map((lotId) =>
         conn.invoke('JoinLotGroup', lotId).catch((err) => {
@@ -72,8 +53,6 @@ function buildConnection(): HubConnection {
   });
 
   conn.onclose((err) => {
-    // Reconnect attempts have been exhausted — surface to every active subscriber so they can
-    // switch to a polling fallback. Avoid duplicate notifications across consecutive closes.
     if (connectionLostNotified) return;
     connectionLostNotified = true;
     if (err) console.warn('[auctionHub] connection closed', err);
@@ -100,11 +79,6 @@ async function ensureStarted(): Promise<HubConnection> {
   return conn;
 }
 
-/**
- * Subscribe to live updates for a lot. Lazily starts the connection on the first call.
- * Replaces any prior handlers for the same lotId — caller must unsubscribe when the
- * subscription target changes.
- */
 export async function subscribeToLot(lotId: string, handlers: AuctionHubHandlers): Promise<void> {
   subscribers.set(lotId, handlers);
 
@@ -120,10 +94,6 @@ export async function subscribeToLot(lotId: string, handlers: AuctionHubHandlers
   }
 }
 
-/**
- * Unsubscribe from a lot. Best-effort — server group leave failures are logged but don't throw.
- * The connection itself stays alive for the rest of the app.
- */
 export async function unsubscribeFromLot(lotId: string): Promise<void> {
   subscribers.delete(lotId);
   joinedLots.delete(lotId);

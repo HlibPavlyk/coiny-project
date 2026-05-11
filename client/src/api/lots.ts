@@ -64,6 +64,8 @@ export interface LotDetailModel {
   images: LotImage[];
   seller: LotSeller;
   winningBid: LotWinningBid | null;
+  /** True when the authenticated caller's bid is currently the top bid on this lot. */
+  isCallerLeading: boolean;
 }
 
 export interface CreateLotPayload {

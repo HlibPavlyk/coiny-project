@@ -11,6 +11,30 @@ import { OrDivider } from '@/components/auth/Divider';
 import { FieldLabel, FieldInput, FieldHint } from '@/components/auth/FieldHint';
 import { Icon } from '@/components/Icon';
 
+interface FieldErrors {
+  email?: string;
+  password?: string;
+  displayName?: string;
+}
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function validateClient(email: string, password: string, displayName: string): FieldErrors {
+  const e: FieldErrors = {};
+  if (!email.trim()) e.email = 'Email is required.';
+  else if (!EMAIL_RE.test(email)) e.email = 'Enter a valid email address.';
+
+  if (!password) e.password = 'Password is required.';
+  else if (password.length < 8) e.password = 'At least 8 characters.';
+  else if (!/[0-9]/.test(password)) e.password = 'Must contain a digit.';
+  else if (!/[A-Z]/.test(password)) e.password = 'Must contain an uppercase letter.';
+  else if (!/[a-z]/.test(password)) e.password = 'Must contain a lowercase letter.';
+
+  if (displayName && displayName.length > 50) e.displayName = 'Up to 50 characters.';
+
+  return e;
+}
+
 export default function SignUpPage() {
   const user = useAuthStore((s) => s.user);
   const register = useAuthStore((s) => s.register);
@@ -21,14 +45,20 @@ export default function SignUpPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
-  const [error, setError] = useState<{ title: string; body?: string } | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+  const [formError, setFormError] = useState<{ title: string; body?: string } | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   if (user) return <Navigate to={next} replace />;
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setError(null);
+    setFormError(null);
+
+    const errors = validateClient(email, password, displayName);
+    setFieldErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+
     setSubmitting(true);
     try {
       await register({
@@ -40,12 +70,12 @@ export default function SignUpPage() {
     } catch (err) {
       if (err instanceof ApiError) {
         if (err.status === 409) {
-          setError({ title: 'Email already in use', body: 'Try signing in instead.' });
+          setFieldErrors({ email: 'This email is already registered. Try signing in instead.' });
         } else {
-          setError({ title: err.detail ?? err.message });
+          setFormError({ title: err.detail ?? err.message });
         }
       } else {
-        setError({ title: 'Network error', body: 'Please try again.' });
+        setFormError({ title: 'Network error', body: 'Please try again.' });
       }
     } finally {
       setSubmitting(false);
@@ -60,7 +90,7 @@ export default function SignUpPage() {
           Start collecting, bidding, and selling on Coiny
         </p>
 
-        {error && <ErrorBand title={error.title} body={error.body} />}
+        {formError && <ErrorBand title={formError.title} body={formError.body} />}
 
         <GoogleButton onClick={() => auth.googleStart(next)} disabled={submitting} />
 
@@ -73,12 +103,22 @@ export default function SignUpPage() {
               id="email"
               type="email"
               autoComplete="email"
-              required
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (fieldErrors.email) setFieldErrors({ ...fieldErrors, email: undefined });
+              }}
               placeholder="you@example.com"
+              aria-invalid={!!fieldErrors.email}
+              aria-describedby="email-hint"
             />
-            <FieldHint>We&apos;ll send a verification link to this address.</FieldHint>
+            {fieldErrors.email ? (
+              <p id="email-hint" className="text-xs mt-1.5" style={{ color: '#B91C1C' }}>
+                {fieldErrors.email}
+              </p>
+            ) : (
+              <FieldHint>We&apos;ll send a verification link to this address.</FieldHint>
+            )}
           </div>
 
           <div className="mb-3.5">
@@ -87,13 +127,22 @@ export default function SignUpPage() {
               id="password"
               type="password"
               autoComplete="new-password"
-              required
-              minLength={8}
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                if (fieldErrors.password) setFieldErrors({ ...fieldErrors, password: undefined });
+              }}
               placeholder="Create a strong password"
+              aria-invalid={!!fieldErrors.password}
+              aria-describedby="password-hint"
             />
-            <FieldHint>≥8 characters, with 1 digit, 1 uppercase, 1 lowercase.</FieldHint>
+            {fieldErrors.password ? (
+              <p id="password-hint" className="text-xs mt-1.5" style={{ color: '#B91C1C' }}>
+                {fieldErrors.password}
+              </p>
+            ) : (
+              <FieldHint>≥8 characters, with 1 digit, 1 uppercase, 1 lowercase.</FieldHint>
+            )}
           </div>
 
           <div className="mb-5">
@@ -106,11 +155,22 @@ export default function SignUpPage() {
               autoComplete="nickname"
               maxLength={50}
               value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
+              onChange={(e) => {
+                setDisplayName(e.target.value);
+                if (fieldErrors.displayName) setFieldErrors({ ...fieldErrors, displayName: undefined });
+              }}
               placeholder="john_collector"
               mono
+              aria-invalid={!!fieldErrors.displayName}
+              aria-describedby="displayName-hint"
             />
-            <FieldHint>Shown on your bids and lots. You can change it later.</FieldHint>
+            {fieldErrors.displayName ? (
+              <p id="displayName-hint" className="text-xs mt-1.5" style={{ color: '#B91C1C' }}>
+                {fieldErrors.displayName}
+              </p>
+            ) : (
+              <FieldHint>Shown on your bids and lots. You can change it later.</FieldHint>
+            )}
           </div>
 
           <button
