@@ -11,6 +11,7 @@ public interface IApplicationDbContext
     DbSet<Category> Categories { get; }
     DbSet<Lot> Lots { get; }
     DbSet<LotImage> LotImages { get; }
+    DbSet<Bid> Bids { get; }
     DbSet<EmailVerificationToken> EmailVerificationTokens { get; }
     DbSet<OutboxEvent> OutboxEvents { get; }
     DbSet<EmailOutboxEvent> EmailOutboxEvents { get; }

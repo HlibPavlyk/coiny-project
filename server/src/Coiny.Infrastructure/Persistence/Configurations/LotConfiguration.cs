@@ -64,5 +64,10 @@ public class LotConfiguration : IEntityTypeConfiguration<Lot>
             .WithMany(c => c.Lots)
             .HasForeignKey(l => l.CategoryId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne<Bid>()
+            .WithMany()
+            .HasForeignKey(l => l.WinningBidId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }

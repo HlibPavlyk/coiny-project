@@ -12,6 +12,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<Lot> Lots => Set<Lot>();
     public DbSet<LotImage> LotImages => Set<LotImage>();
+    public DbSet<Bid> Bids => Set<Bid>();
     public DbSet<EmailVerificationToken> EmailVerificationTokens => Set<EmailVerificationToken>();
     public DbSet<OutboxEvent> OutboxEvents => Set<OutboxEvent>();
     public DbSet<EmailOutboxEvent> EmailOutboxEvents => Set<EmailOutboxEvent>();
