@@ -94,7 +94,7 @@ public static class DependencyContainerExtension
             opts.WorkerCount = Math.Min(Environment.ProcessorCount, 4));
 
         services.AddScoped<EmailOutboxFlushJob>();
-        services.AddScoped<IAuctionCloseJob, AuctionCloseJobStub>();
+        services.AddScoped<IAuctionCloseJob, AuctionCloseJob>();
         services.AddScoped<IJobScheduler, HangfireJobScheduler>();
     }
 }
