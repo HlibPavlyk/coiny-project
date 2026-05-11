@@ -3,26 +3,23 @@ interface LogoProps {
 }
 
 export function Logo({ size = 22 }: LogoProps) {
+  const coinSize = size + 6;
   return (
     <div className="flex items-center gap-2">
-      <svg width={size + 4} height={size + 4} viewBox="0 0 28 28" aria-hidden="true">
-        <defs>
-          <radialGradient id="coiny-logo-rg" cx="35%" cy="35%" r="65%">
-            <stop offset="0%" stopColor="#D6A86A" />
-            <stop offset="100%" stopColor="#8C5F2E" />
-          </radialGradient>
-        </defs>
-        <circle cx="14" cy="14" r="12" fill="url(#coiny-logo-rg)" />
-        <circle cx="14" cy="14" r="12" fill="none" stroke="#6F4520" strokeOpacity="0.5" strokeWidth="0.6" />
+      <svg width={coinSize} height={coinSize} viewBox="0 0 28 28" aria-hidden="true">
+        {/* Back disc — slightly darker gold ring */}
+        <circle cx="14" cy="14" r="12" fill="#F0B53C" />
+        {/* Front face — bright gold, offset for 3D depth */}
+        <circle cx="13" cy="13" r="11" fill="#FFCB2E" />
+        {/* Hryvnia symbol — large, deep gold */}
         <text
-          x="14"
-          y="18"
+          x="13"
+          y="19"
           textAnchor="middle"
-          fontSize="13"
-          fontWeight="700"
-          fill="#3D2810"
-          fillOpacity="0.7"
-          fontFamily="Georgia, serif"
+          fontSize="18"
+          fontWeight="800"
+          fill="#C5811A"
+          fontFamily="Georgia, 'Times New Roman', serif"
         >
           ₴
         </text>

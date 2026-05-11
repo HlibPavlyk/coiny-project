@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28">
+  <circle cx="14" cy="14" r="12" fill="#F0B53C" />
+  <circle cx="13" cy="13" r="11" fill="#FFCB2E" />
+  <text x="13" y="19" text-anchor="middle" font-size="18" font-weight="800" fill="#C5811A" font-family="Georgia, 'Times New Roman', serif">₴</text>
+</svg>

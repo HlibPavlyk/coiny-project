@@ -67,6 +67,38 @@ const paths: Record<string, JSX.Element> = {
   ),
   edit: <path d="M14 4l6 6L9 21H3v-6z" />,
   star: <path d="M12 3l2.7 5.5 6 .9-4.4 4.3 1 6-5.4-2.8-5.4 2.8 1-6L3 9.4l6-.9z" />,
+  arrowR: <path d="M5 12h14M13 6l6 6-6 6" />,
+  chevD: <path d="M6 9l6 6 6-6" />,
+  chevU: <path d="M6 15l6-6 6 6" />,
+  flame: <path d="M12 22c4 0 7-2.5 7-7 0-4-3-5-3-9-2 1-3 4-5 4-1 0-2-2-2-4-3 2-4 5-4 9 0 4.5 3 7 7 7z" />,
+  coin: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7.8 L 13.35 10.5 L 16.35 10.95 L 14.18 13.05 L 14.7 16 L 12 14.6 L 9.3 16 L 9.82 13.05 L 7.65 10.95 L 10.65 10.5 Z" />
+    </>
+  ),
+  bill: (
+    <>
+      <rect x="2" y="6" width="20" height="12" rx="1.5" />
+      <circle cx="12" cy="12" r="2.5" />
+      <path d="M5 9h0M19 15h0" />
+    </>
+  ),
+  medal: (
+    <>
+      <circle cx="12" cy="14" r="6" />
+      <path d="M8 8L6 2h12l-2 6" />
+      <path d="M12 11v6M9 14h6" />
+    </>
+  ),
+  grid: (
+    <>
+      <rect x="3" y="3" width="7" height="7" rx="1" />
+      <rect x="14" y="3" width="7" height="7" rx="1" />
+      <rect x="3" y="14" width="7" height="7" rx="1" />
+      <rect x="14" y="14" width="7" height="7" rx="1" />
+    </>
+  ),
 };
 
 export type IconName = keyof typeof paths;
