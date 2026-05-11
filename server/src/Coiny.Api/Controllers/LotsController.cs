@@ -67,6 +67,7 @@ public class LotsController(IMediator mediator) : ControllerBase
         mediator.Send(request with { LotId = id }, ct);
 
     /// <summary>File a report on a lot. Anonymous allowed; rate-limited (3/hour anon, 5/hour authenticated).</summary>
+    [Tags("Reports")]
     [HttpPost("{id:guid}/report")]
     public Task<Result> Report(Guid id, [FromBody] ReportLotRequest request, CancellationToken ct) =>
         mediator.Send(request with { LotId = id }, ct);

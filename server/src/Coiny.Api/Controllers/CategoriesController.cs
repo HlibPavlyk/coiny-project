@@ -21,6 +21,7 @@ public class CategoriesController(IMediator mediator) : ControllerBase
         mediator.Send(new GetCategoryTreeRequest(), ct);
 
     /// <summary>Active lots in a category (or all its leaf descendants), paginated.</summary>
+    [Tags("Lots")]
     [HttpPost("{categoryId:int}/lots/search")]
     public Task<Result<Paginated<LotCardModel>>> SearchLots(
         int categoryId,

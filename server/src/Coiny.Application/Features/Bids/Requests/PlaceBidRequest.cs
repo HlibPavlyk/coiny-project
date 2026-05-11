@@ -5,7 +5,13 @@ using MediatR;
 namespace Coiny.Application.Features.Bids.Requests;
 
 /// <summary>
-/// Place a bid on an Active lot. <see cref="LotId"/> is filled by the controller from the route segment;
-/// the JSON body carries only <see cref="AmountUahKopiykas"/>.
+/// Wire body for <c>POST /api/v1/lots/{lotId}/bids</c>. Only the amount —
+/// <c>lotId</c> is carried by the route, not the body.
+/// </summary>
+public record PlaceBidBody(long AmountUahKopiykas);
+
+/// <summary>
+/// Internal MediatR command. The controller composes <see cref="LotId"/> from the route segment
+/// and <see cref="AmountUahKopiykas"/> from <see cref="PlaceBidBody"/> before dispatch.
 /// </summary>
 public record PlaceBidRequest(Guid LotId, long AmountUahKopiykas) : IRequest<Result<PlaceBidModel>>;

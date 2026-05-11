@@ -11,8 +11,6 @@ public class PlaceBidValidator : AbstractValidator<PlaceBidRequest>
 {
     public PlaceBidValidator()
     {
-        RuleFor(x => x.LotId).NotEmpty();
-
         RuleFor(x => x.AmountUahKopiykas)
             .GreaterThan(0)
             .WithMessage("Bid amount must be greater than zero.");
