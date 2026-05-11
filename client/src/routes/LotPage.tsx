@@ -5,6 +5,7 @@ import { Footer } from '@/components/Footer';
 import { Breadcrumb, type BreadcrumbPart } from '@/components/Breadcrumb';
 import { ImageGallery } from '@/components/ImageGallery';
 import { AttributesTable } from '@/components/AttributesTable';
+import { MarkdownView } from '@/components/MarkdownView';
 import { ConditionBadge } from '@/components/ConditionBadge';
 import { CountdownTimer } from '@/components/CountdownTimer';
 import { Icon } from '@/components/Icon';
@@ -322,12 +323,7 @@ export default function LotPage() {
             <h2 className="text-[11px] font-semibold uppercase tracking-wider text-text-3 m-0 mb-2.5">
               Description
             </h2>
-            <pre
-              className="whitespace-pre-wrap font-sans text-text m-0"
-              style={{ fontSize: 14.5, lineHeight: 1.7 }}
-            >
-              {lot.description}
-            </pre>
+            <MarkdownView source={lot.description} />
           </section>
         </div>
 

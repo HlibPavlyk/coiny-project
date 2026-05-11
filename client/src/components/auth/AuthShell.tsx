@@ -20,15 +20,17 @@ export function AuthShell({ children }: AuthShellProps) {
           'radial-gradient(ellipse 80% 60% at 50% 0%, #F5EFE2 0%, transparent 60%)',
       }}
     >
-      <header className="flex items-center justify-between px-7 py-5">
-        <Link to="/" className="no-underline">
-          <Logo />
-        </Link>
-        <div className="text-sm text-text-3 hidden sm:block">
-          Need help?{' '}
-          <a className="text-accent-deep font-medium cursor-pointer hover:underline">
-            Contact support
-          </a>
+      <header className="py-5">
+        <div className="max-w-[1280px] mx-auto px-7 flex items-center justify-between">
+          <Link to="/" className="no-underline">
+            <Logo />
+          </Link>
+          <div className="text-sm text-text-3 hidden sm:block">
+            Need help?{' '}
+            <a className="text-accent-deep font-medium cursor-pointer hover:underline">
+              Contact support
+            </a>
+          </div>
         </div>
       </header>
       <div className="flex-1 flex items-start justify-center px-4 sm:px-7 pb-16 pt-4 sm:pt-10">

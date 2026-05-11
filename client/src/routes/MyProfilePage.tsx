@@ -6,6 +6,8 @@ import { ApiError } from '@/api/fetch';
 import { AvatarLarge } from '@/components/AvatarLarge';
 import { VerificationStatusPill } from '@/components/VerificationStatusPill';
 import { MyAccountSidebar } from '@/components/MyAccountSidebar';
+import { TopNav } from '@/components/TopNav';
+import { Footer } from '@/components/Footer';
 import { Icon } from '@/components/Icon';
 
 function StatTile({ label, value, sub }: { label: string; value: string; sub?: string }) {
@@ -77,8 +79,9 @@ export default function MyProfilePage() {
   };
 
   return (
-    <div className="min-h-screen">
-      <div className="max-w-[1180px] mx-auto px-7 py-6">
+    <div>
+      <TopNav />
+      <div className="max-w-[1180px] mx-auto px-7 py-8">
         <div className="mb-4">
           <h1 className="text-[28px] font-bold tracking-tight m-0 mb-1">My account</h1>
           <p className="text-[13.5px] text-text-3 m-0">
@@ -233,6 +236,7 @@ export default function MyProfilePage() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

@@ -9,6 +9,9 @@ import MyProfilePage from './MyProfilePage';
 import HomePage from './HomePage';
 import CategoryPage from './CategoryPage';
 import LotPage from './LotPage';
+import CreateLotPage from './CreateLotPage';
+import EditLotPage from './EditLotPage';
+import MyLotsPage from './MyLotsPage';
 
 /**
  * Stub routing tree mirroring /docs/03-frontend-structure.md.
@@ -43,7 +46,7 @@ export const router = createBrowserRouter([
     path: '/my-lots',
     element: (
       <RequireAuth>
-        <Stub name="My lots" />
+        <MyLotsPage />
       </RequireAuth>
     ),
   },
@@ -83,7 +86,7 @@ export const router = createBrowserRouter([
     path: '/lots/new',
     element: (
       <RequireAuth>
-        <Stub name="Create lot" />
+        <CreateLotPage />
       </RequireAuth>
     ),
   },
@@ -91,7 +94,7 @@ export const router = createBrowserRouter([
     path: '/lots/:id/edit',
     element: (
       <RequireAuth>
-        <Stub name="Edit lot" />
+        <EditLotPage />
       </RequireAuth>
     ),
   },
