@@ -1,0 +1,350 @@
+using Coiny.Application.Abstractions.Http;
+using Coiny.Application.Abstractions.Jobs;
+using Coiny.Application.Abstractions.Providers;
+using Coiny.Application.Abstractions.Realtime;
+using Coiny.Application.Common.Results;
+using Coiny.Application.Features.Bids.Handlers;
+using Coiny.Application.Features.Bids.Models;
+using Coiny.Application.Features.Bids.Requests;
+using Coiny.Domain.Entities;
+using Coiny.Domain.Enums;
+using Coiny.Infrastructure.Persistence;
+using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
+using Xunit;
+
+namespace Coiny.Application.Tests.Features.Bids;
+
+/// <summary>
+/// Logic-level tests for PlaceBidHandler over EF in-memory. Race semantics (SELECT FOR UPDATE)
+/// cannot be exercised here — they move to integration tests in sprint 4 backed by real Postgres.
+/// </summary>
+public class PlaceBidHandlerTests
+{
+    private static readonly DateTime Now = new(2026, 5, 15, 12, 0, 0, DateTimeKind.Utc);
+
+    private readonly Guid _bidderId = Guid.NewGuid();
+    private readonly Guid _sellerId = Guid.NewGuid();
+    private readonly Guid _lotId = Guid.NewGuid();
+
+    [Fact]
+    public async Task Happy_path_returns_new_bid_response()
+    {
+        using var ctx = NewDb();
+        SeedBidder(ctx);
+        SeedLot(ctx, currentPriceUahKopiykas: 1_000_00, endsAtOffset: TimeSpan.FromHours(2));
+        await ctx.SaveChangesAsync();
+
+        Mocks m = MocksFor(_bidderId);
+        var handler = new PlaceBidHandler(ctx, m.User, m.Scheduler, m.Notifier, m.Clock);
+
+        Result<PlaceBidModel> result = await handler.Handle(
+            new PlaceBidRequest(_lotId, 1_050_00), CancellationToken.None);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.LotId.Should().Be(_lotId);
+        result.Value.AmountUahKopiykas.Should().Be(1_050_00);
+        result.Value.NewCurrentPriceUahKopiykas.Should().Be(1_050_00);
+        result.Value.NewBidCount.Should().Be(1);
+
+        ctx.Bids.Should().HaveCount(1);
+        ctx.OutboxEvents.Should().ContainSingle(o => o.EventType == "LotPriceChanged");
+        m.Notifier.BidPlacedCalls.Should().Be(1);
+        m.Notifier.AuctionExtendedCalls.Should().Be(0);
+        m.Scheduler.RescheduleCalls.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task Below_minimum_increment_returns_conflict_outbid()
+    {
+        using var ctx = NewDb();
+        SeedBidder(ctx);
+        SeedLot(ctx, currentPriceUahKopiykas: 1_000_00, endsAtOffset: TimeSpan.FromHours(2));
+        await ctx.SaveChangesAsync();
+
+        Mocks m = MocksFor(_bidderId);
+        var handler = new PlaceBidHandler(ctx, m.User, m.Scheduler, m.Notifier, m.Clock);
+
+        Result<PlaceBidModel> result = await handler.Handle(
+            new PlaceBidRequest(_lotId, 1_010_00), CancellationToken.None);
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("Bid.Outbid");
+        result.Error.Type.Should().Be(ErrorType.Conflict);
+        result.Error.Description.Should().Be("Outbid while you were typing");
+        ctx.Bids.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task Self_bid_returns_forbidden()
+    {
+        using var ctx = NewDb();
+        SeedBidder(ctx);
+        SeedLot(ctx, currentPriceUahKopiykas: 1_000_00, endsAtOffset: TimeSpan.FromHours(2));
+        await ctx.SaveChangesAsync();
+
+        Mocks m = MocksFor(_sellerId); // caller IS the seller
+        ctx.Users.Add(new User { Id = _sellerId, EmailVerified = true, DisplayName = "seller", CreatedAt = Now, UpdatedAt = Now });
+        await ctx.SaveChangesAsync();
+
+        var handler = new PlaceBidHandler(ctx, m.User, m.Scheduler, m.Notifier, m.Clock);
+
+        Result<PlaceBidModel> result = await handler.Handle(
+            new PlaceBidRequest(_lotId, 1_050_00), CancellationToken.None);
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("Bid.SelfBid");
+        result.Error.Type.Should().Be(ErrorType.Forbidden);
+    }
+
+    [Fact]
+    public async Task Banned_bidder_returns_forbidden()
+    {
+        using var ctx = NewDb();
+        ctx.Users.Add(new User
+        {
+            Id = _bidderId,
+            EmailVerified = true,
+            IsBanned = true,
+            DisplayName = "banned",
+            CreatedAt = Now,
+            UpdatedAt = Now,
+        });
+        SeedLot(ctx, currentPriceUahKopiykas: 1_000_00, endsAtOffset: TimeSpan.FromHours(2));
+        await ctx.SaveChangesAsync();
+
+        Mocks m = MocksFor(_bidderId);
+        var handler = new PlaceBidHandler(ctx, m.User, m.Scheduler, m.Notifier, m.Clock);
+
+        Result<PlaceBidModel> result = await handler.Handle(
+            new PlaceBidRequest(_lotId, 1_050_00), CancellationToken.None);
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("Bid.Banned");
+        result.Error.Type.Should().Be(ErrorType.Forbidden);
+    }
+
+    [Fact]
+    public async Task Unverified_email_returns_unauthorized()
+    {
+        using var ctx = NewDb();
+        ctx.Users.Add(new User
+        {
+            Id = _bidderId,
+            EmailVerified = false,
+            DisplayName = "unverified",
+            CreatedAt = Now,
+            UpdatedAt = Now,
+        });
+        SeedLot(ctx, currentPriceUahKopiykas: 1_000_00, endsAtOffset: TimeSpan.FromHours(2));
+        await ctx.SaveChangesAsync();
+
+        Mocks m = MocksFor(_bidderId);
+        var handler = new PlaceBidHandler(ctx, m.User, m.Scheduler, m.Notifier, m.Clock);
+
+        Result<PlaceBidModel> result = await handler.Handle(
+            new PlaceBidRequest(_lotId, 1_050_00), CancellationToken.None);
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("Bid.EmailNotVerified");
+        result.Error.Type.Should().Be(ErrorType.Unauthorized);
+    }
+
+    [Fact]
+    public async Task Lot_not_active_returns_validation()
+    {
+        using var ctx = NewDb();
+        SeedBidder(ctx);
+        SeedLot(ctx, currentPriceUahKopiykas: 1_000_00, endsAtOffset: TimeSpan.FromHours(2), status: LotStatus.Draft);
+        await ctx.SaveChangesAsync();
+
+        Mocks m = MocksFor(_bidderId);
+        var handler = new PlaceBidHandler(ctx, m.User, m.Scheduler, m.Notifier, m.Clock);
+
+        Result<PlaceBidModel> result = await handler.Handle(
+            new PlaceBidRequest(_lotId, 1_050_00), CancellationToken.None);
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("Lot.NotActive");
+        result.Error.Type.Should().Be(ErrorType.Validation);
+    }
+
+    [Fact]
+    public async Task Lot_already_ended_returns_validation()
+    {
+        using var ctx = NewDb();
+        SeedBidder(ctx);
+        SeedLot(ctx, currentPriceUahKopiykas: 1_000_00, endsAtOffset: TimeSpan.FromMinutes(-1));
+        await ctx.SaveChangesAsync();
+
+        Mocks m = MocksFor(_bidderId);
+        var handler = new PlaceBidHandler(ctx, m.User, m.Scheduler, m.Notifier, m.Clock);
+
+        Result<PlaceBidModel> result = await handler.Handle(
+            new PlaceBidRequest(_lotId, 1_050_00), CancellationToken.None);
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("Lot.AlreadyEnded");
+        result.Error.Type.Should().Be(ErrorType.Validation);
+    }
+
+    [Fact]
+    public async Task Anti_snipe_extends_endsAt_and_reschedules_when_within_5_minutes()
+    {
+        using var ctx = NewDb();
+        SeedBidder(ctx);
+        SeedLot(ctx, currentPriceUahKopiykas: 1_000_00, endsAtOffset: TimeSpan.FromMinutes(2));
+        await ctx.SaveChangesAsync();
+
+        Mocks m = MocksFor(_bidderId);
+        var handler = new PlaceBidHandler(ctx, m.User, m.Scheduler, m.Notifier, m.Clock);
+
+        Result<PlaceBidModel> result = await handler.Handle(
+            new PlaceBidRequest(_lotId, 1_050_00), CancellationToken.None);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.NewEndsAt.Should().Be(Now.AddMinutes(5));
+        m.Scheduler.RescheduleCalls.Should().Be(1);
+        m.Notifier.AuctionExtendedCalls.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task No_extension_when_more_than_5_minutes_remaining()
+    {
+        using var ctx = NewDb();
+        SeedBidder(ctx);
+        DateTime originalEndsAt = Now.AddMinutes(30);
+        SeedLot(ctx, currentPriceUahKopiykas: 1_000_00, endsAtOverride: originalEndsAt);
+        await ctx.SaveChangesAsync();
+
+        Mocks m = MocksFor(_bidderId);
+        var handler = new PlaceBidHandler(ctx, m.User, m.Scheduler, m.Notifier, m.Clock);
+
+        Result<PlaceBidModel> result = await handler.Handle(
+            new PlaceBidRequest(_lotId, 1_050_00), CancellationToken.None);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.NewEndsAt.Should().Be(originalEndsAt);
+        m.Scheduler.RescheduleCalls.Should().Be(0);
+        m.Notifier.AuctionExtendedCalls.Should().Be(0);
+    }
+
+    // ── helpers ────────────────────────────────────────────────────────────
+
+    private static ApplicationDbContext NewDb()
+    {
+        DbContextOptions<ApplicationDbContext> options = new DbContextOptionsBuilder<ApplicationDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.InMemoryEventId.TransactionIgnoredWarning))
+            .Options;
+        return new ApplicationDbContext(options);
+    }
+
+    private void SeedBidder(ApplicationDbContext ctx)
+    {
+        ctx.Users.Add(new User
+        {
+            Id = _bidderId,
+            EmailVerified = true,
+            IsBanned = false,
+            DisplayName = "bidder",
+            CreatedAt = Now,
+            UpdatedAt = Now,
+        });
+    }
+
+    private void SeedLot(
+        ApplicationDbContext ctx,
+        long currentPriceUahKopiykas,
+        TimeSpan? endsAtOffset = null,
+        DateTime? endsAtOverride = null,
+        LotStatus status = LotStatus.Active)
+    {
+        DateTime endsAt = endsAtOverride ?? (Now + (endsAtOffset ?? TimeSpan.FromHours(2)));
+        ctx.Lots.Add(new Lot
+        {
+            Id = _lotId,
+            SellerId = _sellerId,
+            CategoryId = 1,
+            Title = "Test lot",
+            Description = "Body",
+            Condition = LotCondition.Ungraded,
+            StartingPriceUahKopiykas = 1_000_00,
+            CurrentPriceUahKopiykas = currentPriceUahKopiykas,
+            BidCount = 0,
+            Status = status,
+            StartsAt = Now.AddHours(-1),
+            EndsAt = endsAt,
+            Attributes = "{}",
+            CreatedAt = Now.AddHours(-1),
+            UpdatedAt = Now.AddHours(-1),
+        });
+    }
+
+    private static Mocks MocksFor(Guid userId) => new(
+        new TestCurrentUser(userId),
+        new TestJobScheduler(),
+        new TestAuctionNotifier(),
+        new TestClock(Now));
+
+    private record Mocks(
+        TestCurrentUser User,
+        TestJobScheduler Scheduler,
+        TestAuctionNotifier Notifier,
+        TestClock Clock);
+
+    private sealed class TestCurrentUser(Guid userId) : ICurrentUserService
+    {
+        public Guid? UserId { get; } = userId;
+        public bool IsAuthenticated => UserId.HasValue;
+        public IReadOnlyList<string> Roles { get; } = [];
+    }
+
+    private sealed class TestClock(DateTime utcNow) : IDateTimeProvider
+    {
+        public DateTime UtcNow { get; } = utcNow;
+    }
+
+    private sealed class TestJobScheduler : IJobScheduler
+    {
+        public int ScheduleCalls { get; private set; }
+        public int RescheduleCalls { get; private set; }
+
+        public string ScheduleAuctionClose(Guid lotId, DateTime endsAtUtc)
+        {
+            ScheduleCalls++;
+            return "test-job-id";
+        }
+
+        public string ReScheduleAuctionClose(Guid lotId, DateTime endsAtUtc)
+        {
+            RescheduleCalls++;
+            return "test-job-id";
+        }
+    }
+
+    private sealed class TestAuctionNotifier : IAuctionNotifier
+    {
+        public int BidPlacedCalls { get; private set; }
+        public int AuctionExtendedCalls { get; private set; }
+        public int AuctionClosedCalls { get; private set; }
+
+        public Task BidPlacedAsync(Guid lotId, long currentPriceUahKopiykas, int bidCount, string leaderDisplayName, CancellationToken ct)
+        {
+            BidPlacedCalls++;
+            return Task.CompletedTask;
+        }
+
+        public Task AuctionExtendedAsync(Guid lotId, DateTime newEndsAtUtc, CancellationToken ct)
+        {
+            AuctionExtendedCalls++;
+            return Task.CompletedTask;
+        }
+
+        public Task AuctionClosedAsync(Guid lotId, long? finalPriceUahKopiykas, string? winnerDisplayName, CancellationToken ct)
+        {
+            AuctionClosedCalls++;
+            return Task.CompletedTask;
+        }
+    }
+}

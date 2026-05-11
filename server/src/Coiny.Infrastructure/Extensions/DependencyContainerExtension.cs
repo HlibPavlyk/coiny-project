@@ -3,11 +3,13 @@ using Amazon.S3;
 using Coiny.Application.Abstractions.Email;
 using Coiny.Application.Abstractions.Files;
 using Coiny.Application.Abstractions.Jobs;
+using Coiny.Application.Abstractions.Realtime;
 using Coiny.Infrastructure.ExternalServices.Resend;
 using Coiny.Infrastructure.Files;
 using Coiny.Infrastructure.Identity;
 using Coiny.Infrastructure.Jobs;
 using Coiny.Infrastructure.Persistence.Extensions;
+using Coiny.Infrastructure.Realtime;
 using Hangfire;
 using Hangfire.PostgreSql;
 using Microsoft.Extensions.Configuration;
@@ -27,6 +29,7 @@ public static class DependencyContainerExtension
         services.AddResendEmail(configuration);
         services.AddHangfireInfrastructure(configuration);
         services.AddR2FileStorage(configuration);
+        services.AddSingleton<IAuctionNotifier, NoopAuctionNotifier>();
     }
 
     private static void AddR2FileStorage(this IServiceCollection services,
@@ -48,8 +51,8 @@ public static class DependencyContainerExtension
                 ForcePathStyle = true,
                 // Cloudflare R2 doesn't support the new "streaming SigV4 + trailing checksum" mode
                 // that AWSSDK.S3 3.7.400+ uses by default. Disable it.
-                RequestChecksumCalculation = Amazon.Runtime.RequestChecksumCalculation.WHEN_REQUIRED,
-                ResponseChecksumValidation = Amazon.Runtime.ResponseChecksumValidation.WHEN_REQUIRED,
+                RequestChecksumCalculation = RequestChecksumCalculation.WHEN_REQUIRED,
+                ResponseChecksumValidation = ResponseChecksumValidation.WHEN_REQUIRED,
             };
             return new AmazonS3Client(credentials, config);
         });

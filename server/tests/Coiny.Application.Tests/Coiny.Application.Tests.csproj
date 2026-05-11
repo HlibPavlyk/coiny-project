@@ -13,10 +13,12 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="FluentAssertions" />
     <PackageReference Include="Bogus" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Coiny.Application\Coiny.Application.csproj" />
+    <ProjectReference Include="..\..\src\Coiny.Infrastructure\Coiny.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
