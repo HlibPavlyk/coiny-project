@@ -3,13 +3,11 @@ using Amazon.S3;
 using Coiny.Application.Abstractions.Email;
 using Coiny.Application.Abstractions.Files;
 using Coiny.Application.Abstractions.Jobs;
-using Coiny.Application.Abstractions.Realtime;
 using Coiny.Infrastructure.ExternalServices.Resend;
 using Coiny.Infrastructure.Files;
 using Coiny.Infrastructure.Identity;
 using Coiny.Infrastructure.Jobs;
 using Coiny.Infrastructure.Persistence.Extensions;
-using Coiny.Infrastructure.Realtime;
 using Hangfire;
 using Hangfire.PostgreSql;
 using Microsoft.Extensions.Configuration;
@@ -29,7 +27,6 @@ public static class DependencyContainerExtension
         services.AddResendEmail(configuration);
         services.AddHangfireInfrastructure(configuration);
         services.AddR2FileStorage(configuration);
-        services.AddSingleton<IAuctionNotifier, NoopAuctionNotifier>();
     }
 
     private static void AddR2FileStorage(this IServiceCollection services,

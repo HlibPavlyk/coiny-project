@@ -3,8 +3,10 @@ using Coiny.Api.Filters;
 using Coiny.Api.Hubs;
 using Coiny.Api.Middleware;
 using Coiny.Api.OpenApi;
+using Coiny.Api.Realtime;
 using Coiny.Api.Services;
 using Coiny.Application.Abstractions.Http;
+using Coiny.Application.Abstractions.Realtime;
 using Coiny.Application.Common.Json;
 using Coiny.Application.Extensions;
 using Coiny.Infrastructure.Extensions;
@@ -47,6 +49,7 @@ builder.Services.AddOpenApi("v1", opts =>
 });
 
 builder.Services.AddSignalR();
+builder.Services.AddScoped<IAuctionNotifier, SignalRAuctionNotifier>();
 
 var app = builder.Build();
 
