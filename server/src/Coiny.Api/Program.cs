@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Coiny.Api.Filters;
+using Coiny.Api.Hubs;
 using Coiny.Api.Middleware;
 using Coiny.Api.OpenApi;
 using Coiny.Api.Services;
@@ -45,6 +46,8 @@ builder.Services.AddOpenApi("v1", opts =>
     opts.AddDocumentTransformer<JwtBearerSecuritySchemeTransformer>();
 });
 
+builder.Services.AddSignalR();
+
 var app = builder.Build();
 
 app.UseExceptionHandler();
@@ -67,4 +70,5 @@ RecurringJob.AddOrUpdate<EmailOutboxFlushJob>(
     Cron.Minutely());
 
 app.MapControllers();
+app.MapHub<AuctionHub>("/auctionHub");
 app.Run();
