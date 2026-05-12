@@ -16,6 +16,10 @@ public interface IApplicationDbContext
     DbSet<OutboxEvent> OutboxEvents { get; }
     DbSet<EmailOutboxEvent> EmailOutboxEvents { get; }
     DbSet<Report> Reports { get; }
+    DbSet<Payment> Payments { get; }
+    DbSet<Shipment> Shipments { get; }
+    DbSet<ShipmentEvent> ShipmentEvents { get; }
+    DbSet<StripeWebhookEvent> StripeWebhookEvents { get; }
 
     /// <summary>Exposed so handlers can wrap multi-step writes in an explicit transaction.</summary>
     DatabaseFacade Database { get; }

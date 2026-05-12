@@ -17,6 +17,10 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<OutboxEvent> OutboxEvents => Set<OutboxEvent>();
     public DbSet<EmailOutboxEvent> EmailOutboxEvents => Set<EmailOutboxEvent>();
     public DbSet<Report> Reports => Set<Report>();
+    public DbSet<Payment> Payments => Set<Payment>();
+    public DbSet<Shipment> Shipments => Set<Shipment>();
+    public DbSet<ShipmentEvent> ShipmentEvents => Set<ShipmentEvent>();
+    public DbSet<StripeWebhookEvent> StripeWebhookEvents => Set<StripeWebhookEvent>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
