@@ -9,7 +9,6 @@ public class StripeOptions
     public string SecretKey { get; init; } = string.Empty;
     public string PublishableKey { get; init; } = string.Empty;
     public string WebhookSecret { get; init; } = string.Empty;
-    public string ConnectClientId { get; init; } = string.Empty;
     public decimal UahPerUsd { get; init; }
     public string ReturnUrl { get; init; } = string.Empty;
     public string RefreshUrl { get; init; } = string.Empty;
@@ -29,9 +28,6 @@ public class StripeOptionsValidator : IValidateOptions<StripeOptions>
 
         if (string.IsNullOrWhiteSpace(options.WebhookSecret))
             errors.Add("Stripe:WebhookSecret is required.");
-
-        if (string.IsNullOrWhiteSpace(options.ConnectClientId))
-            errors.Add("Stripe:ConnectClientId is required.");
 
         if (options.UahPerUsd <= 0m)
             errors.Add("Stripe:UahPerUsd must be greater than zero.");

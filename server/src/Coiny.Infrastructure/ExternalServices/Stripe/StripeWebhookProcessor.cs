@@ -31,11 +31,15 @@ public class StripeWebhookProcessor(
         Event stripeEvent;
         try
         {
-            stripeEvent = EventUtility.ConstructEvent(rawBody, signatureHeader, _webhookSecret);
+            // throwOnApiVersionMismatch: false — Stripe.net 47.x targets acacia; our dashboard
+            // sends dahlia. The fields we read (event.type, data.object.id, details_submitted,
+            // charges_enabled, amount_capturable) are stable across the diff.
+            stripeEvent = EventUtility.ConstructEvent(rawBody, signatureHeader, _webhookSecret,
+                throwOnApiVersionMismatch: false);
         }
         catch (StripeException ex)
         {
-            logger.LogWarning(ex, "StripeWebhook: invalid signature");
+            logger.LogWarning(ex, "StripeWebhook: signature verification failed ({Message})", ex.Message);
             return Result.Failure(Error.Validation("Stripe.WebhookBadSignature", "Webhook signature verification failed."));
         }
 

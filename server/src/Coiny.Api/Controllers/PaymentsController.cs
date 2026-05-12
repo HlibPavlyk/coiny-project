@@ -1,0 +1,59 @@
+using Coiny.Application.Common.Results;
+using Coiny.Application.Features.Payments.Models;
+using Coiny.Application.Features.Payments.Requests;
+using MediatR;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Coiny.Api.Controllers;
+
+[ApiController]
+[Tags("Payments")]
+[Route("api/v1/payments")]
+public class PaymentsController(IMediator mediator) : ControllerBase
+{
+    /// <summary>
+    /// Idempotently create (or reuse) the caller's Stripe Connect Express account and
+    /// return a short-lived onboarding URL. Frontend redirects to the URL immediately.
+    /// </summary>
+    [Authorize, HttpPost("connect/onboard")]
+    public Task<Result<ConnectOnboardResponse>> ConnectOnboard(CancellationToken ct) =>
+        mediator.Send(new ConnectOnboardRequest(), ct);
+
+    /// <summary>Refresh the caller's Stripe Connect onboarding status from Stripe.</summary>
+    [Authorize, HttpGet("connect/status")]
+    public Task<Result<ConnectStatusResponse>> ConnectStatus(CancellationToken ct) =>
+        mediator.Send(new GetConnectStatusRequest(), ct);
+
+    /// <summary>
+    /// Stage shipping recipient details on a Sold lot. Only the winning bidder may call.
+    /// Creates a Shipment row in <c>PendingTtn</c> state — must come before /intent.
+    /// </summary>
+    [Authorize, HttpPost("{lotId:guid}/checkout-details")]
+    public Task<Result> CheckoutDetails(Guid lotId, [FromBody] CheckoutDetailsBody body, CancellationToken ct) =>
+        mediator.Send(new CheckoutDetailsRequest(
+            lotId,
+            body.RecipientCityRef,
+            body.RecipientWarehouseRef,
+            body.RecipientName,
+            body.RecipientPhone), ct);
+
+    /// <summary>
+    /// Create the Stripe PaymentIntent (USD, manual capture, destination charge to the seller's
+    /// Connect account). Returns the client secret for the frontend's card-confirmation step.
+    /// </summary>
+    [Authorize, HttpPost("{lotId:guid}/intent")]
+    public Task<Result<CreatePaymentIntentResponse>> CreateIntent(Guid lotId, CancellationToken ct) =>
+        mediator.Send(new CreatePaymentIntentRequest(lotId), ct);
+
+    /// <summary>Buyer or seller view of a payment, including the linked shipment id and status.</summary>
+    [Authorize, HttpGet("{paymentId:guid}")]
+    public Task<Result<PaymentDetailModel>> GetById(Guid paymentId, CancellationToken ct) =>
+        mediator.Send(new GetPaymentByIdRequest(paymentId), ct);
+}
+
+public record CheckoutDetailsBody(
+    string RecipientCityRef,
+    string RecipientWarehouseRef,
+    string RecipientName,
+    string RecipientPhone);

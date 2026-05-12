@@ -173,7 +173,6 @@ public class StripeWebhookProcessorTests
             SecretKey = "sk_test_x",
             PublishableKey = "pk_test_x",
             WebhookSecret = "whsec_test_x",
-            ConnectClientId = "ca_test_x",
             UahPerUsd = 41.5m,
             ReturnUrl = "http://localhost/return",
             RefreshUrl = "http://localhost/refresh",
