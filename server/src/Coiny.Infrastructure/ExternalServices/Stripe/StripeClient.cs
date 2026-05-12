@@ -105,9 +105,6 @@ public class StripeClient : IAppStripeClient
         return service.CancelAsync(paymentIntentId, cancelOptions, cancellationToken: ct);
     }
 
-    public Event ConstructWebhookEvent(string rawPayload, string signatureHeader) =>
-        EventUtility.ConstructEvent(rawPayload, signatureHeader, _options.WebhookSecret);
-
     private static StripeAccountInfo MapAccount(Account account) => new(
         Id: account.Id,
         DetailsSubmitted: account.DetailsSubmitted,

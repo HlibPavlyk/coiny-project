@@ -41,6 +41,9 @@ public static class DependencyContainerExtension
         services.AddSingleton<IValidateOptions<StripeOptions>, StripeOptionsValidator>();
 
         services.AddSingleton<Application.Abstractions.Payments.IStripeClient, StripeClient>();
+
+        services.AddScoped<StripeWebhookProcessor>();
+        services.AddScoped<Jobs.RetryFailedWebhookJob>();
     }
 
     private static void AddR2FileStorage(this IServiceCollection services,

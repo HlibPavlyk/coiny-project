@@ -325,6 +325,8 @@ public class PlaceBidHandlerTests
             LastPreviousJobId = previousJobId;
             return "test-rescheduled-job-id";
         }
+
+        public string EnqueueCreateTtn(Guid paymentId) => "test-ttn-job-id";
     }
 
     private sealed class TestAuctionNotifier : IAuctionNotifier

@@ -234,6 +234,8 @@ public class AuctionCloseJobTests
             LastEndsAt = endsAtUtc;
             return "rescheduled-job-id";
         }
+
+        public string EnqueueCreateTtn(Guid paymentId) => "ttn-job-id";
     }
 
     private sealed class TestNotifier : IAuctionNotifier

@@ -20,4 +20,7 @@ public class HangfireJobScheduler(IBackgroundJobClient client) : IJobScheduler
 
         return ScheduleAuctionClose(lotId, endsAtUtc);
     }
+
+    public string EnqueueCreateTtn(Guid paymentId) =>
+        client.Enqueue<ICreateTtnJob>(j => j.RunAsync(paymentId, CancellationToken.None));
 }

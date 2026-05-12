@@ -15,4 +15,7 @@ public interface IJobScheduler
     /// <paramref name="endsAtUtc"/>. Returns the new Hangfire job id so the caller can persist it.
     /// </summary>
     string ReScheduleAuctionClose(string? previousJobId, Guid lotId, DateTime endsAtUtc);
+
+    /// <summary>Fire-and-forget enqueue of <see cref="ICreateTtnJob"/> for the given paid payment.</summary>
+    string EnqueueCreateTtn(Guid paymentId);
 }

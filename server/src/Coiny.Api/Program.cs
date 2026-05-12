@@ -76,6 +76,11 @@ RecurringJob.AddOrUpdate<EmailOutboxFlushJob>(
     job => job.RunAsync(CancellationToken.None),
     Cron.Minutely());
 
+RecurringJob.AddOrUpdate<RetryFailedWebhookJob>(
+    "stripe-webhook-retry",
+    job => job.RunAsync(CancellationToken.None),
+    Cron.Hourly());
+
 app.MapControllers();
 app.MapHub<AuctionHub>("/auctionHub");
 app.Run();
