@@ -4,6 +4,7 @@ using Coiny.Application.Abstractions.Email;
 using Coiny.Application.Abstractions.Files;
 using Coiny.Application.Abstractions.Jobs;
 using Coiny.Infrastructure.ExternalServices.Resend;
+using Coiny.Infrastructure.ExternalServices.Stripe;
 using Coiny.Infrastructure.Files;
 using Coiny.Infrastructure.Identity;
 using Coiny.Infrastructure.Jobs;
@@ -27,6 +28,19 @@ public static class DependencyContainerExtension
         services.AddResendEmail(configuration);
         services.AddHangfireInfrastructure(configuration);
         services.AddR2FileStorage(configuration);
+        services.AddStripe(configuration);
+    }
+
+    private static void AddStripe(this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        services.AddOptions<StripeOptions>()
+            .Bind(configuration.GetSection(StripeOptions.Section))
+            .ValidateOnStart();
+
+        services.AddSingleton<IValidateOptions<StripeOptions>, StripeOptionsValidator>();
+
+        services.AddSingleton<StripeClient>();
     }
 
     private static void AddR2FileStorage(this IServiceCollection services,

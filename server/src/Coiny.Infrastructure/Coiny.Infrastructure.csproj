@@ -22,6 +22,7 @@
     <PackageReference Include="Hangfire.PostgreSql" />
     <PackageReference Include="AWSSDK.S3" />
     <PackageReference Include="SixLabors.ImageSharp" />
+    <PackageReference Include="Stripe.net" />
   </ItemGroup>
 
   <ItemGroup>
