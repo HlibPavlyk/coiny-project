@@ -14,13 +14,13 @@ public class ShipmentConfiguration : IEntityTypeConfiguration<Shipment>
             .HasConversion<string>()
             .HasMaxLength(30);
 
+        // Both TTN columns are nullable until the CreateTtnJob (sprint 3 task 10) populates them.
+        // Shipment rows enter the table in Status = PendingTtn with these fields null.
         builder.Property(s => s.NovaPoshtaTtn)
-            .HasMaxLength(32)
-            .IsRequired();
+            .HasMaxLength(32);
 
         builder.Property(s => s.IntDocNumber)
-            .HasMaxLength(32)
-            .IsRequired();
+            .HasMaxLength(32);
 
         builder.Property(s => s.SenderCityRef)
             .HasMaxLength(64)
@@ -58,15 +58,21 @@ public class ShipmentConfiguration : IEntityTypeConfiguration<Shipment>
         builder.Property(s => s.UpdatedAt)
             .HasColumnType("timestamptz");
 
+        // PaymentId is nullable while the shipment is in PendingTtn (no Payment row yet).
+        // Partial unique index keeps the 1:1 invariant once the payment intent is created.
         builder.HasIndex(s => s.PaymentId)
-            .IsUnique();
+            .IsUnique()
+            .HasFilter("\"PaymentId\" IS NOT NULL");
 
+        // Partial unique index — NULL TTNs are allowed during PendingTtn staging.
         builder.HasIndex(s => s.NovaPoshtaTtn)
-            .IsUnique();
+            .IsUnique()
+            .HasFilter("\"NovaPoshtaTtn\" IS NOT NULL");
 
-        // Partial index for the NP polling job — only in-flight shipments.
+        // Partial index for the NP polling job — only post-TTN, in-flight shipments.
+        // PendingTtn rows are not yet known to NP, so they're excluded.
         builder.HasIndex(s => s.Status)
-            .HasFilter("\"Status\" NOT IN ('Delivered','Refused','Returned','Lost')");
+            .HasFilter("\"Status\" NOT IN ('PendingTtn','Delivered','Refused','Returned','Lost')");
 
         // FKs to User — kept Restrict so deleting a User never silently kills shipment records.
         builder.HasOne<User>()

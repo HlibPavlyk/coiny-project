@@ -1,4 +1,4 @@
-using Coiny.Infrastructure.ExternalServices.Stripe;
+using Coiny.Application.Common.Currency;
 using FluentAssertions;
 using Xunit;
 

@@ -1,9 +1,9 @@
 using Coiny.Application.Abstractions.Http;
-using Coiny.Application.Abstractions.Payments;
 using Coiny.Application.Common.Results;
 using Coiny.Application.Features.Payments.Handlers;
 using Coiny.Application.Features.Payments.Models;
 using Coiny.Application.Features.Payments.Requests;
+using Coiny.Application.Tests.Fakes;
 using Coiny.Domain.Entities;
 using Coiny.Infrastructure.Persistence;
 using FluentAssertions;
@@ -130,38 +130,4 @@ public class ConnectOnboardHandlerTests
         public IReadOnlyList<string> Roles { get; } = [];
     }
 
-    private sealed class FakeStripeClient : IStripeClient
-    {
-        public int CreateAccountCalls { get; private set; }
-        public int CreateLinkCalls { get; private set; }
-        public int GetAccountCalls { get; private set; }
-
-        public Task<StripeAccountInfo> CreateConnectAccountAsync(string email, CancellationToken ct)
-        {
-            CreateAccountCalls++;
-            return Task.FromResult(new StripeAccountInfo(
-                Id: "acct_test_001",
-                DetailsSubmitted: false,
-                ChargesEnabled: false,
-                RequirementsCurrentlyDue: new[] { "business_profile.url" }));
-        }
-
-        public Task<StripeAccountLink> CreateOnboardingLinkAsync(string accountId, CancellationToken ct)
-        {
-            CreateLinkCalls++;
-            return Task.FromResult(new StripeAccountLink(
-                Url: $"https://connect.stripe.com/setup/{accountId}/{Guid.NewGuid():N}",
-                ExpiresAt: DateTime.UtcNow.AddMinutes(5)));
-        }
-
-        public Task<StripeAccountInfo> GetAccountAsync(string accountId, CancellationToken ct)
-        {
-            GetAccountCalls++;
-            return Task.FromResult(new StripeAccountInfo(
-                Id: accountId,
-                DetailsSubmitted: true,
-                ChargesEnabled: true,
-                RequirementsCurrentlyDue: Array.Empty<string>()));
-        }
-    }
 }

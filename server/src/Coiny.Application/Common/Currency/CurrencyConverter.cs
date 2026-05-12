@@ -1,8 +1,12 @@
-namespace Coiny.Infrastructure.ExternalServices.Stripe;
+namespace Coiny.Application.Common.Currency;
 
+/// <summary>
+/// UAH↔USD conversion at the Stripe boundary. Pure logic, no Stripe.net dependency,
+/// so it lives in Application and can be unit-tested in isolation. The rounding mode
+/// is locked per docs/06-open-questions.md A8 — never parameterize.
+/// </summary>
 public static class CurrencyConverter
 {
-    // Locked per docs/06-open-questions.md A8 — never parameterize.
     private const MidpointRounding RoundingMode = MidpointRounding.AwayFromZero;
 
     public static long UahKopiykasToUsdCents(long uahKopiykas, decimal uahPerUsd)

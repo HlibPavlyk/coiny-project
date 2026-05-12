@@ -6,6 +6,11 @@ namespace Coiny.Domain.Enums;
 /// </summary>
 public enum ShipmentStatus
 {
+    /// <summary>
+    /// Buyer submitted checkout details (recipient address) but the NP TTN has not been
+    /// created yet. Pre-TTN staging state. Set by the checkout-details handler.
+    /// </summary>
+    PendingTtn,
     TtnCreated,
     AcceptedByCarrier,
     InTransit,

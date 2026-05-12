@@ -6,7 +6,11 @@ public class Shipment
 {
     public Guid Id { get; set; }
 
-    public Guid PaymentId { get; set; }
+    /// <summary>
+    /// FK to <see cref="Payment"/>. Null while <see cref="Status"/> is <see cref="ShipmentStatus.PendingTtn"/>
+    /// and the buyer has submitted checkout details but not yet created a PaymentIntent.
+    /// </summary>
+    public Guid? PaymentId { get; set; }
 
     /// <summary>Denormalized from Payment for cheap joins.</summary>
     public Guid LotId { get; set; }
@@ -15,11 +19,11 @@ public class Shipment
 
     public Guid SellerId { get; set; }
 
-    /// <summary>Nova Poshta TTN (waybill number). Unique.</summary>
-    public string NovaPoshtaTtn { get; set; } = string.Empty;
+    /// <summary>Nova Poshta TTN (waybill number). Unique. Null while <see cref="Status"/> is <see cref="ShipmentStatus.PendingTtn"/>.</summary>
+    public string? NovaPoshtaTtn { get; set; }
 
-    /// <summary>NP's internal document id returned alongside the TTN.</summary>
-    public string IntDocNumber { get; set; } = string.Empty;
+    /// <summary>NP's internal document id returned alongside the TTN. Null while in <see cref="ShipmentStatus.PendingTtn"/>.</summary>
+    public string? IntDocNumber { get; set; }
 
     public string SenderCityRef { get; set; } = string.Empty;
 

@@ -15,6 +15,10 @@ public class StripeClient : IAppStripeClient
         StripeConfiguration.ApiKey = _options.SecretKey;
     }
 
+    public decimal UahPerUsdRate => _options.UahPerUsd;
+
+    public string PublishableKey => _options.PublishableKey;
+
     public async Task<StripeAccountInfo> CreateConnectAccountAsync(string email, CancellationToken ct)
     {
         var service = new AccountService();
@@ -55,10 +59,11 @@ public class StripeClient : IAppStripeClient
         return MapAccount(account);
     }
 
-    public Task<PaymentIntent> CreatePaymentIntentAsync(
+    public async Task<StripePaymentIntentResult> CreatePaymentIntentAsync(
         long usdCents,
         string sellerAccountId,
         IDictionary<string, string> metadata,
+        string idempotencyKey,
         CancellationToken ct)
     {
         var service = new PaymentIntentService();
@@ -75,7 +80,9 @@ public class StripeClient : IAppStripeClient
             Metadata = new Dictionary<string, string>(metadata),
         };
 
-        return service.CreateAsync(createOptions, cancellationToken: ct);
+        var requestOptions = new RequestOptions { IdempotencyKey = idempotencyKey };
+        PaymentIntent intent = await service.CreateAsync(createOptions, requestOptions, ct);
+        return new StripePaymentIntentResult(intent.Id, intent.Status, intent.ClientSecret);
     }
 
     public Task<PaymentIntent> CapturePaymentIntentAsync(string paymentIntentId, CancellationToken ct)
