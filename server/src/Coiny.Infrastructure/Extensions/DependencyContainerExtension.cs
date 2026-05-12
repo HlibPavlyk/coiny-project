@@ -40,7 +40,7 @@ public static class DependencyContainerExtension
 
         services.AddSingleton<IValidateOptions<StripeOptions>, StripeOptionsValidator>();
 
-        services.AddSingleton<StripeClient>();
+        services.AddSingleton<Application.Abstractions.Payments.IStripeClient, StripeClient>();
     }
 
     private static void AddR2FileStorage(this IServiceCollection services,

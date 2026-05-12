@@ -1,9 +1,11 @@
+using Coiny.Application.Abstractions.Payments;
 using Microsoft.Extensions.Options;
 using Stripe;
+using IAppStripeClient = Coiny.Application.Abstractions.Payments.IStripeClient;
 
 namespace Coiny.Infrastructure.ExternalServices.Stripe;
 
-public class StripeClient
+public class StripeClient : IAppStripeClient
 {
     private readonly StripeOptions _options;
 
@@ -13,7 +15,7 @@ public class StripeClient
         StripeConfiguration.ApiKey = _options.SecretKey;
     }
 
-    public Task<Account> CreateConnectAccountAsync(string email, CancellationToken ct)
+    public async Task<StripeAccountInfo> CreateConnectAccountAsync(string email, CancellationToken ct)
     {
         var service = new AccountService();
         var createOptions = new AccountCreateOptions
@@ -27,10 +29,11 @@ public class StripeClient
             },
         };
 
-        return service.CreateAsync(createOptions, cancellationToken: ct);
+        Account account = await service.CreateAsync(createOptions, cancellationToken: ct);
+        return MapAccount(account);
     }
 
-    public Task<AccountLink> CreateOnboardingLinkAsync(string accountId, CancellationToken ct)
+    public async Task<StripeAccountLink> CreateOnboardingLinkAsync(string accountId, CancellationToken ct)
     {
         var service = new AccountLinkService();
         var createOptions = new AccountLinkCreateOptions
@@ -41,13 +44,15 @@ public class StripeClient
             ReturnUrl = _options.ReturnUrl,
         };
 
-        return service.CreateAsync(createOptions, cancellationToken: ct);
+        AccountLink link = await service.CreateAsync(createOptions, cancellationToken: ct);
+        return new StripeAccountLink(link.Url, DateTime.SpecifyKind(link.ExpiresAt, DateTimeKind.Utc));
     }
 
-    public Task<Account> GetAccountAsync(string accountId, CancellationToken ct)
+    public async Task<StripeAccountInfo> GetAccountAsync(string accountId, CancellationToken ct)
     {
         var service = new AccountService();
-        return service.GetAsync(accountId, cancellationToken: ct);
+        Account account = await service.GetAsync(accountId, cancellationToken: ct);
+        return MapAccount(account);
     }
 
     public Task<PaymentIntent> CreatePaymentIntentAsync(
@@ -95,4 +100,10 @@ public class StripeClient
 
     public Event ConstructWebhookEvent(string rawPayload, string signatureHeader) =>
         EventUtility.ConstructEvent(rawPayload, signatureHeader, _options.WebhookSecret);
+
+    private static StripeAccountInfo MapAccount(Account account) => new(
+        Id: account.Id,
+        DetailsSubmitted: account.DetailsSubmitted,
+        ChargesEnabled: account.ChargesEnabled,
+        RequirementsCurrentlyDue: account.Requirements?.CurrentlyDue?.ToList() ?? []);
 }
