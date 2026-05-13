@@ -59,6 +59,13 @@ public class StripeClient : IAppStripeClient
         return MapAccount(account);
     }
 
+    public async Task<string> CreateExpressDashboardLinkAsync(string accountId, CancellationToken ct)
+    {
+        var service = new AccountLoginLinkService();
+        LoginLink link = await service.CreateAsync(accountId, cancellationToken: ct);
+        return link.Url;
+    }
+
     public async Task<StripePaymentIntentResult> CreatePaymentIntentAsync(
         long usdCents,
         string sellerAccountId,

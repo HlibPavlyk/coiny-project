@@ -79,14 +79,16 @@ public class CapturePaymentJob(
         }
 
         DateTime now = clock.UtcNow;
-        if (shipment.DeliveredAt.Value + _captureBuffer > now)
-        {
-            // Hangfire may fire slightly early on clock drift; the polling job's +24h is authoritative.
-            logger.LogWarning(
-                "CapturePaymentJob: scheduled too early (delivered={DeliveredAt}, now={Now}) — relying on poll-job rescheduling",
-                shipment.DeliveredAt, now);
-            return;
-        }
+        // DEMO: 24h dispute-window guard temporarily disabled so capture can be triggered manually
+        // from the Hangfire dashboard immediately after Delivered. RESTORE before production:
+        // if (shipment.DeliveredAt.Value + _captureBuffer > now)
+        // {
+        //     // Hangfire may fire slightly early on clock drift; the polling job's +24h is authoritative.
+        //     logger.LogWarning(
+        //         "CapturePaymentJob: scheduled too early (delivered={DeliveredAt}, now={Now}) — relying on poll-job rescheduling",
+        //         shipment.DeliveredAt, now);
+        //     return;
+        // }
 
         await stripe.CapturePaymentIntentAsync(payment.StripePaymentIntentId, ct);
 

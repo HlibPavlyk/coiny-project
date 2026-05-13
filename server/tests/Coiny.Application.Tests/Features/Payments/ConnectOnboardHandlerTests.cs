@@ -80,6 +80,37 @@ public class ConnectOnboardHandlerTests
     }
 
     [Fact]
+    public async Task Unverified_email_returns_validation_error_and_does_not_call_stripe()
+    {
+        using var ctx = NewDb();
+        ctx.Users.Add(new User
+        {
+            Id = _callerId,
+            Email = $"{_callerId:N}@coiny.test",
+            UserName = $"{_callerId:N}",
+            DisplayName = "Unverified Seller",
+            EmailVerified = false,
+            StripeAccountId = null,
+            StripeOnboarded = false,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+        });
+        await ctx.SaveChangesAsync();
+
+        var stripe = new FakeStripeClient();
+        var handler = new ConnectOnboardHandler(ctx, new TestCurrentUser(_callerId), stripe);
+
+        Result<ConnectOnboardResponse> result = await handler.Handle(
+            new ConnectOnboardRequest(), CancellationToken.None);
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("Stripe.EmailNotVerified");
+        result.Error.Type.Should().Be(ErrorType.Validation);
+        stripe.CreateAccountCalls.Should().Be(0);
+        stripe.CreateLinkCalls.Should().Be(0);
+    }
+
+    [Fact]
     public async Task Two_consecutive_calls_on_fresh_user_only_create_account_once()
     {
         using var ctx = NewDb();

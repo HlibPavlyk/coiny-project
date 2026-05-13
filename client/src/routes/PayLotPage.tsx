@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { TopNav } from '@/components/TopNav';
 import { Footer } from '@/components/Footer';
 import { CheckoutDetailsForm } from '@/components/CheckoutDetailsForm';
@@ -41,10 +41,16 @@ export default function PayLotPage() {
   const [search] = useSearchParams();
   const user = useAuthStore((s) => s.user);
   const pushToast = useToastStore((s) => s.push);
+  const navigate = useNavigate();
   const [state, setState] = useState<ViewState>({ kind: 'loading' });
 
   const paidParam = search.get('paid');
   const paymentIdParam = search.get('paymentId');
+  // Stripe always appends `redirect_status` on its return — we use it as a fallback
+  // signal when our own paymentId is missing (e.g., older intents minted before the
+  // returnUrl carried it). In that case the buyer can't be polled here, so we punt
+  // to /my-purchases where the row is listed with its actual status.
+  const stripeRedirectStatus = search.get('redirect_status');
 
   // Entry point — decide initial state.
   useEffect(() => {
@@ -53,14 +59,19 @@ export default function PayLotPage() {
       return;
     }
 
-    // No `paid=1` — check whether the buyer has already staged shipment details. We do
-    // that by attempting to fetch any existing Payment for the lot via /my-bids or the
-    // payment id; but since we only have lotId here, the simplest signal is: try to
-    // /payments/{lotId}/intent and see if it 409s. That's destructive (creates an intent
-    // on the first try). Instead, render the checkout-details form by default — if the
-    // user has already submitted, the submit will 409 and we surface the error.
+    // Stripe redirected back but we have no paymentId in the URL (legacy intent with
+    // a returnUrl that didn't carry it). The Payment row exists server-side; the row
+    // on /my-purchases is the source of truth.
+    if (paidParam === '1' && stripeRedirectStatus) {
+      navigate('/my-purchases', { replace: true });
+      return;
+    }
+
+    // No paid signal — render the checkout-details form by default. If the buyer has
+    // already submitted, the API returns 409 and CheckoutDetailsForm forwards them to
+    // the payment step (idempotent retry).
     setState({ kind: 'needs-details' });
-  }, [paidParam, paymentIdParam]);
+  }, [paidParam, paymentIdParam, stripeRedirectStatus, navigate]);
 
   // Polling loop for the `confirming` state.
   useEffect(() => {

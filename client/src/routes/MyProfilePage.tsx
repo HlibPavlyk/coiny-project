@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuthStore } from '@/state/useAuthStore';
 import { useToastStore } from '@/state/useToastStore';
 import { auth } from '@/api/auth';
+import { payments } from '@/api/payments';
 import { ApiError } from '@/api/fetch';
 import { AvatarLarge } from '@/components/AvatarLarge';
 import { VerificationStatusPill } from '@/components/VerificationStatusPill';
@@ -47,6 +48,22 @@ export default function MyProfilePage() {
   const user = useAuthStore((s) => s.user);
   const pushToast = useToastStore((s) => s.push);
   const [resending, setResending] = useState(false);
+  const [dashboardLoading, setDashboardLoading] = useState(false);
+
+  // Mint a single-use Stripe Express dashboard URL and open it in a new tab. Login links
+  // expire fast (~5 min) and are single-use, so we re-fetch on every click rather than caching.
+  const openStripeDashboard = async () => {
+    setDashboardLoading(true);
+    try {
+      const r = await payments.expressDashboardLink();
+      window.open(r.url, '_blank', 'noopener,noreferrer');
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Could not open Stripe dashboard.';
+      pushToast({ kind: 'danger', title: 'Stripe dashboard unavailable', description: msg });
+    } finally {
+      setDashboardLoading(false);
+    }
+  };
 
   if (!user) return null; // RequireAuth handles redirect
 
@@ -215,6 +232,23 @@ export default function MyProfilePage() {
               >
                 <div className="text-[13px] text-text-2">
                   Stripe is connected. You can publish lots; funds settle after delivery.
+                </div>
+                <div className="mt-5 flex flex-wrap gap-2.5">
+                  <Link
+                    to="/lots/new"
+                    className="inline-flex items-center justify-center rounded-md bg-accent hover:bg-accent-deep text-white font-medium px-5 py-3 text-sm no-underline"
+                  >
+                    Create a lot
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={openStripeDashboard}
+                    disabled={dashboardLoading}
+                    className="inline-flex items-center gap-1.5 rounded-md border border-border-strong bg-surface hover:bg-bg-soft font-medium px-5 py-3 text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    <Icon name="external" size={14} stroke={2} />
+                    {dashboardLoading ? 'Opening…' : 'Open Stripe dashboard'}
+                  </button>
                 </div>
               </ProfileSection>
             )}

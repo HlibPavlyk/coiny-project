@@ -79,9 +79,14 @@ public class NovaPoshtaPollingJob(
             if (mapped is null)
                 continue; // unknown code — log already emitted; keep status untouched
 
-            // Always record what NP reported, even if our status doesn't change. Dedupe is enforced
-            // by the unique tuple (ShipmentId, NpStatusCode, ObservedAt) — two ticks in the same
-            // millisecond collapse, which is fine.
+            // Only record an event when NP reports a NEW status code. Polling on a 15-minute
+            // cadence (or, during the demo, hammered manually from the Hangfire dashboard) would
+            // otherwise produce duplicate timeline entries for every wait window the synthetic
+            // state machine sits in. The dedupe is per-shipment so a genuine state regression
+            // (e.g., a returned parcel re-entering InTransit) still produces a fresh row.
+            if (np_row.StatusCode == shipment.LastNpStatusCode)
+                continue;
+
             db.ShipmentEvents.Add(new ShipmentEvent
             {
                 ShipmentId = shipment.Id,
@@ -94,7 +99,7 @@ public class NovaPoshtaPollingJob(
             shipment.LastNpStatusCode = np_row.StatusCode;
 
             if (mapped.Value == shipment.Status)
-                continue; // no transition — only the audit row above changes
+                continue; // mapped status unchanged (e.g. codes 4 → 5 both → InTransit); audit row recorded above
 
             ShipmentStatus previousStatus = shipment.Status;
             shipment.Status = mapped.Value;

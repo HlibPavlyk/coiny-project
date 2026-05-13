@@ -88,6 +88,14 @@ export function CheckoutDetailsForm({ lotId, defaultName = '', onSubmitted }: Pr
       await payments.checkoutDetails(lotId, body);
       onSubmitted();
     } catch (err) {
+      // Idempotent retry: if the buyer already submitted checkout-details (e.g. came back
+      // after a Stripe error), the server returns 409 Shipment.AlreadyStaged. From the
+      // user's perspective the data is already saved — forward them to the payment step
+      // instead of dead-ending on an error toast.
+      if (err instanceof ApiError && err.status === 409) {
+        onSubmitted();
+        return;
+      }
       const msg =
         err instanceof ApiError
           ? err.detail ?? err.message

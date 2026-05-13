@@ -99,6 +99,13 @@ const paths: Record<string, JSX.Element> = {
       <rect x="14" y="14" width="7" height="7" rx="1" />
     </>
   ),
+  external: (
+    <>
+      <path d="M14 4h6v6" />
+      <path d="M20 4l-9 9" />
+      <path d="M19 13v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h6" />
+    </>
+  ),
 };
 
 export type IconName = keyof typeof paths;

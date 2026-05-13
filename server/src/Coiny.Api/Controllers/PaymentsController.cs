@@ -27,6 +27,15 @@ public class PaymentsController(IMediator mediator) : ControllerBase
         mediator.Send(new GetConnectStatusRequest(), ct);
 
     /// <summary>
+    /// Generate a single-use Stripe Express dashboard URL for the caller. Frontend opens
+    /// the returned link in a new tab so the seller can view their balance, transfers,
+    /// payouts, and bank account settings on Stripe-hosted UI.
+    /// </summary>
+    [Authorize, HttpGet("connect/dashboard-link")]
+    public Task<Result<ExpressDashboardLinkResponse>> ExpressDashboardLink(CancellationToken ct) =>
+        mediator.Send(new GetExpressDashboardLinkRequest(), ct);
+
+    /// <summary>
     /// Stage shipping recipient details on a Sold lot. Only the winning bidder may call.
     /// Creates a Shipment row in <c>PendingTtn</c> state — must come before /intent.
     /// </summary>

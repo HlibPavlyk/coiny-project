@@ -189,8 +189,9 @@ export default function LotPage() {
               bidCount={lot.bidCount}
               endsAt={lot.endsAt}
               isCallerLeading={lot.isCallerLeading}
-              winnerDisplayName={lot.winningBid?.bidderDisplayName}
               winningPriceUahKopiykas={lot.winningBid?.amountUahKopiykas}
+              callerPaymentId={lot.callerPaymentId}
+              callerPaymentStatus={lot.callerPaymentStatus}
             />
 
 

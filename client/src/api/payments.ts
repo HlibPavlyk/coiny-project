@@ -11,6 +11,10 @@ export interface ConnectStatusResponse {
   requirementsRemaining: string[];
 }
 
+export interface ExpressDashboardLinkResponse {
+  url: string;
+}
+
 export interface CreatePaymentIntentResponse {
   paymentId: string;
   clientSecret: string;
@@ -82,6 +86,9 @@ export const payments = {
     api<ConnectOnboardResponse>('/api/v1/payments/connect/onboard', { method: 'POST' }),
 
   connectStatus: () => api<ConnectStatusResponse>('/api/v1/payments/connect/status'),
+
+  expressDashboardLink: () =>
+    api<ExpressDashboardLinkResponse>('/api/v1/payments/connect/dashboard-link'),
 
   checkoutDetails: (lotId: string, body: CheckoutDetailsBody) =>
     api<void>(`/api/v1/payments/${lotId}/checkout-details`, { method: 'POST', body }),

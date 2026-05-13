@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { loadStripe, type Stripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js';
@@ -33,6 +34,8 @@ export function StripePaymentForm({ lotId, returnUrl }: Props) {
   const [intent, setIntent] = useState<CreatePaymentIntentResponse | null>(null);
   const [intentError, setIntentError] = useState<string | null>(null);
 
+  const [alreadyExists, setAlreadyExists] = useState(false);
+
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -41,6 +44,14 @@ export function StripePaymentForm({ lotId, returnUrl }: Props) {
         if (!cancelled) setIntent(r);
       } catch (err) {
         if (cancelled) return;
+        // 409 Payment.AlreadyExists: the buyer already minted an intent (possibly during a
+        // previous attempt that errored mid-3DS). We can't reuse the existing client_secret
+        // here without re-fetching from Stripe, so send them to My Purchases — the row is
+        // there with the right CTA.
+        if (err instanceof ApiError && err.status === 409) {
+          setAlreadyExists(true);
+          return;
+        }
         const msg =
           err instanceof ApiError
             ? err.detail ?? err.message
@@ -61,6 +72,24 @@ export function StripePaymentForm({ lotId, returnUrl }: Props) {
     return loadStripe(publicCfg.data.stripePublishableKey);
   }, [publicCfg.data?.stripePublishableKey]);
 
+  if (alreadyExists) {
+    return (
+      <div className="rounded-md p-4" style={{ background: 'var(--color-bg-soft)', border: '1px solid var(--color-border)' }}>
+        <div className="text-[13.5px] font-semibold">A payment is already in progress</div>
+        <p className="text-[12.5px] text-text-2 mt-1.5 leading-relaxed">
+          You already started paying for this lot. Open <strong>My Purchases</strong> to find the
+          row and resume the card confirmation — your delivery details are saved.
+        </p>
+        <Link
+          to="/my-purchases"
+          className="inline-flex items-center justify-center rounded-md bg-accent hover:bg-accent-deep text-white font-medium px-4 py-2 text-[13px] no-underline mt-3"
+        >
+          Go to My Purchases
+        </Link>
+      </div>
+    );
+  }
+
   if (intentError) {
     return (
       <div
@@ -76,11 +105,25 @@ export function StripePaymentForm({ lotId, returnUrl }: Props) {
     return <div className="text-[13.5px] text-text-3">Preparing secure payment form…</div>;
   }
 
+  // Append our internal paymentId to the return URL so PayLotPage can identify which
+  // Payment row to poll after Stripe redirects back. Stripe also appends its own
+  // payment_intent / payment_intent_client_secret / redirect_status — those don't
+  // identify our Payment row (Stripe knows `pi_…`, we key by Guid).
+  const fullReturnUrl = appendQuery(returnUrl, { paymentId: intent.paymentId });
+
   return (
     <Elements stripe={stripePromise} options={{ clientSecret: intent.clientSecret }}>
-      <PaymentInner intent={intent} returnUrl={returnUrl} />
+      <PaymentInner intent={intent} returnUrl={fullReturnUrl} />
     </Elements>
   );
+}
+
+function appendQuery(url: string, params: Record<string, string>): string {
+  const sep = url.includes('?') ? '&' : '?';
+  const qs = Object.entries(params)
+    .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+    .join('&');
+  return `${url}${sep}${qs}`;
 }
 
 function PaymentInner({

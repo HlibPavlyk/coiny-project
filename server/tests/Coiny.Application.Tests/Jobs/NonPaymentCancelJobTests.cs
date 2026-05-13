@@ -196,6 +196,9 @@ public class NonPaymentCancelJobTests
         public Task<Coiny.Application.Abstractions.Payments.StripeAccountInfo> GetAccountAsync(
             string accountId, CancellationToken ct) => throw new NotImplementedException();
 
+        public Task<string> CreateExpressDashboardLinkAsync(
+            string accountId, CancellationToken ct) => throw new NotImplementedException();
+
         public Task<Coiny.Application.Abstractions.Payments.StripePaymentIntentResult> CreatePaymentIntentAsync(
             long usdCents, string sellerAccountId, IDictionary<string, string> metadata,
             string idempotencyKey, CancellationToken ct) => throw new NotImplementedException();

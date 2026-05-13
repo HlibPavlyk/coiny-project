@@ -16,7 +16,6 @@ const items: NavItem[] = [
   { id: 'lots', label: 'My lots', icon: 'cards', to: '/my-lots' },
   { id: 'bids', label: 'My bids', icon: 'bid', to: '/my-bids' },
   { id: 'purchases', label: 'My purchases', icon: 'package', to: '/my-purchases' },
-  { id: 'seller', label: 'Seller settings', icon: 'truck', to: '/seller/onboarding' },
 ];
 
 interface MyAccountSidebarProps {

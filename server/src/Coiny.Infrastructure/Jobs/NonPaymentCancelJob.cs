@@ -61,6 +61,24 @@ public class NonPaymentCancelJob(
                 continue;
             }
 
+            // Penalize the buyer for non-payment (THESIS-SCOPE.md §9: −10). Applied here rather
+            // than in the payment_intent.canceled webhook because Stripe also fires that event
+            // for legitimate buyer-initiated cancellations (and admin refunds), which should NOT
+            // tank trust. Reaching this code path means the 96h window expired with the buyer
+            // never authorizing — that's the trust-eroding signal.
+            User? buyer = await db.Users.FirstOrDefaultAsync(u => u.Id == payment.BuyerId, ct);
+            if (buyer is not null)
+            {
+                buyer.TrustScore -= 10;
+                buyer.UpdatedAt = now;
+            }
+            else
+            {
+                logger.LogWarning(
+                    "NonPaymentCancelJob: cannot debit trust score — buyer {BuyerId} for payment {PaymentId} not found",
+                    payment.BuyerId, payment.Id);
+            }
+
             Lot? lot = await db.Lots.FirstOrDefaultAsync(l => l.Id == payment.LotId, ct);
             if (lot is null || lot.Status != LotStatus.Sold)
                 continue;

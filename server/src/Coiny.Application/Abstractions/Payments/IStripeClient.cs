@@ -19,6 +19,13 @@ public interface IStripeClient
     Task<StripeAccountInfo> GetAccountAsync(string accountId, CancellationToken ct);
 
     /// <summary>
+    /// Create a short-lived URL that signs the seller into their Stripe Express dashboard.
+    /// The URL is single-use and expires within ~5 minutes — the frontend should redirect
+    /// (or open in a new tab) immediately rather than storing it.
+    /// </summary>
+    Task<string> CreateExpressDashboardLinkAsync(string accountId, CancellationToken ct);
+
+    /// <summary>
     /// Creates a Connect destination charge PaymentIntent in <c>manual</c> capture mode.
     /// <paramref name="idempotencyKey"/> guards against duplicate intents on retries — typically the lot id.
     /// </summary>

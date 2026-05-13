@@ -440,3 +440,4 @@ CLAUDE.md
 # The folder itself is committed (README documents the workflow), but session-bound
 # files inside are not.
 local-testing/
+DIPLOMA/

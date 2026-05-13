@@ -20,7 +20,13 @@ public record LotDetailModel(
     IReadOnlyList<LotImageModel> Images,
     LotSellerModel Seller,
     LotWinningBidModel? WinningBid,
-    bool IsCallerLeading);
+    bool IsCallerLeading,
+    // Populated only for authenticated winning bidders on Sold lots. Drives the post-win CTA
+    // in <c>BidPanel.ClosedState</c>: null → show "Complete checkout"; non-null → adapt the
+    // copy and target to "Payment in progress" / "View order" so the buyer cannot re-enter
+    // checkout for an already-paid lot.
+    Guid? CallerPaymentId,
+    PaymentStatus? CallerPaymentStatus);
 
 public record LotCategoryBreadcrumbModel(int Id, string Slug, IReadOnlyList<string> NamePath);
 

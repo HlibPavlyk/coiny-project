@@ -55,6 +55,17 @@ public sealed class FakeStripeClient : IStripeClient
             RequirementsCurrentlyDue: Array.Empty<string>()));
     }
 
+    public int CreateExpressDashboardLinkCalls { get; private set; }
+    public string? LastDashboardLinkAccountId { get; private set; }
+    public string NextExpressDashboardUrl { get; set; } = "https://connect.stripe.com/express/test_session";
+
+    public Task<string> CreateExpressDashboardLinkAsync(string accountId, CancellationToken ct)
+    {
+        CreateExpressDashboardLinkCalls++;
+        LastDashboardLinkAccountId = accountId;
+        return Task.FromResult(NextExpressDashboardUrl);
+    }
+
     public Task<StripePaymentIntentResult> CreatePaymentIntentAsync(
         long usdCents,
         string sellerAccountId,

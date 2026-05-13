@@ -1,19 +1,21 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { TopNav } from '@/components/TopNav';
 import { Footer } from '@/components/Footer';
 import { useAuthStore } from '@/state/useAuthStore';
+import { useToastStore } from '@/state/useToastStore';
 import { payments, type ConnectStatusResponse } from '@/api/payments';
 
 /**
- * Lands here from Stripe's redirect. Polls /payments/connect/status every 2s for up to 20s
- * because the `account.updated` webhook can take a moment to arrive after the user finishes
- * the Stripe-hosted form. If it never flips, surface the remaining requirements list so the
- * user can re-open onboarding from the same page.
+ * Stripe ReturnUrl. Lands here after the seller finishes (or abandons) the Stripe-hosted form.
+ * Polls /payments/connect/status every 2s for up to 20s because the `account.updated` webhook
+ * can take a moment to arrive. On success we forward to /profile (single source of truth for
+ * Stripe-connected sellers). On incomplete we surface the remaining requirements so the user
+ * can resume from the same page.
  */
 type PollState =
   | { kind: 'polling' }
-  | { kind: 'onboarded'; status: ConnectStatusResponse }
+  | { kind: 'redirect' }
   | { kind: 'incomplete'; status: ConnectStatusResponse }
   | { kind: 'error'; message: string };
 
@@ -21,10 +23,20 @@ const POLL_INTERVAL_MS = 2_000;
 const POLL_DEADLINE_MS = 20_000;
 
 export default function SellerOnboardedPage() {
+  const user = useAuthStore((s) => s.user);
   const refreshAuth = useAuthStore((s) => s.refresh);
-  const [state, setState] = useState<PollState>({ kind: 'polling' });
+  const pushToast = useToastStore((s) => s.push);
+  // If the auth store already says we're onboarded, skip the spinner entirely and bounce to
+  // /profile — the page is the Stripe ReturnUrl but a long-onboarded seller might also revisit
+  // by accident, and the post-onboarding CTAs now live on the profile.
+  const alreadyOnboardedInStore = user?.stripeOnboarded === true;
+  const [state, setState] = useState<PollState>(
+    alreadyOnboardedInStore ? { kind: 'redirect' } : { kind: 'polling' },
+  );
 
   useEffect(() => {
+    if (alreadyOnboardedInStore) return; // already redirecting via the Navigate component below
+
     let cancelled = false;
     const startedAt = Date.now();
 
@@ -34,9 +46,12 @@ export default function SellerOnboardedPage() {
         if (cancelled) return;
 
         if (status.stripeOnboarded) {
-          // Keep the auth store in sync so the rest of the app reflects the flip.
+          // Keep the auth store in sync so the rest of the app reflects the flip, then bounce
+          // to /profile — that's where Stripe-connected sellers manage everything from now on.
           await refreshAuth();
-          if (!cancelled) setState({ kind: 'onboarded', status });
+          if (cancelled) return;
+          pushToast({ kind: 'success', title: 'Stripe connected', description: 'You can start listing lots.' });
+          setState({ kind: 'redirect' });
           return;
         }
 
@@ -60,7 +75,16 @@ export default function SellerOnboardedPage() {
     return () => {
       cancelled = true;
     };
-  }, [refreshAuth]);
+  }, [alreadyOnboardedInStore, refreshAuth, pushToast]);
+
+  // Render-time check covers a race: when polling sees stripeOnboarded=true it awaits
+  // refreshAuth(), which updates the store and flips `alreadyOnboardedInStore` to true.
+  // That deps change cancels the in-flight tick *before* it can call setState({kind:'redirect'}),
+  // leaving local state stuck on 'polling'. Checking the store value at render time bypasses
+  // the race entirely — if either the explicit state OR the store says we're onboarded, redirect.
+  if (state.kind === 'redirect' || alreadyOnboardedInStore) {
+    return <Navigate to="/profile" replace />;
+  }
 
   return (
     <div>
@@ -76,31 +100,6 @@ export default function SellerOnboardedPage() {
             <div className="mt-6 rounded-lg border border-border bg-surface p-6 flex items-center gap-3">
               <div className="w-3 h-3 rounded-full bg-accent animate-pulse" />
               <span className="text-[13.5px] text-text-2">Polling Stripe…</span>
-            </div>
-          </>
-        )}
-
-        {state.kind === 'onboarded' && (
-          <>
-            <h1 className="text-3xl font-bold m-0">You&apos;re onboarded 🎉</h1>
-            <p className="text-text-2 text-[14.5px] mt-3 leading-relaxed">
-              Stripe is connected, your payout details are on file, and Coiny is ready to accept
-              buyer funds on your behalf. Funds settle to your bank after delivery is confirmed by
-              Nova Poshta.
-            </p>
-            <div className="mt-6 flex gap-2.5">
-              <Link
-                to="/lots/new"
-                className="inline-flex items-center justify-center rounded-md bg-accent hover:bg-accent-deep text-white font-medium px-5 py-3 text-sm no-underline"
-              >
-                Create your first lot
-              </Link>
-              <Link
-                to="/profile"
-                className="inline-flex items-center justify-center rounded-md border border-border-strong bg-surface hover:bg-bg-soft font-medium px-5 py-3 text-sm no-underline"
-              >
-                Back to profile
-              </Link>
             </div>
           </>
         )}

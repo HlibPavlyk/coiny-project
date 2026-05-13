@@ -66,6 +66,15 @@ export interface LotDetailModel {
   winningBid: LotWinningBid | null;
   /** True when the authenticated caller's bid is currently the top bid on this lot. */
   isCallerLeading: boolean;
+  /** Populated only for the winning bidder on a Sold lot if they already started or finished payment. */
+  callerPaymentId: string | null;
+  callerPaymentStatus:
+    | 'PendingAuthorization'
+    | 'Authorized'
+    | 'Captured'
+    | 'Cancelled'
+    | 'Failed'
+    | null;
 }
 
 export interface CreateLotPayload {

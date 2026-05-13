@@ -66,6 +66,27 @@ public class GetLotByIdHandler(IApplicationDbContext db, ICurrentUserService cur
                 .FirstOrDefaultAsync(ct);
         }
 
+        // Look up the caller's payment for this lot (if any). Used by BidPanel to choose
+        // between "Complete checkout", "Payment in progress", and "View order" CTAs so the
+        // buyer cannot re-enter checkout for an already-paid lot. Only computed for the
+        // winning bidder — non-winners have no business knowing payment state.
+        Guid? callerPaymentId = null;
+        PaymentStatus? callerPaymentStatus = null;
+        if (isCallerLeading && lot.Status == LotStatus.Sold && currentUser.UserId is { } callerId)
+        {
+            var paymentRow = await db.Payments
+                .AsNoTracking()
+                .Where(p => p.LotId == lot.Id && p.BuyerId == callerId)
+                .OrderByDescending(p => p.CreatedAt)
+                .Select(p => new { p.Id, p.Status })
+                .FirstOrDefaultAsync(ct);
+            if (paymentRow is not null)
+            {
+                callerPaymentId = paymentRow.Id;
+                callerPaymentStatus = paymentRow.Status;
+            }
+        }
+
         return Result.Success(new LotDetailModel(
             lot.Id,
             lot.Title,
@@ -89,7 +110,9 @@ public class GetLotByIdHandler(IApplicationDbContext db, ICurrentUserService cur
                 lot.Seller?.DisplayName ?? string.Empty,
                 lot.Seller?.TrustScore ?? 0),
             WinningBid: winningBid,
-            IsCallerLeading: isCallerLeading));
+            IsCallerLeading: isCallerLeading,
+            CallerPaymentId: callerPaymentId,
+            CallerPaymentStatus: callerPaymentStatus));
     }
 
     private async Task<IReadOnlyList<string>> BuildCategoryPathAsync(int leafId, CancellationToken ct)

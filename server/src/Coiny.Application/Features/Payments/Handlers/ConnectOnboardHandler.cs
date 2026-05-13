@@ -31,6 +31,13 @@ public class ConnectOnboardHandler(
             return Result.Failure<ConnectOnboardResponse>(
                 Error.Validation("Stripe.NoEmail", "Stripe Connect requires an email on the user account."));
 
+        // Block onboarding for unverified emails. A Stripe Connect account is a financial
+        // record bound to this email; if an unverified address is later compromised, the
+        // attacker could prove ownership and divert payouts. Verification belongs upstream.
+        if (!user.EmailVerified)
+            return Result.Failure<ConnectOnboardResponse>(
+                Error.Validation("Stripe.EmailNotVerified", "Verify your email before connecting Stripe."));
+
         try
         {
             if (user.StripeAccountId is null)

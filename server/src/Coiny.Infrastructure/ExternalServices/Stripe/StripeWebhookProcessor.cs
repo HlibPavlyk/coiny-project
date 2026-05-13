@@ -223,10 +223,32 @@ public class StripeWebhookProcessor(
             return;
         }
 
+        // Award trust score on the *transition* to Captured (THESIS-SCOPE.md §9: +5 per
+        // successful sale). Guarded by the early-exit above for already-Captured payments,
+        // so a webhook redelivery does not double-credit. The webhook dedupe table provides
+        // the second line of defence.
+        bool isFirstCapture = payment.Status != PaymentStatus.Captured;
+
         payment.Status = PaymentStatus.Captured;
         payment.CapturedAt ??= clock.UtcNow;
         payment.UpdatedAt = clock.UtcNow;
         payment.LastWebhookEventId = eventId;
+
+        if (isFirstCapture)
+        {
+            User? seller = await db.Users.FirstOrDefaultAsync(u => u.Id == payment.SellerId, ct);
+            if (seller is not null)
+            {
+                seller.TrustScore += 5;
+                seller.UpdatedAt = clock.UtcNow;
+            }
+            else
+            {
+                logger.LogWarning(
+                    "StripeWebhook: cannot credit trust score — seller {SellerId} for payment {PaymentId} not found",
+                    payment.SellerId, payment.Id);
+            }
+        }
     }
 
     private async Task HandlePaymentTerminalAsync(

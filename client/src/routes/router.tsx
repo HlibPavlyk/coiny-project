@@ -17,6 +17,7 @@ import SellerOnboardingPage from './SellerOnboardingPage';
 import SellerOnboardedPage from './SellerOnboardedPage';
 import PayLotPage from './PayLotPage';
 import MyPurchasesPage from './MyPurchasesPage';
+import PublicProfilePage from './PublicProfilePage';
 
 /**
  * Stub routing tree mirroring /docs/03-frontend-structure.md.
@@ -36,7 +37,7 @@ export const router = createBrowserRouter([
   { path: '/verify-email', element: <VerifyEmailPage /> },
 
   // Public profile
-  { path: '/profile/:userId', element: <Stub name="Public profile" /> },
+  { path: '/profile/:userId', element: <PublicProfilePage /> },
 
   // Authenticated
   {
