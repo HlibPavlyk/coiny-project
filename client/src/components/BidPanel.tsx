@@ -187,7 +187,9 @@ export function BidPanel({
       <div className="mt-4">
         {isClosed ? (
           <ClosedState
+            lotId={lotId}
             status={status}
+            isCallerWinner={isCallerLeading && status === 'Sold'}
             winnerDisplayName={winnerDisplayName ?? null}
             finalPriceUahKopiykas={winningPriceUahKopiykas ?? null}
           />
@@ -288,14 +290,46 @@ export function BidPanel({
 }
 
 function ClosedState({
+  lotId,
   status,
+  isCallerWinner,
   winnerDisplayName,
   finalPriceUahKopiykas,
 }: {
+  lotId: string;
   status: LotStatus;
+  isCallerWinner: boolean;
   winnerDisplayName: string | null;
   finalPriceUahKopiykas: number | null;
 }) {
+  // Winner view — show the "Complete checkout" CTA so the buyer has a direct entry into
+  // the payment flow without relying on the won-pay email link.
+  if (status === 'Sold' && isCallerWinner) {
+    return (
+      <div className="rounded-md p-3.5" style={{ background: 'var(--color-success-soft)', border: '1px solid #BBE5C9' }}>
+        <div className="text-[11px] uppercase tracking-wider font-semibold" style={{ color: '#166534' }}>
+          You won 🎉
+        </div>
+        {finalPriceUahKopiykas !== null && (
+          <div className="mono text-[20px] font-bold mt-1">
+            {formatKopiykasAsUah(finalPriceUahKopiykas, { integer: true })}
+          </div>
+        )}
+        <div className="text-[12.5px] text-text-2 mt-1">
+          Pay within 96 hours to secure the lot. Funds are held in Stripe escrow until Nova
+          Poshta confirms delivery.
+        </div>
+        <Link
+          to={`/my-purchases/${lotId}/pay`}
+          className="inline-flex items-center justify-center rounded-md bg-accent hover:bg-accent-deep text-white font-medium px-5 py-2.5 text-sm no-underline mt-3 w-full"
+        >
+          Complete checkout
+        </Link>
+      </div>
+    );
+  }
+
+  // Non-winner view of a Sold lot — show who won.
   if (status === 'Sold' && winnerDisplayName) {
     return (
       <div className="rounded-md p-3.5" style={{ background: 'var(--color-success-soft)', border: '1px solid #BBE5C9' }}>

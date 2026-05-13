@@ -23,11 +23,14 @@ export function CheckoutDetailsForm({ lotId, defaultName = '', onSubmitted }: Pr
   const [cityQuery, setCityQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const [pickedCity, setPickedCity] = useState<NpCity | null>(null);
+  const [warehouseQuery, setWarehouseQuery] = useState('');
+  const [warehouseFocused, setWarehouseFocused] = useState(false);
   const [pickedWarehouse, setPickedWarehouse] = useState<NpWarehouse | null>(null);
   const [name, setName] = useState(defaultName);
   const [phone, setPhone] = useState('+380');
   const [submitting, setSubmitting] = useState(false);
   const cityInputRef = useRef<HTMLInputElement>(null);
+  const warehouseInputRef = useRef<HTMLInputElement>(null);
 
   // 250ms debounce on the city query keeps NP autocomplete responsive without hammering.
   useEffect(() => {
@@ -48,6 +51,20 @@ export function CheckoutDetailsForm({ lotId, defaultName = '', onSubmitted }: Pr
     enabled: !!pickedCity?.ref,
     staleTime: 60_000,
   });
+
+  // Local filter for the warehouse dropdown — NP returns ~50–200 branches per city in one
+  // call, so client-side filtering is appropriate (no second debounced query needed).
+  const filteredWarehouses = useMemo(() => {
+    const all = warehouses.data?.warehouses ?? [];
+    const q = warehouseQuery.trim().toLowerCase();
+    if (!q) return all.slice(0, 50);
+    return all
+      .filter(
+        (w) =>
+          w.number.toLowerCase().includes(q) || w.address.toLowerCase().includes(q),
+      )
+      .slice(0, 50);
+  }, [warehouses.data, warehouseQuery]);
 
   const phoneValid = useMemo(() => PHONE_RE.test(phone), [phone]);
   const canSubmit =
@@ -148,28 +165,72 @@ export function CheckoutDetailsForm({ lotId, defaultName = '', onSubmitted }: Pr
         <label className="text-[12px] font-semibold text-text-3 uppercase tracking-wider">
           Nova Poshta branch
         </label>
-        <select
-          disabled={!pickedCity || warehouses.isLoading}
-          value={pickedWarehouse?.ref ?? ''}
-          onChange={(e) => {
-            const w = warehouses.data?.warehouses.find((x) => x.ref === e.target.value) ?? null;
-            setPickedWarehouse(w);
-          }}
-          className="mt-2 w-full rounded-md border border-border-strong bg-surface px-3 py-2 text-[14px] disabled:opacity-60 disabled:cursor-not-allowed"
-        >
-          <option value="">
-            {!pickedCity
-              ? 'Pick a city first'
-              : warehouses.isLoading
-                ? 'Loading branches…'
-                : 'Select a branch'}
-          </option>
-          {warehouses.data?.warehouses.map((w) => (
-            <option key={w.ref} value={w.ref}>
-              {w.address}
-            </option>
-          ))}
-        </select>
+        {pickedWarehouse ? (
+          <div className="mt-2 flex items-center justify-between rounded-md border border-border bg-bg-soft px-3 py-2 text-[14px]">
+            <span className="min-w-0 truncate pr-2">
+              <span className="font-medium">№{pickedWarehouse.number}</span>
+              <span className="text-text-3 ml-2">{pickedWarehouse.address}</span>
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                setPickedWarehouse(null);
+                setWarehouseQuery('');
+                setTimeout(() => warehouseInputRef.current?.focus(), 0);
+              }}
+              className="text-[12.5px] text-accent-deep hover:underline flex-shrink-0"
+            >
+              Change
+            </button>
+          </div>
+        ) : (
+          <div className="relative mt-2">
+            <input
+              ref={warehouseInputRef}
+              type="text"
+              value={warehouseQuery}
+              onChange={(e) => setWarehouseQuery(e.target.value)}
+              onFocus={() => setWarehouseFocused(true)}
+              onBlur={() => setTimeout(() => setWarehouseFocused(false), 150)}
+              disabled={!pickedCity}
+              placeholder={
+                !pickedCity
+                  ? 'Pick a city first'
+                  : warehouses.isLoading
+                    ? 'Loading branches…'
+                    : 'Search by branch number or street'
+              }
+              className="w-full rounded-md border border-border-strong bg-surface px-3 py-2 text-[14px] disabled:opacity-60 disabled:cursor-not-allowed"
+              autoComplete="off"
+            />
+            {pickedCity && warehouseFocused && (
+              <div className="absolute z-10 left-0 right-0 mt-1 max-h-60 overflow-auto rounded-md border border-border bg-surface shadow-md">
+                {warehouses.isLoading && (
+                  <div className="px-3 py-2 text-[13px] text-text-3">Loading…</div>
+                )}
+                {!warehouses.isLoading && filteredWarehouses.length === 0 && (
+                  <div className="px-3 py-2 text-[13px] text-text-3">No matches.</div>
+                )}
+                {filteredWarehouses.map((w) => (
+                  <button
+                    type="button"
+                    key={w.ref}
+                    onMouseDown={(e) => e.preventDefault()} // keep input from blurring before click
+                    onClick={() => {
+                      setPickedWarehouse(w);
+                      setWarehouseQuery('');
+                      setWarehouseFocused(false);
+                    }}
+                    className="block w-full text-left px-3 py-2 text-[14px] hover:bg-bg-soft"
+                  >
+                    <span className="font-medium">№{w.number}</span>
+                    <span className="text-text-3 ml-2 text-[12.5px]">{w.address}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       <div>

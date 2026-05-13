@@ -16,6 +16,7 @@ import MyBidsPage from './MyBidsPage';
 import SellerOnboardingPage from './SellerOnboardingPage';
 import SellerOnboardedPage from './SellerOnboardedPage';
 import PayLotPage from './PayLotPage';
+import MyPurchasesPage from './MyPurchasesPage';
 
 /**
  * Stub routing tree mirroring /docs/03-frontend-structure.md.
@@ -66,7 +67,7 @@ export const router = createBrowserRouter([
     path: '/my-purchases',
     element: (
       <RequireAuth>
-        <Stub name="My purchases" />
+        <MyPurchasesPage />
       </RequireAuth>
     ),
   },

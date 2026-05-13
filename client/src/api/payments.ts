@@ -1,4 +1,5 @@
 import { api } from './fetch';
+import type { Paginated, PageRequest } from './lots';
 
 export interface ConnectOnboardResponse {
   onboardingUrl: string;
@@ -48,6 +49,34 @@ export interface CheckoutDetailsBody {
   recipientPhone: string;
 }
 
+export type PaymentStatus =
+  | 'PendingAuthorization'
+  | 'Authorized'
+  | 'Captured'
+  | 'Cancelled'
+  | 'Failed';
+
+export type ShipmentStatus =
+  | 'PendingTtn'
+  | 'TtnCreated'
+  | 'AcceptedByCarrier'
+  | 'InTransit'
+  | 'ArrivedAtDestination'
+  | 'Delivered'
+  | 'Refused'
+  | 'Returned'
+  | 'Lost';
+
+export interface MyPurchaseItemModel {
+  paymentId: string;
+  paymentStatus: PaymentStatus;
+  amountUahKopiykas: number;
+  dueAt: string;
+  createdAt: string;
+  lot: { id: string; title: string; coverUrl: string };
+  shipment: { id: string; status: ShipmentStatus; novaPoshtaTtn: string | null } | null;
+}
+
 export const payments = {
   connectOnboard: () =>
     api<ConnectOnboardResponse>('/api/v1/payments/connect/onboard', { method: 'POST' }),
@@ -61,4 +90,10 @@ export const payments = {
     api<CreatePaymentIntentResponse>(`/api/v1/payments/${lotId}/intent`, { method: 'POST' }),
 
   getById: (paymentId: string) => api<PaymentDetailModel>(`/api/v1/payments/${paymentId}`),
+
+  myPurchasesSearch: (paginate: PageRequest) =>
+    api<Paginated<MyPurchaseItemModel>>('/api/v1/payments/mine/search', {
+      method: 'POST',
+      body: paginate,
+    }),
 };

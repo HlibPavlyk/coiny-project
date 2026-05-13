@@ -5,6 +5,7 @@ using Coiny.Application.Common.Results;
 using Coiny.Application.Features.Lots.Models;
 using Coiny.Application.Features.Lots.Requests;
 using Coiny.Domain.Entities;
+using Coiny.Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -50,6 +51,21 @@ public class GetLotByIdHandler(IApplicationDbContext db, ICurrentUserService cur
             isCallerLeading = topBidderId == userId;
         }
 
+        // For closed lots (Sold), resolve the winning bid so the UI can render winner +
+        // the "Complete checkout" CTA. Returns null for any non-Sold status.
+        LotWinningBidModel? winningBid = null;
+        if (lot.Status == LotStatus.Sold && lot.WinningBidId is { } winningBidId)
+        {
+            winningBid = await db.Bids
+                .AsNoTracking()
+                .Where(b => b.Id == winningBidId)
+                .Select(b => new LotWinningBidModel(
+                    b.Id,
+                    b.Bidder!.DisplayName,
+                    b.AmountUahKopiykas))
+                .FirstOrDefaultAsync(ct);
+        }
+
         return Result.Success(new LotDetailModel(
             lot.Id,
             lot.Title,
@@ -72,7 +88,7 @@ public class GetLotByIdHandler(IApplicationDbContext db, ICurrentUserService cur
                 lot.SellerId,
                 lot.Seller?.DisplayName ?? string.Empty,
                 lot.Seller?.TrustScore ?? 0),
-            WinningBid: null,
+            WinningBid: winningBid,
             IsCallerLeading: isCallerLeading));
     }
 

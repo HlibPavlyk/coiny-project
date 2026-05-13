@@ -1,3 +1,4 @@
+using Coiny.Application.Common.Querying;
 using Coiny.Application.Common.Results;
 using Coiny.Application.Features.Payments.Models;
 using Coiny.Application.Features.Payments.Requests;
@@ -52,6 +53,16 @@ public class PaymentsController(IMediator mediator) : ControllerBase
     [Authorize, HttpGet("{paymentId:guid}")]
     public Task<Result<PaymentDetailModel>> GetById(Guid paymentId, CancellationToken ct) =>
         mediator.Send(new GetPaymentByIdRequest(paymentId), ct);
+
+    /// <summary>
+    /// Caller's purchase history (payments where caller is the buyer). Eagerly joins the lot
+    /// title/cover and the linked shipment status so the dashboard renders in one round-trip.
+    /// </summary>
+    [Authorize, HttpPost("mine/search")]
+    public Task<Result<Paginated<MyPurchaseItemModel>>> SearchMine(
+        [FromBody] GetMyPurchasesRequest request,
+        CancellationToken ct) =>
+        mediator.Send(request, ct);
 }
 
 public record CheckoutDetailsBody(

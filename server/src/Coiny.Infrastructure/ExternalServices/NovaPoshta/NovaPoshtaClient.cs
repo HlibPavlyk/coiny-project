@@ -9,15 +9,19 @@ namespace Coiny.Infrastructure.ExternalServices.NovaPoshta;
 /// <summary>
 /// Real Nova Poshta JSON-RPC client. Every call POSTs to a single endpoint with
 /// <c>{ apiKey, modelName, calledMethod, methodProperties }</c>; NP responds with
-/// <c>{ success, data, errors, warnings, info }</c>. PascalCase on the wire.
+/// <c>{ success, data, errors, warnings, info }</c>. NP's wire format is mixed —
+/// the envelope uses camelCase (<c>success</c>, <c>data</c>, <c>errors</c>) while
+/// the inner data objects use PascalCase (<c>Ref</c>, <c>MainDescription</c>, …).
+/// We deserialize case-insensitively to handle both layers with one set of options.
 /// </summary>
 public class NovaPoshtaClient : INovaPoshtaClient
 {
-    // NP returns PascalCase. We disable the default camelCase policy explicitly so the
-    // rest of the API serializer settings don't leak in.
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = null,
+        // NP's envelope is lowercase, our DTO is PascalCase — without this every envelope
+        // field defaults (success → false) and the client thinks every response failed.
+        PropertyNameCaseInsensitive = true,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
     };
 
