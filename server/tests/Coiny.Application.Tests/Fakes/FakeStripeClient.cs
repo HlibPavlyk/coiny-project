@@ -73,4 +73,17 @@ public sealed class FakeStripeClient : IStripeClient
             Status: NextPaymentIntentStatus,
             ClientSecret: NextPaymentIntentClientSecret));
     }
+
+    public int CapturePaymentIntentCalls { get; private set; }
+    public string? LastCapturedPaymentIntentId { get; private set; }
+
+    public Task<StripePaymentIntentResult> CapturePaymentIntentAsync(string paymentIntentId, CancellationToken ct)
+    {
+        CapturePaymentIntentCalls++;
+        LastCapturedPaymentIntentId = paymentIntentId;
+        return Task.FromResult(new StripePaymentIntentResult(
+            Id: paymentIntentId,
+            Status: "succeeded",
+            ClientSecret: null));
+    }
 }

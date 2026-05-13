@@ -28,4 +28,11 @@ public interface IStripeClient
         IDictionary<string, string> metadata,
         string idempotencyKey,
         CancellationToken ct);
+
+    /// <summary>
+    /// Capture a previously-authorized manual-capture PaymentIntent. Triggers Stripe's
+    /// <c>payment_intent.succeeded</c> webhook, which is the source of truth for
+    /// <c>Payment.Status = Captured</c> — this method itself does not mutate local state.
+    /// </summary>
+    Task<StripePaymentIntentResult> CapturePaymentIntentAsync(string paymentIntentId, CancellationToken ct);
 }
