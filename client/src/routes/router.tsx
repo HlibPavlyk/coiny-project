@@ -15,6 +15,7 @@ import MyLotsPage from './MyLotsPage';
 import MyBidsPage from './MyBidsPage';
 import SellerOnboardingPage from './SellerOnboardingPage';
 import SellerOnboardedPage from './SellerOnboardedPage';
+import PayLotPage from './PayLotPage';
 
 /**
  * Stub routing tree mirroring /docs/03-frontend-structure.md.
@@ -66,6 +67,14 @@ export const router = createBrowserRouter([
     element: (
       <RequireAuth>
         <Stub name="My purchases" />
+      </RequireAuth>
+    ),
+  },
+  {
+    path: '/my-purchases/:lotId/pay',
+    element: (
+      <RequireAuth>
+        <PayLotPage />
       </RequireAuth>
     ),
   },
