@@ -3,6 +3,9 @@ using Amazon.S3;
 using Coiny.Application.Abstractions.Email;
 using Coiny.Application.Abstractions.Files;
 using Coiny.Application.Abstractions.Jobs;
+using Coiny.Application.Abstractions.Payments;
+using Coiny.Application.Abstractions.Shipping;
+using Coiny.Infrastructure.ExternalServices.NovaPoshta;
 using Coiny.Infrastructure.ExternalServices.Resend;
 using Coiny.Infrastructure.ExternalServices.Stripe;
 using Coiny.Infrastructure.Files;
@@ -29,6 +32,27 @@ public static class DependencyContainerExtension
         services.AddHangfireInfrastructure(configuration);
         services.AddR2FileStorage(configuration);
         services.AddStripe(configuration);
+        services.AddNovaPoshta(configuration);
+    }
+
+    private static void AddNovaPoshta(this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        services.AddOptions<NovaPoshtaOptions>()
+            .Bind(configuration.GetSection(NovaPoshtaOptions.Section))
+            .ValidateOnStart();
+
+        services.AddSingleton<IValidateOptions<NovaPoshtaOptions>, NovaPoshtaOptionsValidator>();
+
+        // The real client owns its HttpClient (and gets a standard resilience pipeline:
+        // retry on 5xx/408/429 + timeout + circuit breaker). HybridNovaPoshtaClient
+        // delegates read methods to this real client.
+        services.AddHttpClient<NovaPoshtaClient>()
+            .AddStandardResilienceHandler();
+
+        // Default for the thesis build: hybrid (real reads, synthetic TTNs + simulated polling).
+        // Swap to NovaPoshtaClient explicitly when actual parcel creation is desired.
+        services.AddScoped<INovaPoshtaClient, HybridNovaPoshtaClient>();
     }
 
     private static void AddStripe(this IServiceCollection services,
@@ -40,10 +64,10 @@ public static class DependencyContainerExtension
 
         services.AddSingleton<IValidateOptions<StripeOptions>, StripeOptionsValidator>();
 
-        services.AddSingleton<Application.Abstractions.Payments.IStripeClient, StripeClient>();
+        services.AddSingleton<IStripeClient, StripeClient>();
 
         services.AddScoped<StripeWebhookProcessor>();
-        services.AddScoped<Jobs.RetryFailedWebhookJob>();
+        services.AddScoped<RetryFailedWebhookJob>();
     }
 
     private static void AddR2FileStorage(this IServiceCollection services,

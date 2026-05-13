@@ -1,7 +1,11 @@
 <Solution>
-  <Project Path="src/Coiny.Domain/Coiny.Domain.csproj" />
-  <Project Path="src/Coiny.Application/Coiny.Application.csproj" />
-  <Project Path="src/Coiny.Infrastructure/Coiny.Infrastructure.csproj" />
-  <Project Path="src/Coiny.Api/Coiny.Api.csproj" />
-  <Project Path="tests/Coiny.Application.Tests/Coiny.Application.Tests.csproj" />
+  <Folder Name="/src/">
+    <Project Path="src/Coiny.Domain/Coiny.Domain.csproj" />
+    <Project Path="src/Coiny.Application/Coiny.Application.csproj" />
+    <Project Path="src/Coiny.Infrastructure/Coiny.Infrastructure.csproj" />
+    <Project Path="src/Coiny.Api/Coiny.Api.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Coiny.Application.Tests/Coiny.Application.Tests.csproj" />
+  </Folder>
 </Solution>

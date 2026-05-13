@@ -49,6 +49,10 @@
     <PackageVersion Include="Hangfire.PostgreSql" Version="1.20.9" />
   </ItemGroup>
 
+  <ItemGroup Label="HTTP resilience (Polly successor, used by NovaPoshtaClient)">
+    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="9.0.0" />
+  </ItemGroup>
+
   <ItemGroup Label="Meilisearch">
     <PackageVersion Include="Meilisearch" Version="0.21.0" />
   </ItemGroup>
