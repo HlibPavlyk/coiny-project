@@ -13,6 +13,8 @@ import CreateLotPage from './CreateLotPage';
 import EditLotPage from './EditLotPage';
 import MyLotsPage from './MyLotsPage';
 import MyBidsPage from './MyBidsPage';
+import SellerOnboardingPage from './SellerOnboardingPage';
+import SellerOnboardedPage from './SellerOnboardedPage';
 
 /**
  * Stub routing tree mirroring /docs/03-frontend-structure.md.
@@ -71,7 +73,7 @@ export const router = createBrowserRouter([
     path: '/seller/onboarding',
     element: (
       <RequireAuth>
-        <Stub name="Seller onboarding" />
+        <SellerOnboardingPage />
       </RequireAuth>
     ),
   },
@@ -79,7 +81,7 @@ export const router = createBrowserRouter([
     path: '/seller/onboarded',
     element: (
       <RequireAuth>
-        <Stub name="Seller onboarded" />
+        <SellerOnboardedPage />
       </RequireAuth>
     ),
   },

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuthStore } from '@/state/useAuthStore';
 import { useToastStore } from '@/state/useToastStore';
 import { auth } from '@/api/auth';
@@ -185,12 +186,12 @@ export default function MyProfilePage() {
                       Required to publish lots. Funds released after buyer confirms delivery.
                     </div>
                   </div>
-                  <button
-                    type="button"
-                    className="rounded-md bg-accent hover:bg-accent-deep text-white font-medium px-3.5 py-1.5 text-xs transition"
+                  <Link
+                    to="/seller/onboarding"
+                    className="rounded-md bg-accent hover:bg-accent-deep text-white font-medium px-3.5 py-1.5 text-xs transition no-underline"
                   >
                     Connect Stripe
-                  </button>
+                  </Link>
                 </div>
               </ProfileSection>
             ) : (

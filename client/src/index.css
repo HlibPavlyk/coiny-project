@@ -56,7 +56,7 @@
 html, body, #root {
   margin: 0;
   padding: 0;
-  height: 100%;
+  min-height: 100vh;
   font-family: var(--font-sans);
   color: var(--color-text);
   background: var(--color-bg);
@@ -65,6 +65,40 @@ html, body, #root {
   font-feature-settings: 'cv11', 'ss01';
   font-size: 14px;
   line-height: 1.5;
+}
+
+/*
+ * Sticky-footer pattern without touching any route JSX.
+ *
+ * #root becomes a flex column at viewport height. The page wrapper (the bare
+ * <div> each route returns) gets `display: contents` — it disappears from
+ * layout, and its children (TopNav, sections, Footer) "promote" to become
+ * direct flex items of #root. The Footer then uses `margin-top: auto` to
+ * absorb leftover vertical space and stick to the bottom on short pages.
+ *
+ * `width: 100%` on the promoted children matters: a few sections (e.g. the
+ * category-cards section on HomePage, the main grid on CategoryPage) carry
+ * `max-w-[1280px] mx-auto` directly on themselves. In flex layout, `mx-auto`
+ * normally shrinks the flex item to its content width before centering, which
+ * was making whole sections look squeezed. Forcing `width: 100%` keeps each
+ * item at full cross-axis size; `max-w` then caps it at 1280px and `mx-auto`
+ * cleanly distributes the leftover space.
+ *
+ * `:first-child` skips ToastViewport (App.tsx's second #root child), which
+ * uses `position: fixed` and shouldn't be flattened.
+ */
+#root {
+  display: flex;
+  flex-direction: column;
+}
+#root > div:first-child {
+  display: contents;
+}
+#root > div:first-child > * {
+  width: 100%;
+}
+#root footer {
+  margin-top: auto;
 }
 
 .mono {
