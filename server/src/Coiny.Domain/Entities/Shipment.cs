@@ -33,6 +33,13 @@ public class Shipment
 
     public string RecipientWarehouseRef { get; set; } = string.Empty;
 
+    /// <summary>Display label for <see cref="RecipientCityRef"/>, captured at checkout-details time.
+    /// Denormalized so the shipment read endpoint doesn't need to round-trip NP to render the address.</summary>
+    public string RecipientCityLabel { get; set; } = string.Empty;
+
+    /// <summary>Display label for <see cref="RecipientWarehouseRef"/>, captured at checkout-details time.</summary>
+    public string RecipientWarehouseLabel { get; set; } = string.Empty;
+
     public string RecipientName { get; set; } = string.Empty;
 
     /// <summary>Ukrainian phone format <c>+380…</c>.</summary>

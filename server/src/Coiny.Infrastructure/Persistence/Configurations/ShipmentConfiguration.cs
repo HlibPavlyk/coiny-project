@@ -38,6 +38,14 @@ public class ShipmentConfiguration : IEntityTypeConfiguration<Shipment>
             .HasMaxLength(64)
             .IsRequired();
 
+        builder.Property(s => s.RecipientCityLabel)
+            .HasMaxLength(200)
+            .IsRequired();
+
+        builder.Property(s => s.RecipientWarehouseLabel)
+            .HasMaxLength(500)
+            .IsRequired();
+
         builder.Property(s => s.RecipientName)
             .HasMaxLength(200)
             .IsRequired();

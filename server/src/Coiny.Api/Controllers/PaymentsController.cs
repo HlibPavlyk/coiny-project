@@ -34,7 +34,9 @@ public class PaymentsController(IMediator mediator) : ControllerBase
         mediator.Send(new CheckoutDetailsRequest(
             lotId,
             body.RecipientCityRef,
+            body.RecipientCityLabel,
             body.RecipientWarehouseRef,
+            body.RecipientWarehouseLabel,
             body.RecipientName,
             body.RecipientPhone), ct);
 
@@ -54,6 +56,8 @@ public class PaymentsController(IMediator mediator) : ControllerBase
 
 public record CheckoutDetailsBody(
     string RecipientCityRef,
+    string RecipientCityLabel,
     string RecipientWarehouseRef,
+    string RecipientWarehouseLabel,
     string RecipientName,
     string RecipientPhone);

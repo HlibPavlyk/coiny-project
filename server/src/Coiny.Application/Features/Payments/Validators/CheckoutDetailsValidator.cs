@@ -17,6 +17,14 @@ public class CheckoutDetailsValidator : AbstractValidator<CheckoutDetailsRequest
             .NotEmpty()
             .MaximumLength(64);
 
+        RuleFor(x => x.RecipientCityLabel)
+            .NotEmpty()
+            .MaximumLength(200);
+
+        RuleFor(x => x.RecipientWarehouseLabel)
+            .NotEmpty()
+            .MaximumLength(500);
+
         RuleFor(x => x.RecipientName)
             .NotEmpty()
             .MaximumLength(200);
