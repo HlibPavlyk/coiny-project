@@ -1,4 +1,4 @@
-namespace Coiny.Application.Features.Shipments.Models.NovaPoshta;
+namespace Coiny.Application.Abstractions.Shipping;
 
 /// <summary>
 /// Inputs for <c>InternetDocument/save</c>. Refs reference cities/warehouses obtained

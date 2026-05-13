@@ -1,5 +1,4 @@
 using Coiny.Application.Abstractions.Shipping;
-using Coiny.Application.Features.Shipments.Models.NovaPoshta;
 
 namespace Coiny.Application.Tests.Fakes;
 

@@ -2,7 +2,6 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Coiny.Application.Abstractions.Shipping;
-using Coiny.Application.Features.Shipments.Models.NovaPoshta;
 using Microsoft.Extensions.Options;
 
 namespace Coiny.Infrastructure.ExternalServices.NovaPoshta;

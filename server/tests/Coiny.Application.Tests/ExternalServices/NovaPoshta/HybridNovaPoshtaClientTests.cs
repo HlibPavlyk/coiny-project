@@ -1,5 +1,5 @@
 using Coiny.Application.Abstractions.Providers;
-using Coiny.Application.Features.Shipments.Models.NovaPoshta;
+using Coiny.Application.Abstractions.Shipping;
 using Coiny.Infrastructure.ExternalServices.NovaPoshta;
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -104,11 +104,6 @@ public class HybridNovaPoshtaClientTests
             {
                 ApiKey = "test",
                 BaseUrl = "http://localhost/",
-                PlatformSender = new PlatformSenderOptions
-                {
-                    Name = "test", Phone = "+380000000000",
-                    CityRef = "city", WarehouseRef = "wh",
-                },
             }));
 
         return new HybridNovaPoshtaClient(realClient, clock, NullLogger<HybridNovaPoshtaClient>.Instance);

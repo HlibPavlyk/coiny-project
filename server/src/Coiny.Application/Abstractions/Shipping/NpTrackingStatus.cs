@@ -1,4 +1,4 @@
-namespace Coiny.Application.Features.Shipments.Models.NovaPoshta;
+namespace Coiny.Application.Abstractions.Shipping;
 
 /// <summary>
 /// Single status row from <c>TrackingDocument/getStatusDocuments</c>.

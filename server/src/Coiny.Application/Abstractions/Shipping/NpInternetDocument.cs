@@ -1,4 +1,4 @@
-namespace Coiny.Application.Features.Shipments.Models.NovaPoshta;
+namespace Coiny.Application.Abstractions.Shipping;
 
 /// <summary>
 /// Result of <c>InternetDocument/save</c>. <see cref="Ttn"/> is the public waybill number

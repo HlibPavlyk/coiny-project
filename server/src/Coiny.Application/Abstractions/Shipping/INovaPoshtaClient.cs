@@ -1,5 +1,3 @@
-using Coiny.Application.Features.Shipments.Models.NovaPoshta;
-
 namespace Coiny.Application.Abstractions.Shipping;
 
 /// <summary>

@@ -1,4 +1,4 @@
-namespace Coiny.Application.Features.Shipments.Models.NovaPoshta;
+namespace Coiny.Application.Abstractions.Shipping;
 
 /// <summary>
 /// Settlement (city / village / town) returned by Nova Poshta <c>Address/searchSettlements</c>.

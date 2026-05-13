@@ -1,4 +1,4 @@
-namespace Coiny.Application.Features.Shipments.Models.NovaPoshta;
+namespace Coiny.Application.Abstractions.Shipping;
 
 /// <summary>
 /// Nova Poshta warehouse (branch office). <see cref="Ref"/> is the NP id;
