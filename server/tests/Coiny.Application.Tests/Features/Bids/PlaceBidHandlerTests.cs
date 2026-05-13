@@ -327,6 +327,8 @@ public class PlaceBidHandlerTests
         }
 
         public string EnqueueCreateTtn(Guid paymentId) => "test-ttn-job-id";
+
+        public string ScheduleCapture(Guid paymentId, TimeSpan delay) => "test-capture-job-id";
     }
 
     private sealed class TestAuctionNotifier : IAuctionNotifier

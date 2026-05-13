@@ -18,4 +18,11 @@ public interface IJobScheduler
 
     /// <summary>Fire-and-forget enqueue of <see cref="ICreateTtnJob"/> for the given paid payment.</summary>
     string EnqueueCreateTtn(Guid paymentId);
+
+    /// <summary>
+    /// Delayed enqueue of <see cref="ICapturePaymentJob"/>. Scheduled by the NP polling job
+    /// when a shipment first transitions to Delivered, with a <paramref name="delay"/> buffer
+    /// (24h per THESIS-SCOPE §1 §7).
+    /// </summary>
+    string ScheduleCapture(Guid paymentId, TimeSpan delay);
 }

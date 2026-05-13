@@ -251,6 +251,8 @@ public class StripeWebhookProcessorTests
             LastCreateTtnPaymentId = paymentId;
             return "ttn-id";
         }
+
+        public string ScheduleCapture(Guid paymentId, TimeSpan delay) => "capture-id";
     }
 
     private sealed class FixedClock(DateTime utcNow) : IDateTimeProvider

@@ -81,6 +81,11 @@ RecurringJob.AddOrUpdate<RetryFailedWebhookJob>(
     job => job.RunAsync(CancellationToken.None),
     Cron.Hourly());
 
+RecurringJob.AddOrUpdate<NovaPoshtaPollingJob>(
+    "np-polling",
+    job => job.RunAsync(CancellationToken.None),
+    "*/15 * * * *");
+
 app.MapControllers();
 app.MapHub<AuctionHub>("/auctionHub");
 app.Run();
