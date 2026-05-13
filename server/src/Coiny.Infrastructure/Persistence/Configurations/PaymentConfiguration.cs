@@ -36,6 +36,9 @@ public class PaymentConfiguration : IEntityTypeConfiguration<Payment>
         builder.Property(p => p.CancelledAt)
             .HasColumnType("timestamptz");
 
+        builder.Property(p => p.ReminderSentAt)
+            .HasColumnType("timestamptz");
+
         builder.Property(p => p.CreatedAt)
             .HasColumnType("timestamptz");
 

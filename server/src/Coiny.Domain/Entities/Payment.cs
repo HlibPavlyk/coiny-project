@@ -37,6 +37,10 @@ public class Payment
 
     public DateTime? CancelledAt { get; set; }
 
+    /// <summary>UTC. Set by <c>PaymentReminderJob</c> when the 48h won-pay reminder is emitted.
+    /// Guards against duplicate emails when the job re-fires in the same hourly window.</summary>
+    public DateTime? ReminderSentAt { get; set; }
+
     /// <summary>Most recent Stripe <c>event.id</c> that mutated this row. Debug aid.</summary>
     public string? LastWebhookEventId { get; set; }
 

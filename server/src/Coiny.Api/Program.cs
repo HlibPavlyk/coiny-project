@@ -86,6 +86,16 @@ RecurringJob.AddOrUpdate<NovaPoshtaPollingJob>(
     job => job.RunAsync(CancellationToken.None),
     "*/15 * * * *");
 
+RecurringJob.AddOrUpdate<NonPaymentCancelJob>(
+    "non-payment-cancel",
+    job => job.RunAsync(CancellationToken.None),
+    Cron.Daily());
+
+RecurringJob.AddOrUpdate<PaymentReminderJob>(
+    "payment-reminder",
+    job => job.RunAsync(CancellationToken.None),
+    Cron.Hourly());
+
 app.MapControllers();
 app.MapHub<AuctionHub>("/auctionHub");
 app.Run();

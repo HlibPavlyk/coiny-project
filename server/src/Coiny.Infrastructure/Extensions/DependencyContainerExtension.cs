@@ -136,6 +136,8 @@ public static class DependencyContainerExtension
         services.AddScoped<ICreateTtnJob, CreateTtnJob>();
         services.AddScoped<ICapturePaymentJob, CapturePaymentJob>();
         services.AddScoped<NovaPoshtaPollingJob>();
+        services.AddScoped<NonPaymentCancelJob>();
+        services.AddScoped<PaymentReminderJob>();
         services.AddScoped<IJobScheduler, HangfireJobScheduler>();
     }
 }

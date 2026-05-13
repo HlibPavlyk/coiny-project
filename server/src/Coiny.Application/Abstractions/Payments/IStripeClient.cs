@@ -35,4 +35,12 @@ public interface IStripeClient
     /// <c>Payment.Status = Captured</c> — this method itself does not mutate local state.
     /// </summary>
     Task<StripePaymentIntentResult> CapturePaymentIntentAsync(string paymentIntentId, CancellationToken ct);
+
+    /// <summary>
+    /// Cancel an authorized or pending PaymentIntent. <paramref name="reason"/> follows Stripe's
+    /// vocabulary (<c>"abandoned"</c>, <c>"requested_by_customer"</c>, <c>"fraudulent"</c>, …).
+    /// The Stripe <c>payment_intent.canceled</c> webhook is the source of truth for
+    /// <c>Payment.Status = Cancelled</c>.
+    /// </summary>
+    Task<StripePaymentIntentResult> CancelPaymentIntentAsync(string paymentIntentId, string? reason, CancellationToken ct);
 }

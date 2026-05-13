@@ -92,7 +92,7 @@ public class StripeClient : IAppStripeClient
         return new StripePaymentIntentResult(intent.Id, intent.Status, intent.ClientSecret);
     }
 
-    public Task<PaymentIntent> CancelPaymentIntentAsync(
+    public async Task<StripePaymentIntentResult> CancelPaymentIntentAsync(
         string paymentIntentId,
         string? reason,
         CancellationToken ct)
@@ -103,7 +103,8 @@ public class StripeClient : IAppStripeClient
             CancellationReason = reason,
         };
 
-        return service.CancelAsync(paymentIntentId, cancelOptions, cancellationToken: ct);
+        PaymentIntent intent = await service.CancelAsync(paymentIntentId, cancelOptions, cancellationToken: ct);
+        return new StripePaymentIntentResult(intent.Id, intent.Status, intent.ClientSecret);
     }
 
     private static StripeAccountInfo MapAccount(Account account) => new(

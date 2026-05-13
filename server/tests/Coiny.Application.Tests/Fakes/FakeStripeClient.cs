@@ -86,4 +86,22 @@ public sealed class FakeStripeClient : IStripeClient
             Status: "succeeded",
             ClientSecret: null));
     }
+
+    public int CancelPaymentIntentCalls { get; private set; }
+    public string? LastCancelledPaymentIntentId { get; private set; }
+    public string? LastCancelReason { get; private set; }
+
+    public Task<StripePaymentIntentResult> CancelPaymentIntentAsync(
+        string paymentIntentId,
+        string? reason,
+        CancellationToken ct)
+    {
+        CancelPaymentIntentCalls++;
+        LastCancelledPaymentIntentId = paymentIntentId;
+        LastCancelReason = reason;
+        return Task.FromResult(new StripePaymentIntentResult(
+            Id: paymentIntentId,
+            Status: "canceled",
+            ClientSecret: null));
+    }
 }
