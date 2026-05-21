@@ -1,4 +1,3 @@
-using Coiny.Application.Abstractions.Providers;
 using Coiny.Application.Tests.Fakes;
 using Coiny.Domain.Entities;
 using Coiny.Domain.Enums;
@@ -28,11 +27,12 @@ public class CapturePaymentJobTests
     }
 
     [Fact]
-    public async Task Captures_when_authorized_delivered_and_24h_elapsed()
+    public async Task Captures_immediately_when_authorized_and_delivered()
     {
         using var ctx = NewDb();
         Payment payment = SeedPayment(ctx, PaymentStatus.Authorized);
-        SeedShipment(ctx, payment, ShipmentStatus.Delivered, deliveredAt: Now.AddHours(-25));
+        // Delivered just now — no buffer, capture fires straight away (THESIS-SCOPE §B/§F).
+        SeedShipment(ctx, payment, ShipmentStatus.Delivered, deliveredAt: Now);
         await ctx.SaveChangesAsync();
 
         var stripe = new FakeStripeClient();
@@ -81,22 +81,6 @@ public class CapturePaymentJobTests
     }
 
     [Fact]
-    public async Task Skips_when_scheduled_before_24h_buffer()
-    {
-        using var ctx = NewDb();
-        Payment payment = SeedPayment(ctx, PaymentStatus.Authorized);
-        SeedShipment(ctx, payment, ShipmentStatus.Delivered, deliveredAt: Now.AddHours(-1));
-        await ctx.SaveChangesAsync();
-
-        var stripe = new FakeStripeClient();
-        var job = NewJob(ctx, stripe);
-
-        await job.RunAsync(payment.Id, CancellationToken.None);
-
-        stripe.CapturePaymentIntentCalls.Should().Be(0);
-    }
-
-    [Fact]
     public async Task Skips_when_payment_failed()
     {
         using var ctx = NewDb();
@@ -115,7 +99,7 @@ public class CapturePaymentJobTests
     // ── helpers ────────────────────────────────────────────────────────────
 
     private static CapturePaymentJob NewJob(ApplicationDbContext ctx, FakeStripeClient stripe) =>
-        new(ctx, stripe, new FixedClock(Now), NullLogger<CapturePaymentJob>.Instance);
+        new(ctx, stripe, NullLogger<CapturePaymentJob>.Instance);
 
     private static ApplicationDbContext NewDb()
     {
@@ -175,8 +159,4 @@ public class CapturePaymentJobTests
         });
     }
 
-    private sealed class FixedClock(DateTime utcNow) : IDateTimeProvider
-    {
-        public DateTime UtcNow { get; } = utcNow;
-    }
 }

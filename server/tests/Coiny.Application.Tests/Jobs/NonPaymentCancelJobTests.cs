@@ -48,7 +48,7 @@ public class NonPaymentCancelJobTests
         Lot updatedLot = await ctx.Lots.SingleAsync(l => l.Id == lot.Id);
         updatedLot.Status.Should().Be(LotStatus.EndedNoSale);
 
-        OutboxEvent outbox = await ctx.OutboxEvents.SingleAsync();
+        SearchOutboxEvent outbox = await ctx.SearchOutboxEvents.SingleAsync();
         outbox.EventType.Should().Be(LotEndedPayload.EventType);
         outbox.AggregateId.Should().Be(lot.Id);
     }

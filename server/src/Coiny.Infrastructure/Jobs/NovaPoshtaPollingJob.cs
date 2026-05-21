@@ -15,13 +15,15 @@ namespace Coiny.Infrastructure.Jobs;
 /// <summary>
 /// Polls Nova Poshta every 15 minutes for status updates on every active shipment. Records each
 /// observation as an append-only <see cref="ShipmentEvent"/>, transitions <see cref="Shipment.Status"/>
-/// when NP reports progress, schedules <see cref="ICapturePaymentJob"/> 24h after Delivered, and
+/// when NP reports progress, and on terminal transitions enqueues the matching payment job:
+/// Delivered → <see cref="ICapturePaymentJob"/> (immediate, no buffer); Refused / Returned →
+/// <see cref="ICancelPaymentJob"/> (refund the hold); Lost → log for manual admin handling. Also
 /// enqueues <c>ShipmentStatusChanged</c> outbox events for the user-visible transitions (InTransit,
 /// Delivered).
 ///
-/// Idempotent — the unique tuple <c>(ShipmentId, NpStatusCode, ObservedAt)</c> on ShipmentEvent
-/// dedupes accidental duplicate writes; the <c>Status != newStatus</c> guard ensures no double
-/// transitions or duplicate outbox rows.
+/// Idempotent — events are recorded only when the NP status code changes; the <c>Status != newStatus</c>
+/// guard ensures no double transitions or duplicate outbox rows. Once a shipment reaches a terminal
+/// status it drops out of the polled set entirely, so each payment job is enqueued at most once.
 /// </summary>
 [AutomaticRetry(Attempts = 3)]
 public class NovaPoshtaPollingJob(
@@ -32,7 +34,6 @@ public class NovaPoshtaPollingJob(
     ILogger<NovaPoshtaPollingJob> logger)
 {
     private const int _batchSize = 100;
-    private static readonly TimeSpan _captureDelay = TimeSpan.FromHours(24);
 
     public async Task RunAsync(CancellationToken ct)
     {
@@ -105,17 +106,38 @@ public class NovaPoshtaPollingJob(
             shipment.Status = mapped.Value;
             shipment.UpdatedAt = now;
 
-            // First Delivered → set DeliveredAt + schedule capture.
-            if (mapped.Value == ShipmentStatus.Delivered && shipment.DeliveredAt is null)
+            // First Delivered → set DeliveredAt + capture immediately (no buffer; THESIS-SCOPE §B/§F:
+            // NP-counter handover is the truth point). Refused / Returned → cancel the authorized
+            // intent so the hold is refunded to the buyer. Lost → log for manual admin handling.
+            switch (mapped.Value)
             {
-                shipment.DeliveredAt = now;
-                if (shipment.PaymentId is { } paymentId)
-                {
-                    jobs.ScheduleCapture(paymentId, _captureDelay);
-                    logger.LogInformation(
-                        "NovaPoshtaPolling: shipment {ShipmentId} Delivered — capture scheduled in {Delay}",
-                        shipment.Id, _captureDelay);
-                }
+                case ShipmentStatus.Delivered when shipment.DeliveredAt is null:
+                    shipment.DeliveredAt = now;
+                    if (shipment.PaymentId is { } capturePaymentId)
+                    {
+                        jobs.EnqueueCapture(capturePaymentId);
+                        logger.LogInformation(
+                            "NovaPoshtaPolling: shipment {ShipmentId} Delivered — capture enqueued",
+                            shipment.Id);
+                    }
+                    break;
+
+                case ShipmentStatus.Refused:
+                case ShipmentStatus.Returned:
+                    if (shipment.PaymentId is { } cancelPaymentId)
+                    {
+                        jobs.EnqueueCancelPayment(cancelPaymentId);
+                        logger.LogInformation(
+                            "NovaPoshtaPolling: shipment {ShipmentId} {Status} — refund (cancel) enqueued",
+                            shipment.Id, mapped.Value);
+                    }
+                    break;
+
+                case ShipmentStatus.Lost:
+                    logger.LogWarning(
+                        "NovaPoshtaPolling: shipment {ShipmentId} reported Lost (payment {PaymentId}) — needs manual admin handling",
+                        shipment.Id, shipment.PaymentId);
+                    break;
             }
 
             // Outbox row only for user-visible transitions per THESIS-SCOPE.md §1 §15.

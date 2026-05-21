@@ -79,7 +79,7 @@ public class DeleteLotHandler(
         lot.UpdatedAt = now;
 
         LotEndedPayload payload = new(lot.Id, lot.Status);
-        db.OutboxEvents.Add(new OutboxEvent
+        db.SearchOutboxEvents.Add(new SearchOutboxEvent
         {
             AggregateType = "Lot",
             AggregateId = lot.Id,

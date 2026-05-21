@@ -44,7 +44,7 @@ public class AuctionCloseJobTests
         lot.WinningBidId.Should().BeNull();
         lot.AuctionCloseJobId.Should().BeNull();
 
-        ctx.OutboxEvents.Should().ContainSingle(o => o.EventType == "LotEnded" && o.AggregateId == _lotId);
+        ctx.SearchOutboxEvents.Should().ContainSingle(o => o.EventType == "LotEnded" && o.AggregateId == _lotId);
         ctx.EmailOutboxEvents.Should().BeEmpty();
         (await ctx.Categories.AsNoTracking().FirstAsync(c => c.Id == 1)).LotCountActive.Should().Be(0);
         f.Notifier.NotifyLotChangedCalls.Should().Be(1);
@@ -72,7 +72,7 @@ public class AuctionCloseJobTests
         lot.WinningBidId.Should().Be(winningBidId);
         lot.AuctionCloseJobId.Should().BeNull();
 
-        ctx.OutboxEvents.Should().ContainSingle(o => o.EventType == "LotSold" && o.AggregateId == _lotId);
+        ctx.SearchOutboxEvents.Should().ContainSingle(o => o.EventType == "LotSold" && o.AggregateId == _lotId);
         ctx.EmailOutboxEvents.Should().ContainSingle(e =>
             e.EventType == "AuctionWonPayWithin96h" && e.AggregateId == _bidderB);
         (await ctx.Categories.AsNoTracking().FirstAsync(c => c.Id == 1)).LotCountActive.Should().Be(0);
@@ -96,7 +96,7 @@ public class AuctionCloseJobTests
 
         Lot lot = await ctx.Lots.AsNoTracking().FirstAsync(l => l.Id == _lotId);
         lot.Status.Should().Be(LotStatus.Sold); // unchanged
-        ctx.OutboxEvents.Should().BeEmpty();
+        ctx.SearchOutboxEvents.Should().BeEmpty();
         ctx.EmailOutboxEvents.Should().BeEmpty();
         f.Notifier.NotifyLotChangedCalls.Should().Be(0);
         f.Scheduler.RescheduleCalls.Should().Be(0);
@@ -128,7 +128,7 @@ public class AuctionCloseJobTests
         f.Scheduler.LastPreviousJobId.Should().Be("old-job-id");
         f.Scheduler.LastEndsAt.Should().Be(newEndsAt);
         f.Notifier.NotifyLotChangedCalls.Should().Be(0);
-        ctx.OutboxEvents.Should().BeEmpty();
+        ctx.SearchOutboxEvents.Should().BeEmpty();
     }
 
     // ── helpers ────────────────────────────────────────────────────────────
@@ -237,7 +237,8 @@ public class AuctionCloseJobTests
 
         public string EnqueueCreateTtn(Guid paymentId) => "ttn-job-id";
 
-        public string ScheduleCapture(Guid paymentId, TimeSpan delay) => "capture-job-id";
+        public string EnqueueCapture(Guid paymentId) => "capture-job-id";
+        public string EnqueueCancelPayment(Guid paymentId) => "cancel-job-id";
     }
 
     private sealed class TestNotifier : IAuctionNotifier

@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Coiny.Infrastructure.Persistence.Configurations;
 
-public class OutboxEventConfiguration : IEntityTypeConfiguration<OutboxEvent>
+public class SearchOutboxEventConfiguration : IEntityTypeConfiguration<SearchOutboxEvent>
 {
-    public void Configure(EntityTypeBuilder<OutboxEvent> builder)
+    public void Configure(EntityTypeBuilder<SearchOutboxEvent> builder)
     {
         builder.HasKey(e => e.Id);
 

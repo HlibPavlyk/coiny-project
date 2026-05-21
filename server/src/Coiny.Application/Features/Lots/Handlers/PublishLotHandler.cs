@@ -66,7 +66,7 @@ public class PublishLotHandler(
             lot.CreatedAt,
             attrs.RootElement.Clone());
 
-        db.OutboxEvents.Add(new OutboxEvent
+        db.SearchOutboxEvents.Add(new SearchOutboxEvent
         {
             AggregateType = "Lot",
             AggregateId = lot.Id,

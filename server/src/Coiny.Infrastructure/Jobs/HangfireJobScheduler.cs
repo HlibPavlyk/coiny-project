@@ -24,8 +24,9 @@ public class HangfireJobScheduler(IBackgroundJobClient client) : IJobScheduler
     public string EnqueueCreateTtn(Guid paymentId) =>
         client.Enqueue<ICreateTtnJob>(j => j.RunAsync(paymentId, CancellationToken.None));
 
-    public string ScheduleCapture(Guid paymentId, TimeSpan delay) =>
-        client.Schedule<ICapturePaymentJob>(
-            j => j.RunAsync(paymentId, CancellationToken.None),
-            delay);
+    public string EnqueueCapture(Guid paymentId) =>
+        client.Enqueue<ICapturePaymentJob>(j => j.RunAsync(paymentId, CancellationToken.None));
+
+    public string EnqueueCancelPayment(Guid paymentId) =>
+        client.Enqueue<ICancelPaymentJob>(j => j.RunAsync(paymentId, CancellationToken.None));
 }

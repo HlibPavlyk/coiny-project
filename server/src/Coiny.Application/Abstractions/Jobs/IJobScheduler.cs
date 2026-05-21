@@ -20,9 +20,16 @@ public interface IJobScheduler
     string EnqueueCreateTtn(Guid paymentId);
 
     /// <summary>
-    /// Delayed enqueue of <see cref="ICapturePaymentJob"/>. Scheduled by the NP polling job
-    /// when a shipment first transitions to Delivered, with a <paramref name="delay"/> buffer
-    /// (24h per THESIS-SCOPE §1 §7).
+    /// Fire-and-forget enqueue of <see cref="ICapturePaymentJob"/>. Enqueued by the NP polling job
+    /// on the same fire that observes the shipment reaching Delivered — captured immediately, with
+    /// no time buffer (THESIS-SCOPE §B/§F: NP-counter handover is the operational truth point).
     /// </summary>
-    string ScheduleCapture(Guid paymentId, TimeSpan delay);
+    string EnqueueCapture(Guid paymentId);
+
+    /// <summary>
+    /// Fire-and-forget enqueue of <see cref="ICancelPaymentJob"/>. Enqueued by the NP polling job
+    /// when a shipment reaches Refused or Returned — cancels the authorized PaymentIntent to release
+    /// the hold back to the buyer (THESIS-SCOPE §B: automated refund on non-delivery).
+    /// </summary>
+    string EnqueueCancelPayment(Guid paymentId);
 }

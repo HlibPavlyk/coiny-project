@@ -86,7 +86,7 @@ public class NonPaymentCancelJob(
             lot.Status = LotStatus.EndedNoSale;
             lot.UpdatedAt = now;
 
-            db.OutboxEvents.Add(new OutboxEvent
+            db.SearchOutboxEvents.Add(new SearchOutboxEvent
             {
                 AggregateType = nameof(Lot),
                 AggregateId = lot.Id,

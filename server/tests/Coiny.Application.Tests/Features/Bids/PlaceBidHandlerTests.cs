@@ -48,7 +48,7 @@ public class PlaceBidHandlerTests
         result.Value.NewBidCount.Should().Be(1);
 
         ctx.Bids.Should().HaveCount(1);
-        ctx.OutboxEvents.Should().ContainSingle(o => o.EventType == "LotPriceChanged");
+        ctx.SearchOutboxEvents.Should().ContainSingle(o => o.EventType == "LotPriceChanged");
         m.Notifier.NotifyLotChangedCalls.Should().Be(1);
         m.Notifier.LastLotId.Should().Be(_lotId);
         m.Scheduler.RescheduleCalls.Should().Be(0);
@@ -328,7 +328,8 @@ public class PlaceBidHandlerTests
 
         public string EnqueueCreateTtn(Guid paymentId) => "test-ttn-job-id";
 
-        public string ScheduleCapture(Guid paymentId, TimeSpan delay) => "test-capture-job-id";
+        public string EnqueueCapture(Guid paymentId) => "test-capture-job-id";
+        public string EnqueueCancelPayment(Guid paymentId) => "test-cancel-job-id";
     }
 
     private sealed class TestAuctionNotifier : IAuctionNotifier

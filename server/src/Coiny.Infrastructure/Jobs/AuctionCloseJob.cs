@@ -76,7 +76,7 @@ public class AuctionCloseJob(
             lot.Status = LotStatus.EndedNoSale;
             lot.UpdatedAt = now;
 
-            db.OutboxEvents.Add(new OutboxEvent
+            db.SearchOutboxEvents.Add(new SearchOutboxEvent
             {
                 AggregateType = "Lot",
                 AggregateId = lot.Id,
@@ -91,7 +91,7 @@ public class AuctionCloseJob(
             lot.WinningBidId = topBid.Id;
             lot.UpdatedAt = now;
 
-            db.OutboxEvents.Add(new OutboxEvent
+            db.SearchOutboxEvents.Add(new SearchOutboxEvent
             {
                 AggregateType = "Lot",
                 AggregateId = lot.Id,

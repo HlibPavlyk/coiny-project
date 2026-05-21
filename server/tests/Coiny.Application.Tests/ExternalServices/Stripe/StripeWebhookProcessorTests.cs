@@ -252,7 +252,8 @@ public class StripeWebhookProcessorTests
             return "ttn-id";
         }
 
-        public string ScheduleCapture(Guid paymentId, TimeSpan delay) => "capture-id";
+        public string EnqueueCapture(Guid paymentId) => "capture-id";
+        public string EnqueueCancelPayment(Guid paymentId) => "cancel-id";
     }
 
     private sealed class FixedClock(DateTime utcNow) : IDateTimeProvider

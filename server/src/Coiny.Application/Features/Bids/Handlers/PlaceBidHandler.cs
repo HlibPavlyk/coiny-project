@@ -90,7 +90,7 @@ public class PlaceBidHandler(
         }
 
         var payload = new LotPriceChangedPayload(lot.Id, lot.CurrentPriceUahKopiykas, lot.BidCount, lot.EndsAt);
-        db.OutboxEvents.Add(new OutboxEvent
+        db.SearchOutboxEvents.Add(new SearchOutboxEvent
         {
             AggregateType = "Lot",
             AggregateId = lot.Id,

@@ -13,7 +13,7 @@ public interface IApplicationDbContext
     DbSet<LotImage> LotImages { get; }
     DbSet<Bid> Bids { get; }
     DbSet<EmailVerificationToken> EmailVerificationTokens { get; }
-    DbSet<OutboxEvent> OutboxEvents { get; }
+    DbSet<SearchOutboxEvent> SearchOutboxEvents { get; }
     DbSet<EmailOutboxEvent> EmailOutboxEvents { get; }
     DbSet<Report> Reports { get; }
     DbSet<Payment> Payments { get; }
