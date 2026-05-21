@@ -54,7 +54,7 @@
   </ItemGroup>
 
   <ItemGroup Label="Meilisearch">
-    <PackageVersion Include="Meilisearch" Version="0.21.0" />
+    <PackageVersion Include="Meilisearch" Version="0.18.0" />
   </ItemGroup>
 
   <ItemGroup Label="Cloudflare R2 (S3-compatible)">

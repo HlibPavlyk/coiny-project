@@ -7,6 +7,7 @@ using Coiny.Api.Realtime;
 using Coiny.Api.Services;
 using Coiny.Application.Abstractions.Http;
 using Coiny.Application.Abstractions.Realtime;
+using Coiny.Application.Abstractions.Search;
 using Coiny.Application.Common.Json;
 using Coiny.Application.Extensions;
 using Coiny.Infrastructure.Extensions;
@@ -95,6 +96,14 @@ RecurringJob.AddOrUpdate<PaymentReminderJob>(
     "payment-reminder",
     job => job.RunAsync(CancellationToken.None),
     Cron.Hourly());
+
+// Ensure the Meilisearch index exists and its attribute config is applied before serving traffic.
+// Idempotent — safe on every startup.
+using (IServiceScope scope = app.Services.CreateScope())
+{
+    ISearchIndex searchIndex = scope.ServiceProvider.GetRequiredService<ISearchIndex>();
+    await searchIndex.EnsureIndexAsync(CancellationToken.None);
+}
 
 app.MapControllers();
 app.MapHub<AuctionHub>("/auctionHub");

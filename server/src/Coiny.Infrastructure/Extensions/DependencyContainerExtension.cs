@@ -4,10 +4,13 @@ using Coiny.Application.Abstractions.Email;
 using Coiny.Application.Abstractions.Files;
 using Coiny.Application.Abstractions.Jobs;
 using Coiny.Application.Abstractions.Payments;
+using Coiny.Application.Abstractions.Search;
 using Coiny.Application.Abstractions.Shipping;
 using Coiny.Infrastructure.ExternalServices.NovaPoshta;
 using Coiny.Infrastructure.ExternalServices.Resend;
+using Coiny.Infrastructure.ExternalServices.Search;
 using Coiny.Infrastructure.ExternalServices.Stripe;
+using Meilisearch;
 using Coiny.Infrastructure.Files;
 using Coiny.Infrastructure.Identity;
 using Coiny.Infrastructure.Jobs;
@@ -33,6 +36,26 @@ public static class DependencyContainerExtension
         services.AddR2FileStorage(configuration);
         services.AddStripe(configuration);
         services.AddNovaPoshta(configuration);
+        services.AddSearch(configuration);
+    }
+
+    private static void AddSearch(this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        services.AddOptions<MeilisearchOptions>()
+            .Bind(configuration.GetSection(MeilisearchOptions.Section))
+            .ValidateOnStart();
+
+        services.AddSingleton<IValidateOptions<MeilisearchOptions>, MeilisearchOptionsValidator>();
+
+        // One MeilisearchClient for the app lifetime — it wraps an HttpClient internally.
+        services.AddSingleton(sp =>
+        {
+            MeilisearchOptions opts = sp.GetRequiredService<IOptions<MeilisearchOptions>>().Value;
+            return new MeilisearchClient(opts.Url, opts.MasterKey);
+        });
+
+        services.AddScoped<ISearchIndex, MeilisearchSearchIndex>();
     }
 
     private static void AddNovaPoshta(this IServiceCollection services,
