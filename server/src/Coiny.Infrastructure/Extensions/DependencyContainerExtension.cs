@@ -155,6 +155,7 @@ public static class DependencyContainerExtension
             opts.WorkerCount = Math.Min(Environment.ProcessorCount, 4));
 
         services.AddScoped<EmailOutboxFlushJob>();
+        services.AddScoped<SearchIndexFlushJob>();
         services.AddScoped<IAuctionCloseJob, AuctionCloseJob>();
         services.AddScoped<ICreateTtnJob, CreateTtnJob>();
         services.AddScoped<ICapturePaymentJob, CapturePaymentJob>();

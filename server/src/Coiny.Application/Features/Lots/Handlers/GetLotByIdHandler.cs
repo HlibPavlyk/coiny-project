@@ -2,6 +2,7 @@ using System.Text.Json;
 using Coiny.Application.Abstractions.Data;
 using Coiny.Application.Abstractions.Http;
 using Coiny.Application.Common.Results;
+using Coiny.Application.Features.Categories;
 using Coiny.Application.Features.Lots.Models;
 using Coiny.Application.Features.Lots.Requests;
 using Coiny.Domain.Entities;
@@ -117,17 +118,7 @@ public class GetLotByIdHandler(IApplicationDbContext db, ICurrentUserService cur
 
     private async Task<IReadOnlyList<string>> BuildCategoryPathAsync(int leafId, CancellationToken ct)
     {
-        List<Category> all = await db.Categories.AsNoTracking().ToListAsync(ct);
-        Dictionary<int, Category> byId = all.ToDictionary(c => c.Id);
-
-        List<string> path = [];
-        int? cursor = leafId;
-        while (cursor is int id && byId.TryGetValue(id, out Category? node))
-        {
-            path.Add(node.Name);
-            cursor = node.ParentId;
-        }
-        path.Reverse();
-        return path;
+        Dictionary<int, Category> byId = await db.Categories.AsNoTracking().ToDictionaryAsync(c => c.Id, ct);
+        return CategoryPathResolver.NamesFromRoot(leafId, byId);
     }
 }

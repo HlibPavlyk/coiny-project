@@ -77,6 +77,14 @@ RecurringJob.AddOrUpdate<EmailOutboxFlushJob>(
     job => job.RunAsync(CancellationToken.None),
     Cron.Minutely());
 
+// Search-index sync. 15s cron (6-field, with seconds) matching Hangfire's default 15s
+// SchedulePollingInterval — declaring 10s would be aspirational since the poller caps it at 15s.
+// THESIS-SCOPE §11 names 10s; 15s is the honest effective cadence (near-real-time for search).
+RecurringJob.AddOrUpdate<SearchIndexFlushJob>(
+    "search-index-flush",
+    job => job.RunAsync(CancellationToken.None),
+    "*/15 * * * * *");
+
 RecurringJob.AddOrUpdate<RetryFailedWebhookJob>(
     "stripe-webhook-retry",
     job => job.RunAsync(CancellationToken.None),

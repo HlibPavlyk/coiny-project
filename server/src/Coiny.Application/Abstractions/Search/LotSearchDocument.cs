@@ -15,19 +15,24 @@ public sealed record LotSearchDocument
     [Searchable] public required string Title { get; init; }
     [Searchable] public required string Description { get; init; }
     [Searchable] public required string CategoryPath { get; init; }
-    [Searchable] public string? Country { get; init; }
-    [Searchable] public int? Year { get; init; }
+    // Country is both full-text searchable and a sidebar facet (THESIS-SCOPE §11 facets).
+    [Searchable, Filterable] public string? Country { get; init; }
+    // Year is free-text in the lot's JSONB attributes (not guaranteed numeric), and it's a
+    // searchable-only field — so it's stored as a string rather than parsed to int.
+    [Searchable] public string? Year { get; init; }
 
     [Filterable] public required string Status { get; init; }
     [Filterable] public required int CategoryId { get; init; }
     [Filterable] public required string Condition { get; init; }
+    // Mirrored from the lot's JSONB attributes; a sidebar facet (per the planned facet set).
+    [Filterable] public string? Metal { get; init; }
 
-    [Filterable, Sortable]public required long CurrentPriceUahKopiykas { get; init; }
+    [Filterable, Sortable] public required long CurrentPriceUahKopiykas { get; init; }
     [Filterable, Sortable] public required long EndsAtUnix { get; init; }
 
     [Sortable] public required long CreatedAtUnix { get; init; }
+    [Sortable] public required int BidCount { get; init; }
 
     // Rendering-only — returned with results, not searched/faceted/sorted.
     public required string CoverImageUrl { get; init; }
-    public required int BidCount { get; init; }
 }
