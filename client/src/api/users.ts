@@ -1,5 +1,5 @@
 import { api } from './fetch';
-import type { Paginated, PageRequest, LotStatus } from './lots';
+import type { Paginated, PageRequest, LotStatus, PublicLotsRequest } from './lots';
 import type { LotCardModel } from '@/components/LotCard';
 
 export interface PublicProfileModel {
@@ -18,8 +18,8 @@ export const users = {
     api<PublicProfileModel>(`/api/v1/users/${userId}/public`),
 
   searchLotsBySeller: (userId: string, status: Extract<LotStatus, 'Active' | 'Sold'>, paginate: PageRequest) =>
-    api<Paginated<LotCardModel>>(
-      `/api/v1/users/${userId}/lots/search?status=${status}`,
-      { method: 'POST', body: paginate },
-    ),
+    api<Paginated<LotCardModel>>(`/api/v1/lots/search`, {
+      method: 'POST',
+      body: { ...paginate, filters: { sellerId: userId, status } } satisfies PublicLotsRequest,
+    }),
 };

@@ -42,6 +42,15 @@ public class LotsController(IMediator mediator) : ControllerBase
     public Task<Result<LotDetailModel>> Get(Guid id, CancellationToken ct) =>
         mediator.Send(new GetLotByIdRequest(id), ct);
 
+    /// <summary>
+    /// Public, paginated lot search over the whole collection. Filter by category (and its leaf
+    /// descendants), seller, and/or published status via the request body. Only Active/Sold lots are
+    /// ever returned — seller-private states live behind <c>mine/search</c>.
+    /// </summary>
+    [HttpPost("search")]
+    public Task<Result<Paginated<LotCardModel>>> Search([FromBody] GetPublicLotsRequest request, CancellationToken ct) =>
+        mediator.Send(request, ct);
+
     /// <summary>Authenticated caller's own lots in any status (soft-deleted included with deletedAt).</summary>
     [Authorize, HttpPost("mine/search")]
     public Task<Result<Paginated<MyLotItemModel>>> SearchMine([FromBody] GetMyLotsRequest request, CancellationToken ct) =>

@@ -119,6 +119,6 @@ public class GetLotByIdHandler(IApplicationDbContext db, ICurrentUserService cur
     private async Task<IReadOnlyList<string>> BuildCategoryPathAsync(int leafId, CancellationToken ct)
     {
         Dictionary<int, Category> byId = await db.Categories.AsNoTracking().ToDictionaryAsync(c => c.Id, ct);
-        return CategoryPathResolver.NamesFromRoot(leafId, byId);
+        return CategoryHierarchy.NamesFromRoot(leafId, byId);
     }
 }

@@ -28,7 +28,7 @@ public static class LotSearchDocumentFactory
             Id = lot.Id.ToString(),
             Title = lot.Title,
             Description = lot.Description,
-            CategoryPath = string.Join(" > ", CategoryPathResolver.NamesFromRoot(lot.CategoryId, categoriesById)),
+            CategoryPath = string.Join(" > ", CategoryHierarchy.NamesFromRoot(lot.CategoryId, categoriesById)),
             Country = attributes.Country,
             Year = attributes.Year,
             Metal = attributes.Metal,

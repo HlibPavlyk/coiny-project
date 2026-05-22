@@ -117,11 +117,15 @@ export interface MyLotsRequest extends PageRequest {
   filters?: { status?: LotStatus };
 }
 
+export interface PublicLotsRequest extends PageRequest {
+  filters?: { categoryId?: number; sellerId?: string; status?: LotStatus };
+}
+
 export const lots = {
   byCategorySearch: (categoryId: number, paginate: PageRequest) =>
-    api<Paginated<LotCardModel>>(`/api/v1/categories/${categoryId}/lots/search`, {
+    api<Paginated<LotCardModel>>(`/api/v1/lots/search`, {
       method: 'POST',
-      body: paginate,
+      body: { ...paginate, filters: { categoryId, status: 'Active' } } satisfies PublicLotsRequest,
     }),
   getLot: (id: string) => api<LotDetailModel>(`/api/v1/lots/${id}`),
   createLot: (payload: CreateLotPayload) =>

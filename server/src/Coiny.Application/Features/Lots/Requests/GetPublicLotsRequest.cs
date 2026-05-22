@@ -1,0 +1,34 @@
+using Coiny.Application.Common.Querying;
+using Coiny.Application.Common.Requests;
+using Coiny.Application.Common.Results;
+using Coiny.Application.Features.Lots.Models;
+using Coiny.Domain.Enums;
+using MediatR;
+
+namespace Coiny.Application.Features.Lots.Requests;
+
+/// <summary>
+/// Public, paginated lot listing shared by the category browse page and the public seller profile.
+/// Visibility is always restricted to published statuses (<c>Active</c>/<c>Sold</c>) — seller-private
+/// states (Draft, EndedNoSale, Cancelled) and soft-deleted lots are never returned. The seller-owned
+/// counterpart with full visibility is <see cref="GetMyLotsRequest"/>.
+/// </summary>
+public record GetPublicLotsRequest : PageRequest, IRequest<Result<Paginated<LotCardModel>>>
+{
+    public GetPublicLotsFilters Filters { get; init; } = new();
+}
+
+public record GetPublicLotsFilters
+{
+    /// <summary>Restrict to a category and all of its leaf descendants. Null = any category.</summary>
+    public int? CategoryId { get; init; }
+
+    /// <summary>Restrict to a single seller. Null = any seller.</summary>
+    public Guid? SellerId { get; init; }
+
+    /// <summary>
+    /// Narrow to one published status. Null falls back to all public statuses. Non-public values are
+    /// rejected by <c>GetPublicLotsValidator</c>.
+    /// </summary>
+    public LotStatus? Status { get; init; }
+}
