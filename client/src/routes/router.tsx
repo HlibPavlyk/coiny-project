@@ -19,6 +19,8 @@ import PayLotPage from './PayLotPage';
 import MyPurchasesPage from './MyPurchasesPage';
 import PublicProfilePage from './PublicProfilePage';
 import SearchPage from './SearchPage';
+import AdminLandingPage from './AdminLandingPage';
+import AdminReportsPage from './AdminReportsPage';
 
 /**
  * Stub routing tree mirroring /docs/03-frontend-structure.md.
@@ -119,7 +121,7 @@ export const router = createBrowserRouter([
     path: '/admin',
     element: (
       <RequireAuth roles={['Admin', 'Moderator']}>
-        <Stub name="Admin landing" />
+        <AdminLandingPage />
       </RequireAuth>
     ),
   },
@@ -127,7 +129,7 @@ export const router = createBrowserRouter([
     path: '/admin/reports',
     element: (
       <RequireAuth roles={['Admin', 'Moderator']}>
-        <Stub name="Reports" />
+        <AdminReportsPage />
       </RequireAuth>
     ),
   },
