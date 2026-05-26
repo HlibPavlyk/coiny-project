@@ -26,8 +26,8 @@ public class DeleteLotAdminHandler(
 {
     public async Task<Result> Handle(DeleteLotAdminRequest request, CancellationToken ct)
     {
-        if (!currentUser.Roles.Contains(RoleNames.Admin))
-            return Result.Failure(Error.Forbidden("Admin.Forbidden", "Administrator role required."));
+        if (!currentUser.CanModerate())
+            return Result.Failure(Error.Forbidden("Admin.Forbidden", "Moderator or Administrator role required."));
 
         // Ignore the soft-delete query filter so an already-deleted lot is a 409, not a 404.
         Lot? lot = await db.Lots

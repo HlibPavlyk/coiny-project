@@ -36,6 +36,21 @@ public class ReportHandlersTests
     }
 
     [Fact]
+    public async Task GetReports_moderator_is_allowed()
+    {
+        using var ctx = NewDb();
+        Guid lot = SeedLot(ctx);
+        SeedReport(ctx, lot, ReportStatus.Open, BaseTime);
+        await ctx.SaveChangesAsync();
+
+        var handler = new GetReportsHandler(ctx, Moderator());
+        Result<Paginated<ReportItemModel>> result = await handler.Handle(new GetReportsRequest(), CancellationToken.None);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.TotalCount.Should().Be(1);
+    }
+
+    [Fact]
     public async Task GetReports_filters_by_status_and_defaults_to_newest_first()
     {
         using var ctx = NewDb();
@@ -209,6 +224,8 @@ public class ReportHandlersTests
     }
 
     private TestCurrentUser Admin() => new(_adminId, [RoleNames.Admin]);
+
+    private static TestCurrentUser Moderator() => new(Guid.NewGuid(), [RoleNames.Moderator]);
 
     private static TestCurrentUser NonAdmin() => new(Guid.NewGuid(), [RoleNames.User]);
 

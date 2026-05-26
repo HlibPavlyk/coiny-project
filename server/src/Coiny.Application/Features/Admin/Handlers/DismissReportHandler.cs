@@ -23,8 +23,8 @@ public class DismissReportHandler(
 {
     public async Task<Result> Handle(DismissReportRequest request, CancellationToken ct)
     {
-        if (!currentUser.Roles.Contains(RoleNames.Admin))
-            return Result.Failure(Error.Forbidden("Admin.Forbidden", "Administrator role required."));
+        if (!currentUser.CanModerate())
+            return Result.Failure(Error.Forbidden("Admin.Forbidden", "Moderator or Administrator role required."));
 
         Report? report = await db.Reports.FirstOrDefaultAsync(r => r.Id == request.ReportId, ct);
         if (report is null)

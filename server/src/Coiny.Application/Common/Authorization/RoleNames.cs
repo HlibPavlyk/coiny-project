@@ -10,4 +10,10 @@ public static class RoleNames
     public const string User = "User";
     public const string Moderator = "Moderator";
     public const string Admin = "Admin";
+
+    /// <summary>
+    /// Roles allowed to moderate (process reports, ban/unban users, soft-delete lots). Moderator is the
+    /// specialized role; Admin is the superuser and also passes. Use as <c>[Authorize(Roles = …)]</c>.
+    /// </summary>
+    public const string ModerationRoles = Moderator + "," + Admin;
 }

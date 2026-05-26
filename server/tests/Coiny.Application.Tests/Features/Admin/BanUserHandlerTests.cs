@@ -87,6 +87,20 @@ public class BanUserHandlerTests
     }
 
     [Fact]
+    public async Task Ban_by_moderator_succeeds()
+    {
+        using var ctx = NewDb();
+        SeedUser(ctx, _targetId);
+        await ctx.SaveChangesAsync();
+
+        var moderator = new TestCurrentUser(Guid.NewGuid(), [RoleNames.Moderator]);
+        Result result = await Ban(ctx, moderator).Handle(new BanUserRequest(_targetId, "spam"), CancellationToken.None);
+
+        result.IsSuccess.Should().BeTrue();
+        (await ctx.Users.SingleAsync(u => u.Id == _targetId)).IsBanned.Should().BeTrue();
+    }
+
+    [Fact]
     public async Task Ban_cancels_active_lots_decrements_category_emits_outbox_and_notifies()
     {
         using var ctx = NewDb();

@@ -23,9 +23,9 @@ public class GetReportsHandler(IApplicationDbContext db, ICurrentUserService cur
 {
     public async Task<Result<Paginated<ReportItemModel>>> Handle(GetReportsRequest request, CancellationToken ct)
     {
-        if (!currentUser.Roles.Contains(RoleNames.Admin))
+        if (!currentUser.CanModerate())
             return Result.Failure<Paginated<ReportItemModel>>(
-                Error.Forbidden("Admin.Forbidden", "Administrator role required."));
+                Error.Forbidden("Admin.Forbidden", "Moderator or Administrator role required."));
 
         IReadOnlyList<SortByModel> sort = request.SortBy is { Length: > 0 }
             ? request.SortBy

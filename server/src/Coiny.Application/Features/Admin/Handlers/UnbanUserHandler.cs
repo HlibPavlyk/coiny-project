@@ -23,8 +23,8 @@ public class UnbanUserHandler(
 {
     public async Task<Result> Handle(UnbanUserRequest request, CancellationToken ct)
     {
-        if (!currentUser.Roles.Contains(RoleNames.Admin))
-            return Result.Failure(Error.Forbidden("Admin.Forbidden", "Administrator role required."));
+        if (!currentUser.CanModerate())
+            return Result.Failure(Error.Forbidden("Admin.Forbidden", "Moderator or Administrator role required."));
 
         User? user = await db.Users.FirstOrDefaultAsync(u => u.Id == request.UserId, ct);
         if (user is null)
