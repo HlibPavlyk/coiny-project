@@ -10,6 +10,7 @@ using Coiny.Domain.Entities;
 using Coiny.Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Coiny.Application.Features.Lots.Events;
 
 namespace Coiny.Application.Features.Lots.Handlers;
 

@@ -1,7 +1,7 @@
 using System.Text.Json;
 using Coiny.Application.Common.Json;
 
-namespace Coiny.Application.Features.Auctions;
+namespace Coiny.Application.Features.Auctions.Events;
 
 /// <summary>
 /// Email-outbox payload for <c>AuctionWonPayWithin96h</c> emitted by <c>AuctionCloseJob</c>.

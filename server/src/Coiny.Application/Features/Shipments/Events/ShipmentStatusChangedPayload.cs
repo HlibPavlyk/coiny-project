@@ -1,7 +1,7 @@
 using System.Text.Json;
 using Coiny.Application.Common.Json;
 
-namespace Coiny.Application.Features.Shipments;
+namespace Coiny.Application.Features.Shipments.Events;
 
 /// <summary>
 /// Payload schema for <c>EmailOutboxEvent</c> rows of type <c>ShipmentStatusChanged</c>.

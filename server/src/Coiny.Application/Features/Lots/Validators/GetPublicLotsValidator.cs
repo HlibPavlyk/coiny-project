@@ -5,9 +5,8 @@ using FluentValidation;
 namespace Coiny.Application.Features.Lots.Validators;
 
 /// <summary>
-/// Guards the public lot listing's visibility contract: when a status filter is supplied it must be
-/// a published one (<c>Active</c>/<c>Sold</c>). Replaces the inline status check that previously
-/// lived in the seller-listing handler so the privacy boundary is enforced before the handler runs.
+/// Guards the public browse visibility contract: when a status filter is supplied it must be a
+/// published one (<c>Active</c>/<c>Sold</c>), enforcing the privacy boundary before the handler runs.
 /// </summary>
 public class GetPublicLotsValidator : AbstractValidator<GetPublicLotsRequest>
 {

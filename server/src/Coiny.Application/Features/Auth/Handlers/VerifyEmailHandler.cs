@@ -5,6 +5,7 @@ using Coiny.Application.Features.Auth.Requests;
 using Coiny.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Coiny.Application.Features.Auth.Services;
 
 namespace Coiny.Application.Features.Auth.Handlers;
 

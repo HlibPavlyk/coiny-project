@@ -67,8 +67,8 @@ public class PaymentsController(IMediator mediator) : ControllerBase
     /// Caller's purchase history (payments where caller is the buyer). Eagerly joins the lot
     /// title/cover and the linked shipment status so the dashboard renders in one round-trip.
     /// </summary>
-    [Authorize, HttpPost("mine/search")]
-    public Task<Result<Paginated<MyPurchaseItemModel>>> SearchMine(
+    [Authorize, HttpPost("mine/list")]
+    public Task<Result<Paginated<MyPurchaseItemModel>>> ListMine(
         [FromBody] GetMyPurchasesRequest request,
         CancellationToken ct) =>
         mediator.Send(request, ct);

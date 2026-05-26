@@ -9,6 +9,7 @@ using Coiny.Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Coiny.Application.Features.Lots.Events;
 
 namespace Coiny.Application.Features.Lots.Handlers;
 

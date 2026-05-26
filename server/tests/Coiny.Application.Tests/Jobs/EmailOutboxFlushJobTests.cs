@@ -11,6 +11,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
+using Coiny.Application.Features.Auth.Events;
+using Coiny.Application.Features.Auctions.Events;
+using Coiny.Application.Features.Shipments.Events;
 
 namespace Coiny.Application.Tests.Jobs;
 

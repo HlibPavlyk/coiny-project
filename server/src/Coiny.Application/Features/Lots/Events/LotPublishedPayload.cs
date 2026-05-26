@@ -1,7 +1,7 @@
 using System.Text.Json;
 using Coiny.Application.Common.Json;
 
-namespace Coiny.Application.Features.Lots;
+namespace Coiny.Application.Features.Lots.Events;
 
 /// <summary>
 /// Outbox payload for <c>LotPublished</c> events. Producer: <c>PublishLotHandler</c>.

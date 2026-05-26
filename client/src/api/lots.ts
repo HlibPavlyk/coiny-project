@@ -123,7 +123,7 @@ export interface PublicLotsRequest extends PageRequest {
 
 export const lots = {
   byCategorySearch: (categoryId: number, paginate: PageRequest) =>
-    api<Paginated<LotCardModel>>(`/api/v1/lots/search`, {
+    api<Paginated<LotCardModel>>(`/api/v1/lots/list`, {
       method: 'POST',
       body: { ...paginate, filters: { categoryId, status: 'Active' } } satisfies PublicLotsRequest,
     }),
@@ -152,7 +152,7 @@ export const lots = {
       body: { lotId: id, imageIds },
     }),
   myLotsSearch: (request: MyLotsRequest) =>
-    api<Paginated<MyLotItem>>(`/api/v1/lots/mine/search`, { method: 'POST', body: request }),
+    api<Paginated<MyLotItem>>(`/api/v1/lots/mine/list`, { method: 'POST', body: request }),
 };
 
 /** Hook for paginated lots-in-category listing. */

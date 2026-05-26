@@ -1,6 +1,7 @@
-using System.Reflection;
-using System.Text.Json;
 using Coiny.Application.Abstractions.Search;
+using Coiny.Application.Common.Querying;
+using Coiny.Application.Common.Search;
+using Coiny.Application.Features.Lots.Models;
 using Meilisearch;
 using Microsoft.Extensions.Options;
 
@@ -8,17 +9,16 @@ namespace Coiny.Infrastructure.ExternalServices.Search;
 
 /// <summary>
 /// Meilisearch-backed <see cref="ISearchIndex"/>. The only place that touches the Meilisearch SDK.
-/// The index attribute lists are derived by reflecting the role-attributes declared on
-/// <see cref="LotSearchDocument"/> — done here (not in Application) because the wire-name conversion
-/// is the SDK's serialization concern: the SDK emits camelCase JSON, so we convert property names
-/// with the same <see cref="JsonNamingPolicy.CamelCase"/> policy. Computed once per process.
+/// The index attribute lists are derived from the role-attributes declared on
+/// <see cref="LotSearchDocument"/> via <see cref="SearchDocumentSchema"/>, so they can never drift
+/// from the document shape. Computed once per process.
 /// </summary>
 public class MeilisearchSearchIndex(MeilisearchClient client, IOptions<MeilisearchOptions> options)
     : ISearchIndex
 {
-    private static readonly string[] _searchable = WireNamesWith<SearchableAttribute>();
-    private static readonly string[] _filterable = WireNamesWith<FilterableAttribute>();
-    private static readonly string[] _sortable = WireNamesWith<SortableAttribute>();
+    private static readonly string[] _searchable = SearchDocumentSchema.FieldsWith<LotSearchDocument, SearchableAttribute>();
+    private static readonly string[] _filterable = SearchDocumentSchema.FieldsWith<LotSearchDocument, FilterableAttribute>();
+    private static readonly string[] _sortable = SearchDocumentSchema.FieldsWith<LotSearchDocument, SortableAttribute>();
 
     private readonly string _indexName = options.Value.IndexName;
 
@@ -44,16 +44,6 @@ public class MeilisearchSearchIndex(MeilisearchClient client, IOptions<Meilisear
         await index.UpdateSortableAttributesAsync(_sortable, ct);
     }
 
-    // Reflect the role-attributes off LotSearchDocument and convert each property name to its
-    // camelCase wire form (matching the SDK's serializer). For searchable, declaration order is
-    // preserved — Meilisearch treats it as ranking priority.
-    private static string[] WireNamesWith<TAttr>() where TAttr : Attribute =>
-        typeof(LotSearchDocument)
-            .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-            .Where(p => p.GetCustomAttribute<TAttr>() is not null)
-            .Select(p => JsonNamingPolicy.CamelCase.ConvertName(p.Name))
-            .ToArray();
-
     public Task UpsertLotAsync(LotSearchDocument document, CancellationToken ct) =>
         client.Index(_indexName).AddDocumentsAsync([document], primaryKey: "id", ct);
 
@@ -64,4 +54,32 @@ public class MeilisearchSearchIndex(MeilisearchClient client, IOptions<Meilisear
 
     public Task DeleteLotAsync(Guid lotId, CancellationToken ct) =>
         client.Index(_indexName).DeleteOneDocumentAsync(lotId.ToString(), ct);
+
+    public async Task<FacetedPage<LotSearchDocument>> SearchAsync(LotSearchQuery query, CancellationToken ct)
+    {
+        var searchQuery = new SearchQuery
+        {
+            Filter = MeilisearchLotFilter.Build(query),
+            Sort = query.Sort.Count > 0
+                ? query.Sort.Select(s => $"{s.ColumnName}:{(s.Direction == SortDirection.Desc ? "desc" : "asc")}").ToList()
+                : null,
+            Offset = query.Offset,
+            Limit = query.Limit,
+            Facets = options.Value.Facets,
+        };
+
+        ISearchable<LotSearchDocument> raw = await client.Index(_indexName)
+            .SearchAsync<LotSearchDocument>(query.Text, searchQuery, ct);
+
+        var result = (SearchResult<LotSearchDocument>)raw;
+
+        IReadOnlyDictionary<string, IReadOnlyList<FacetValue>> facets =
+            result.FacetDistribution?.ToDictionary(
+                field => field.Key, IReadOnlyList<FacetValue> (field) => field.Value
+                    .Select(v => new FacetValue(v.Key, v.Value))
+                    .ToList())
+            ?? new Dictionary<string, IReadOnlyList<FacetValue>>();
+
+        return new FacetedPage<LotSearchDocument>(result.EstimatedTotalHits, result.Hits.ToList(), facets);
+    }
 }

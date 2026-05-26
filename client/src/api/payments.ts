@@ -99,7 +99,7 @@ export const payments = {
   getById: (paymentId: string) => api<PaymentDetailModel>(`/api/v1/payments/${paymentId}`),
 
   myPurchasesSearch: (paginate: PageRequest) =>
-    api<Paginated<MyPurchaseItemModel>>('/api/v1/payments/mine/search', {
+    api<Paginated<MyPurchaseItemModel>>('/api/v1/payments/mine/list', {
       method: 'POST',
       body: paginate,
     }),

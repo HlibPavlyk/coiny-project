@@ -26,12 +26,12 @@ public class BidsController(IMediator mediator) : ControllerBase
     /// wins. Bidder names are anonymized as <c>b****&lt;n&gt;</c> while the lot is Active and surface
     /// as full display names once the lot transitions to Sold / EndedNoSale / Cancelled.
     /// </summary>
-    [HttpPost("api/v1/lots/{lotId:guid}/bids/search")]
-    public Task<Result<Paginated<BidItemModel>>> SearchBidHistory(Guid lotId, [FromBody] PageRequest paginate, CancellationToken ct) =>
+    [HttpPost("api/v1/lots/{lotId:guid}/bids/list")]
+    public Task<Result<Paginated<BidItemModel>>> ListBidHistory(Guid lotId, [FromBody] PageRequest paginate, CancellationToken ct) =>
         mediator.Send(new GetBidHistoryRequest { LotId = lotId, Paginate = paginate }, ct);
 
     /// <summary>Caller's own bid history with each bid's lot state and a leader flag.</summary>
-    [Authorize, HttpPost("api/v1/bids/mine/search")]
-    public Task<Result<Paginated<MyBidItemModel>>> SearchMine([FromBody] GetMyBidsRequest request, CancellationToken ct) =>
+    [Authorize, HttpPost("api/v1/bids/mine/list")]
+    public Task<Result<Paginated<MyBidItemModel>>> ListMine([FromBody] GetMyBidsRequest request, CancellationToken ct) =>
         mediator.Send(request, ct);
 }

@@ -1,7 +1,7 @@
-namespace Coiny.Application.Abstractions.Search;
+namespace Coiny.Application.Common.Search;
 
 /// <summary>
-/// Marks a <see cref="LotSearchDocument"/> property as full-text searchable in the index.
+/// Marks a search-document property as full-text searchable in the index.
 /// NOTE: for searchable attributes, declaration order is the ranking priority in Meilisearch
 /// (earlier = higher weight). The search adapter derives the list in property declaration order,
 /// so keep the most important fields first.
@@ -13,6 +13,6 @@ public sealed class SearchableAttribute : Attribute;
 [AttributeUsage(AttributeTargets.Property)]
 public sealed class FilterableAttribute : Attribute;
 
-/// <summary>Marks a property as sortable. Order is irrelevant.</summary>
+/// <summary>Marks a property as sortable. Order is irrelevant. The camelCase property name is the sort column.</summary>
 [AttributeUsage(AttributeTargets.Property)]
 public sealed class SortableAttribute : Attribute;

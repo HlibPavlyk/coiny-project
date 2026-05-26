@@ -1,6 +1,7 @@
 using Coiny.Application.Common.Querying;
 using Coiny.Application.Common.Requests;
 using Coiny.Application.Common.Results;
+using Coiny.Application.Common.Search;
 using Coiny.Application.Features.Lots.Models;
 using Coiny.Application.Features.Lots.Requests;
 using MediatR;
@@ -43,17 +44,26 @@ public class LotsController(IMediator mediator) : ControllerBase
         mediator.Send(new GetLotByIdRequest(id), ct);
 
     /// <summary>
-    /// Public, paginated lot search over the whole collection. Filter by category (and its leaf
-    /// descendants), seller, and/or published status via the request body. Only Active/Sold lots are
-    /// ever returned — seller-private states live behind <c>mine/search</c>.
+    /// Public, paginated lot browse (Postgres). Filter by category (and its leaf descendants), seller,
+    /// and/or published status. Only Active/Sold lots are returned — seller-private states live behind
+    /// <c>mine/list</c>. Free-text / faceted search is on <c>search</c>.
+    /// </summary>
+    [HttpPost("list")]
+    public Task<Result<Paginated<LotCardModel>>> List([FromBody] GetPublicLotsRequest request, CancellationToken ct) =>
+        mediator.Send(request, ct);
+
+    /// <summary>
+    /// Public, Meilisearch-backed full-text + faceted lot search. <c>filters.searchText</c> is the query;
+    /// attribute filters (metal/country/condition), price range and <c>endingBefore</c> narrow it. Returns
+    /// lot cards plus the facet value lists for the filter pickers.
     /// </summary>
     [HttpPost("search")]
-    public Task<Result<Paginated<LotCardModel>>> Search([FromBody] GetPublicLotsRequest request, CancellationToken ct) =>
+    public Task<Result<FacetedPage<LotCardModel>>> Search([FromBody] SearchLotsRequest request, CancellationToken ct) =>
         mediator.Send(request, ct);
 
     /// <summary>Authenticated caller's own lots in any status (soft-deleted included with deletedAt).</summary>
-    [Authorize, HttpPost("mine/search")]
-    public Task<Result<Paginated<MyLotItemModel>>> SearchMine([FromBody] GetMyLotsRequest request, CancellationToken ct) =>
+    [Authorize, HttpPost("mine/list")]
+    public Task<Result<Paginated<MyLotItemModel>>> ListMine([FromBody] GetMyLotsRequest request, CancellationToken ct) =>
         mediator.Send(request, ct);
 
     /// <summary>Upload a single image to a Draft lot (max 5 per lot, max 10 MB, JPEG/PNG/WebP).</summary>

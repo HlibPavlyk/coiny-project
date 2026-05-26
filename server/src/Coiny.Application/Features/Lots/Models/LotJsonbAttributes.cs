@@ -1,4 +1,4 @@
-namespace Coiny.Infrastructure.ExternalServices.Search;
+namespace Coiny.Application.Features.Lots.Models;
 
 /// <summary>
 /// The subset of a lot's free-text JSONB attributes that get flattened into the search document

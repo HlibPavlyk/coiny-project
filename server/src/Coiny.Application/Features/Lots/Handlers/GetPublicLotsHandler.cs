@@ -2,7 +2,7 @@ using Coiny.Application.Abstractions.Data;
 using Coiny.Application.Common.Extensions;
 using Coiny.Application.Common.Querying;
 using Coiny.Application.Common.Results;
-using Coiny.Application.Features.Categories;
+using Coiny.Application.Features.Categories.Services;
 using Coiny.Application.Features.Lots.Models;
 using Coiny.Application.Features.Lots.Requests;
 using Coiny.Domain.Entities;
@@ -13,10 +13,10 @@ using Microsoft.EntityFrameworkCore;
 namespace Coiny.Application.Features.Lots.Handlers;
 
 /// <summary>
-/// Public, paginated lot listing. Optional <c>CategoryId</c> (expanded across leaf descendants) and
-/// <c>SellerId</c> filters compose freely; status is constrained to published values either by the
-/// caller's filter or by the public-status fallback below. Soft-deleted lots are excluded via the
-/// global query filter (not bypassed here), so this path can never expose seller-private lots.
+/// Public, paginated lot browse over real columns (category subtree / seller / status), served from
+/// Postgres for immediate consistency. Free-text and faceted/attribute search go through Meilisearch
+/// via <c>SearchLotsHandler</c> (JSONB must never be filtered in EF — THESIS-SCOPE risk #6). Restricts
+/// to published statuses, so seller-private lots never leak.
 /// </summary>
 public class GetPublicLotsHandler(IApplicationDbContext db)
     : IRequestHandler<GetPublicLotsRequest, Result<Paginated<LotCardModel>>>
@@ -60,13 +60,15 @@ public class GetPublicLotsHandler(IApplicationDbContext db)
 
         List<LotCardModel> items = await queryResult.Value
             .Paginate(request)
-            .Select(l => new LotCardModel(
-                l.Id,
-                l.Title,
-                l.Images.OrderBy(i => i.DisplayOrder).Select(i => i.PublicUrl).FirstOrDefault() ?? string.Empty,
-                l.CurrentPriceUahKopiykas,
-                l.BidCount,
-                l.EndsAt))
+            .Select(l => new LotCardModel
+            {
+                Id = l.Id,
+                Title = l.Title,
+                CoverImageUrl = l.Images.OrderBy(i => i.DisplayOrder).Select(i => i.PublicUrl).FirstOrDefault() ?? string.Empty,
+                CurrentPriceUahKopiykas = l.CurrentPriceUahKopiykas,
+                BidCount = l.BidCount,
+                EndsAt = l.EndsAt,
+            })
             .ToListAsync(ct);
 
         return Result.Success(new Paginated<LotCardModel>(totalCount, items));

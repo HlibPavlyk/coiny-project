@@ -1,7 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Coiny.Application.Features.Auth;
+namespace Coiny.Application.Features.Auth.Services;
 
 /// <summary>Generates and hashes single-use email verification tokens.</summary>
 internal static class VerificationTokenFactory

@@ -1,4 +1,6 @@
-namespace Coiny.Application.Abstractions.Search;
+using Coiny.Application.Common.Search;
+
+namespace Coiny.Application.Features.Lots.Models;
 
 /// <summary>
 /// Flat projection of a Lot as stored in the Meilisearch <c>lots</c> index. The role of each field
@@ -28,9 +30,11 @@ public sealed record LotSearchDocument
     [Filterable] public string? Metal { get; init; }
 
     [Filterable, Sortable] public required long CurrentPriceUahKopiykas { get; init; }
-    [Filterable, Sortable] public required long EndsAtUnix { get; init; }
+    // Stored as Unix seconds — Meilisearch sorts/filters numerically. The field name matches the public
+    // sort column (the "Unix" storage detail is an implementation note, not part of the field name).
+    [Filterable, Sortable] public required long EndsAt { get; init; }
 
-    [Sortable] public required long CreatedAtUnix { get; init; }
+    [Sortable] public required long CreatedAt { get; init; }
     [Sortable] public required int BidCount { get; init; }
 
     // Rendering-only — returned with results, not searched/faceted/sorted.

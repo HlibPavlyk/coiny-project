@@ -1,15 +1,16 @@
-using Coiny.Application.Abstractions.Search;
 using Coiny.Application.Common.Json;
-using Coiny.Application.Features.Categories;
+using Coiny.Application.Features.Categories.Services;
+using Coiny.Application.Features.Lots.Models;
 using Coiny.Domain.Entities;
 
-namespace Coiny.Infrastructure.ExternalServices.Search;
+namespace Coiny.Application.Features.Lots.Services;
 
 /// <summary>
 /// Projects a <see cref="Lot"/> (with its images) into the flat <see cref="LotSearchDocument"/>.
 /// Category path is resolved from a pre-loaded category lookup (the category table is tiny and
 /// loaded once per flush batch). Country/year/metal come from the lot's JSONB attributes; all are
 /// optional and free-text. Dates are converted to Unix seconds for Meilisearch numeric sort/filter.
+/// Pure domain → search-document mapping with no search-engine dependency.
 /// </summary>
 public static class LotSearchDocumentFactory
 {
@@ -36,8 +37,8 @@ public static class LotSearchDocumentFactory
             CategoryId = lot.CategoryId,
             Condition = lot.Condition.ToString(),
             CurrentPriceUahKopiykas = lot.CurrentPriceUahKopiykas,
-            EndsAtUnix = new DateTimeOffset(DateTime.SpecifyKind(lot.EndsAt, DateTimeKind.Utc)).ToUnixTimeSeconds(),
-            CreatedAtUnix = new DateTimeOffset(DateTime.SpecifyKind(lot.CreatedAt, DateTimeKind.Utc)).ToUnixTimeSeconds(),
+            EndsAt = new DateTimeOffset(DateTime.SpecifyKind(lot.EndsAt, DateTimeKind.Utc)).ToUnixTimeSeconds(),
+            CreatedAt = new DateTimeOffset(DateTime.SpecifyKind(lot.CreatedAt, DateTimeKind.Utc)).ToUnixTimeSeconds(),
             CoverImageUrl = coverUrl,
             BidCount = lot.BidCount,
         };

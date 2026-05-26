@@ -2,7 +2,7 @@ using System.Text.Json;
 using Coiny.Application.Abstractions.Data;
 using Coiny.Application.Abstractions.Http;
 using Coiny.Application.Common.Results;
-using Coiny.Application.Features.Categories;
+using Coiny.Application.Features.Categories.Services;
 using Coiny.Application.Features.Lots.Models;
 using Coiny.Application.Features.Lots.Requests;
 using Coiny.Domain.Entities;

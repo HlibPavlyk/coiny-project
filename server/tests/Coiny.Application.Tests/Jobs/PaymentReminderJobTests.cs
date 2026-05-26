@@ -8,6 +8,7 @@ using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
+using Coiny.Application.Features.Auctions.Events;
 
 namespace Coiny.Application.Tests.Jobs;
 

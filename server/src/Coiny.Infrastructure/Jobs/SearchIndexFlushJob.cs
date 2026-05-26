@@ -1,9 +1,10 @@
 using Coiny.Application.Abstractions.Data;
 using Coiny.Application.Abstractions.Providers;
 using Coiny.Application.Abstractions.Search;
+using Coiny.Application.Features.Lots.Models;
+using Coiny.Application.Features.Lots.Services;
 using Coiny.Domain.Entities;
 using Coiny.Domain.Enums;
-using Coiny.Infrastructure.ExternalServices.Search;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 

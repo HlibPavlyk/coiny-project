@@ -2,7 +2,7 @@ using System.Text.Json;
 using Coiny.Application.Common.Json;
 using Coiny.Domain.Enums;
 
-namespace Coiny.Application.Features.Lots;
+namespace Coiny.Application.Features.Lots.Events;
 
 /// <summary>
 /// Outbox payload for <c>LotEnded</c> events emitted on cancel/end-no-sale. Sprint 4 Meilisearch sync removes the lot from the index.

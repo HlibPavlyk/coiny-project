@@ -1,7 +1,7 @@
 using System.Text.Json;
 using Coiny.Application.Common.Json;
 
-namespace Coiny.Application.Features.Auth;
+namespace Coiny.Application.Features.Auth.Events;
 
 /// <summary>
 /// Payload schema for <c>EmailOutboxEvent</c> rows of type <c>EmailVerificationRequested</c>.

@@ -1,5 +1,7 @@
 using Coiny.Application.Abstractions.Providers;
 using Coiny.Application.Abstractions.Search;
+using Coiny.Application.Common.Search;
+using Coiny.Application.Features.Lots.Models;
 using Coiny.Domain.Entities;
 using Coiny.Domain.Enums;
 using Coiny.Infrastructure.Jobs;
@@ -237,5 +239,10 @@ public class SearchIndexFlushJobTests
             Deletes.Add(lotId);
             return Task.CompletedTask;
         }
+
+        public Task<FacetedPage<LotSearchDocument>> SearchAsync(
+            LotSearchQuery query, CancellationToken ct) =>
+            Task.FromResult(new FacetedPage<LotSearchDocument>(
+                0, [], new Dictionary<string, IReadOnlyList<FacetValue>>()));
     }
 }

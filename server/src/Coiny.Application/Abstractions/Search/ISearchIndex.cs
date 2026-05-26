@@ -1,3 +1,7 @@
+using Coiny.Application.Common.Querying;
+using Coiny.Application.Common.Search;
+using Coiny.Application.Features.Lots.Models;
+
 namespace Coiny.Application.Abstractions.Search;
 
 /// <summary>
@@ -21,4 +25,10 @@ public interface ISearchIndex
 
     /// <summary>Remove a lot from the index (EndedNoSale, Cancelled, admin-deleted, or hard-deleted).</summary>
     Task DeleteLotAsync(Guid lotId, CancellationToken ct);
+
+    /// <summary>
+    /// Run a full-text + filtered search over the indexed (Active/Sold) lots. Returns a page of matched
+    /// documents plus the facet distribution for the adapter's configured facets.
+    /// </summary>
+    Task<FacetedPage<LotSearchDocument>> SearchAsync(LotSearchQuery query, CancellationToken ct);
 }

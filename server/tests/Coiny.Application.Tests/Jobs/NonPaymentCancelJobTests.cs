@@ -9,6 +9,7 @@ using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
+using Coiny.Application.Features.Lots.Events;
 
 namespace Coiny.Application.Tests.Jobs;
 

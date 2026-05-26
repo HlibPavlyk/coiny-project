@@ -18,7 +18,7 @@ export const users = {
     api<PublicProfileModel>(`/api/v1/users/${userId}/public`),
 
   searchLotsBySeller: (userId: string, status: Extract<LotStatus, 'Active' | 'Sold'>, paginate: PageRequest) =>
-    api<Paginated<LotCardModel>>(`/api/v1/lots/search`, {
+    api<Paginated<LotCardModel>>(`/api/v1/lots/list`, {
       method: 'POST',
       body: { ...paginate, filters: { sellerId: userId, status } } satisfies PublicLotsRequest,
     }),

@@ -8,10 +8,10 @@ using MediatR;
 namespace Coiny.Application.Features.Lots.Requests;
 
 /// <summary>
-/// Public, paginated lot listing shared by the category browse page and the public seller profile.
-/// Visibility is always restricted to published statuses (<c>Active</c>/<c>Sold</c>) — seller-private
-/// states (Draft, EndedNoSale, Cancelled) and soft-deleted lots are never returned. The seller-owned
-/// counterpart with full visibility is <see cref="GetMyLotsRequest"/>.
+/// Public, paginated lot browse served from Postgres (immediate consistency). Filters by real columns
+/// only — category subtree, seller, status. Free-text and faceted/attribute search live on the
+/// Meilisearch-backed <see cref="SearchLotsRequest"/>. Visibility is always restricted to published
+/// statuses (<c>Active</c>/<c>Sold</c>); the seller-owned counterpart is <see cref="GetMyLotsRequest"/>.
 /// </summary>
 public record GetPublicLotsRequest : PageRequest, IRequest<Result<Paginated<LotCardModel>>>
 {

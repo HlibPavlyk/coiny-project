@@ -1,6 +1,6 @@
 using Coiny.Domain.Entities;
 
-namespace Coiny.Application.Features.Categories;
+namespace Coiny.Application.Features.Categories.Services;
 
 /// <summary>
 /// In-memory navigation over the category tree. Pure — operates on a pre-loaded category set so

@@ -41,12 +41,12 @@ export const bids = {
   placeBid: (lotId: string, payload: PlaceBidPayload) =>
     api<PlaceBidModel>(`/api/v1/lots/${lotId}/bids`, { method: 'POST', body: payload }),
   bidHistorySearch: (lotId: string, paginate: PageRequest) =>
-    api<Paginated<BidItemModel>>(`/api/v1/lots/${lotId}/bids/search`, {
+    api<Paginated<BidItemModel>>(`/api/v1/lots/${lotId}/bids/list`, {
       method: 'POST',
       body: paginate,
     }),
   myBidsSearch: (paginate: PageRequest) =>
-    api<Paginated<MyBidItemModel>>(`/api/v1/bids/mine/search`, {
+    api<Paginated<MyBidItemModel>>(`/api/v1/bids/mine/list`, {
       method: 'POST',
       body: paginate,
     }),

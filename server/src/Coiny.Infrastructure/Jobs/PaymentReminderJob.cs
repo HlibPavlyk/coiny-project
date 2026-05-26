@@ -6,6 +6,7 @@ using Coiny.Domain.Enums;
 using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Coiny.Application.Features.Auctions.Events;
 
 namespace Coiny.Infrastructure.Jobs;
 
