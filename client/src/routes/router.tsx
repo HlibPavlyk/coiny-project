@@ -18,6 +18,7 @@ import SellerOnboardedPage from './SellerOnboardedPage';
 import PayLotPage from './PayLotPage';
 import MyPurchasesPage from './MyPurchasesPage';
 import PublicProfilePage from './PublicProfilePage';
+import SearchPage from './SearchPage';
 
 /**
  * Stub routing tree mirroring /docs/03-frontend-structure.md.
@@ -28,7 +29,7 @@ export const router = createBrowserRouter([
   { path: '/', element: <HomePage /> },
   { path: '/category/:slug', element: <CategoryPage /> },
   { path: '/lot/:id', element: <LotPage /> },
-  { path: '/search', element: <Stub name="Search" /> },
+  { path: '/search', element: <SearchPage /> },
 
   // Auth
   { path: '/sign-in', element: <SignInPage /> },

@@ -68,6 +68,7 @@ public class GetPublicLotsHandler(IApplicationDbContext db)
                 CurrentPriceUahKopiykas = l.CurrentPriceUahKopiykas,
                 BidCount = l.BidCount,
                 EndsAt = l.EndsAt,
+                CreatedAt = l.CreatedAt,
             })
             .ToListAsync(ct);
 

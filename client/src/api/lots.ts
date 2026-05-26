@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { api } from './fetch';
 import type { LotCardModel } from '@/components/LotCard';
 
@@ -121,6 +121,37 @@ export interface PublicLotsRequest extends PageRequest {
   filters?: { categoryId?: number; sellerId?: string; status?: LotStatus };
 }
 
+/** One facet bucket returned by Meilisearch: a value present in the results and its count. */
+export interface FacetValue {
+  value: string;
+  count: number;
+}
+
+/** Facet distribution keyed by field name (e.g. `metal`, `country`, `condition`). */
+export type SearchFacets = Record<string, FacetValue[]>;
+
+export interface SearchLotsFilters {
+  categoryId?: number;
+  status?: LotStatus;
+  searchText?: string;
+  condition?: string[];
+  metal?: string[];
+  country?: string[];
+  priceUahKopiykasFrom?: number;
+  priceUahKopiykasTo?: number;
+  endingBefore?: string;
+}
+
+export interface SearchLotsRequest extends PageRequest {
+  filters?: SearchLotsFilters;
+}
+
+export interface SearchLotsResponse {
+  totalCount: number;
+  items: LotCardModel[];
+  facets: SearchFacets;
+}
+
 export const lots = {
   byCategorySearch: (categoryId: number, paginate: PageRequest) =>
     api<Paginated<LotCardModel>>(`/api/v1/lots/list`, {
@@ -153,6 +184,8 @@ export const lots = {
     }),
   myLotsSearch: (request: MyLotsRequest) =>
     api<Paginated<MyLotItem>>(`/api/v1/lots/mine/list`, { method: 'POST', body: request }),
+  search: (request: SearchLotsRequest) =>
+    api<SearchLotsResponse>(`/api/v1/lots/search`, { method: 'POST', body: request }),
 };
 
 /** Hook for paginated lots-in-category listing. */
@@ -170,5 +203,18 @@ export function useLot(id: string | undefined) {
     queryKey: ['lot', id],
     queryFn: () => lots.getLot(id!),
     enabled: !!id,
+  });
+}
+
+/**
+ * Hook for the Meilisearch-backed lot search. The full request (paginate + filters) is the cache key,
+ * so each filter combination is its own entry. Previous results are kept while a new query loads, so
+ * the grid doesn't flash empty (and the layout doesn't shift) when facets/sort change.
+ */
+export function useSearchLots(request: SearchLotsRequest) {
+  return useQuery({
+    queryKey: ['lots', 'search', request],
+    queryFn: () => lots.search(request),
+    placeholderData: keepPreviousData,
   });
 }

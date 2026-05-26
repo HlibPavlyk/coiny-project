@@ -98,7 +98,7 @@ export default function HomePage() {
 
   return (
     <div>
-      <TopNav active="home" />
+      <TopNav />
 
       {/* Hero */}
       <section

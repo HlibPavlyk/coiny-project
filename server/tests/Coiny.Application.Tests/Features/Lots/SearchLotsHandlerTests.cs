@@ -139,6 +139,7 @@ public class SearchLotsHandlerTests
     {
         Guid lotId = Guid.NewGuid();
         long endsAtUnix = new DateTimeOffset(2026, 7, 1, 0, 0, 0, TimeSpan.Zero).ToUnixTimeSeconds();
+        long createdAtUnix = new DateTimeOffset(2026, 6, 1, 0, 0, 0, TimeSpan.Zero).ToUnixTimeSeconds();
 
         var index = new CapturingSearchIndex
         {
@@ -157,7 +158,7 @@ public class SearchLotsHandlerTests
                         Condition = "VF",
                         CurrentPriceUahKopiykas = 250_00,
                         EndsAt = endsAtUnix,
-                        CreatedAt = 0,
+                        CreatedAt = createdAtUnix,
                         BidCount = 3,
                         CoverImageUrl = "https://img/cover.jpg",
                     },
@@ -185,6 +186,7 @@ public class SearchLotsHandlerTests
             CurrentPriceUahKopiykas = 250_00,
             BidCount = 3,
             EndsAt = new DateTime(2026, 7, 1, 0, 0, 0, DateTimeKind.Utc),
+            CreatedAt = new DateTime(2026, 6, 1, 0, 0, 0, DateTimeKind.Utc),
         });
         response.Facets["metal"].Should().BeEquivalentTo(
             [new FacetValue("Silver", 3), new FacetValue("Gold", 1)]);

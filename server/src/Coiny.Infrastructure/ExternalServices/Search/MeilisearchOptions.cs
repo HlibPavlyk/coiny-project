@@ -20,7 +20,7 @@ public class MeilisearchOptions
     /// value lists to populate the filter pickers. Configurable so the set can be shrunk without code
     /// changes; values are the document's filterable field names.
     /// </summary>
-    public string[] Facets { get; init; } = ["metal", "country", "condition"];
+    public string[] Facets { get; init; } = ["metal", "country", "condition", "categoryId"];
 }
 
 public class MeilisearchOptionsValidator : IValidateOptions<MeilisearchOptions>

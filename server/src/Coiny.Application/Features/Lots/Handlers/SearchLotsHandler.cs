@@ -104,5 +104,6 @@ public class SearchLotsHandler(IApplicationDbContext db, ISearchIndex search)
         CurrentPriceUahKopiykas = d.CurrentPriceUahKopiykas,
         BidCount = d.BidCount,
         EndsAt = DateTimeOffset.FromUnixTimeSeconds(d.EndsAt).UtcDateTime,
+        CreatedAt = DateTimeOffset.FromUnixTimeSeconds(d.CreatedAt).UtcDateTime,
     };
 }

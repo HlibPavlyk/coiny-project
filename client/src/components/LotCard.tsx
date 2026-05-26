@@ -12,6 +12,8 @@ export interface LotCardModel {
   currentPriceUahKopiykas: number;
   bidCount: number;
   endsAt: string;
+  /** Returned by the API for the "Newest" sort; not displayed on the card, so optional for callers. */
+  createdAt?: string;
 }
 
 interface LotCardProps {

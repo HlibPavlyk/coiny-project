@@ -16,4 +16,7 @@ public record LotCardModel
     [Sortable] public required long CurrentPriceUahKopiykas { get; init; }
     [Sortable] public required int BidCount { get; init; }
     [Sortable] public required DateTime EndsAt { get; init; }
+
+    // Carried for the "Newest" sort; not shown on the card itself.
+    [Sortable] public required DateTime CreatedAt { get; init; }
 }
