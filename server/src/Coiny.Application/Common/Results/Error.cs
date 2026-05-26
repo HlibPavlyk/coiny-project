@@ -103,6 +103,14 @@ public sealed record Error
         [CallerMemberName] string? memberName = null) =>
         new(code, description, ErrorType.RateLimited, source, line, memberName);
 
+    public static Error ExternalService(
+        string code,
+        string description,
+        [CallerFilePath] string? source = null,
+        [CallerLineNumber] int? line = null,
+        [CallerMemberName] string? memberName = null) =>
+        new(code, description, ErrorType.ExternalService, source, line, memberName);
+
     public string GetDetailedMessage()
     {
         if (Source is null)

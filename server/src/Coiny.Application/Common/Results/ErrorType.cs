@@ -11,4 +11,7 @@ public enum ErrorType
     Forbidden = 5,
     Internal = 6,
     RateLimited = 7,
+
+    /// <summary>An upstream/external dependency (e.g. Stripe) failed. Maps to HTTP 502.</summary>
+    ExternalService = 8,
 }

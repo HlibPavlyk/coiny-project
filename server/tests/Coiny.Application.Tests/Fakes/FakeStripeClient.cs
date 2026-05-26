@@ -102,6 +102,9 @@ public sealed class FakeStripeClient : IStripeClient
     public string? LastCancelledPaymentIntentId { get; private set; }
     public string? LastCancelReason { get; private set; }
 
+    /// <summary>When true, <see cref="CancelPaymentIntentAsync"/> throws — simulates a Stripe outage.</summary>
+    public bool ThrowOnCancel { get; set; }
+
     public Task<StripePaymentIntentResult> CancelPaymentIntentAsync(
         string paymentIntentId,
         string? reason,
@@ -110,6 +113,8 @@ public sealed class FakeStripeClient : IStripeClient
         CancelPaymentIntentCalls++;
         LastCancelledPaymentIntentId = paymentIntentId;
         LastCancelReason = reason;
+        if (ThrowOnCancel)
+            throw new InvalidOperationException("Simulated Stripe cancel failure.");
         return Task.FromResult(new StripePaymentIntentResult(
             Id: paymentIntentId,
             Status: "canceled",

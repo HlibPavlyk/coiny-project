@@ -59,6 +59,7 @@ public class ResultTransformFilter : IAsyncResultFilter
         ErrorType.NotFound     => StatusCodes.Status404NotFound,
         ErrorType.Conflict     => StatusCodes.Status409Conflict,
         ErrorType.RateLimited  => StatusCodes.Status429TooManyRequests,
+        ErrorType.ExternalService => StatusCodes.Status502BadGateway,
         _                      => StatusCodes.Status500InternalServerError,
     };
 
@@ -70,6 +71,7 @@ public class ResultTransformFilter : IAsyncResultFilter
         ErrorType.NotFound     => "Resource Not Found",
         ErrorType.Conflict     => "Conflict",
         ErrorType.RateLimited  => "Too Many Requests",
+        ErrorType.ExternalService => "Bad Gateway",
         _                      => "Internal Server Error",
     };
 
