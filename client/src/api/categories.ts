@@ -28,6 +28,14 @@ export function useCategoryTree() {
   });
 }
 
+/**
+ * Total active lots in a category subtree (the node itself plus all descendants). Lots live in leaf
+ * categories and each category stores only its own direct count, so a root card must sum its subtree.
+ */
+export function subtreeLotCount(node: CategoryNode): number {
+  return node.children.reduce((sum, child) => sum + subtreeLotCount(child), node.lotCountActive);
+}
+
 /** Walk the tree and return the ancestor path (root → … → match) for a given category id, or undefined. */
 export function findCategoryPath(tree: CategoryTree | undefined, categoryId: number): CategoryNode[] | undefined {
   if (!tree) return undefined;

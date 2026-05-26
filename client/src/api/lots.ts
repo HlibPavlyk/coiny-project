@@ -186,6 +186,8 @@ export const lots = {
     api<Paginated<MyLotItem>>(`/api/v1/lots/mine/list`, { method: 'POST', body: request }),
   search: (request: SearchLotsRequest) =>
     api<SearchLotsResponse>(`/api/v1/lots/search`, { method: 'POST', body: request }),
+  publicLots: (request: PublicLotsRequest) =>
+    api<Paginated<LotCardModel>>(`/api/v1/lots/list`, { method: 'POST', body: request }),
 };
 
 /** Hook for paginated lots-in-category listing. */
@@ -194,6 +196,15 @@ export function useLotsByCategory(categoryId: number | undefined, paginate: Page
     queryKey: ['lots', 'by-category', categoryId, paginate],
     queryFn: () => lots.byCategorySearch(categoryId!, paginate),
     enabled: categoryId !== undefined,
+  });
+}
+
+/** Hook for a generic public lot listing (any category/seller/status + sort) — used by home sections. */
+export function usePublicLots(request: PublicLotsRequest) {
+  return useQuery({
+    queryKey: ['lots', 'public', request],
+    queryFn: () => lots.publicLots(request),
+    placeholderData: keepPreviousData,
   });
 }
 
