@@ -10,6 +10,7 @@ namespace Coiny.Api.Controllers;
 [ApiController]
 [Tags("Shipments")]
 [Route("api/v1/shipments")]
+[Authorize]
 public class ShipmentsController(IMediator mediator) : ControllerBase
 {
     /// <summary>
@@ -17,22 +18,24 @@ public class ShipmentsController(IMediator mediator) : ControllerBase
     /// <c>Address/searchSettlements</c> (vendor detail — the route name stays neutral).
     /// Empty <c>q</c> returns an empty list (no client-side error).
     /// </summary>
-    [Authorize, HttpGet("cities/search")]
-    public Task<Result<NpCitiesResponse>> SearchCities([FromQuery] string q, CancellationToken ct) =>
+    [HttpGet("cities/search")]
+    public Task<Result<NpCitiesResponse>> SearchCities([FromQuery] string? q, CancellationToken ct) =>
         mediator.Send(new SearchNpCitiesRequest(q ?? string.Empty), ct);
 
     /// <summary>
     /// Warehouses for a given city ref (obtained from <see cref="SearchCities"/>).
     /// Backed by Nova Poshta's <c>AddressGeneral/getWarehouses</c>.
     /// </summary>
-    [Authorize, HttpGet("warehouses")]
-    public Task<Result<NpWarehousesResponse>> GetWarehouses([FromQuery] string cityRef, CancellationToken ct) =>
+    [HttpGet("warehouses")]
+    public Task<Result<NpWarehousesResponse>> GetWarehouses([FromQuery] string? cityRef, CancellationToken ct) =>
         mediator.Send(new GetNpWarehousesRequest(cityRef ?? string.Empty), ct);
 
     /// <summary>
-    /// Buyer or seller view of the shipment linked to a payment, with the full NP status timeline.
+    /// The shipment for a payment (1:1), with the full Nova Poshta status timeline. Buyer or seller of
+    /// the payment only. 404 until the shipment is created at checkout-details. Nested under the payment
+    /// for identity (1:1), but tagged Shipments — it's the fulfillment/tracking capability.
     /// </summary>
-    [Authorize, HttpGet("{paymentId:guid}")]
+    [HttpGet("/api/v1/payments/{paymentId:guid}/shipment")]
     public Task<Result<ShipmentDetailModel>> GetByPaymentId(Guid paymentId, CancellationToken ct) =>
         mediator.Send(new GetShipmentByPaymentIdRequest(paymentId), ct);
 }

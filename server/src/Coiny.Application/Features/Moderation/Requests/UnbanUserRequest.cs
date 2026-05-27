@@ -1,7 +1,7 @@
 using Coiny.Application.Common.Results;
 using MediatR;
 
-namespace Coiny.Application.Features.Admin.Requests;
+namespace Coiny.Application.Features.Moderation.Requests;
 
 /// <summary>
 /// Admin lifts a ban. <see cref="UserId"/> comes from the route. Reverses only the ban flag and

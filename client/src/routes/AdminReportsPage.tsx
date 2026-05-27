@@ -95,13 +95,13 @@ export default function AdminReportsPage() {
 
   const takeActionActions = (report: ReportItemModel): ModalAction[] => [
     {
-      label: 'Delete lot',
+      label: 'Take down lot',
       danger: true,
       onClick: () =>
         run(async () => {
           await admin.takeAction(report.id, note.trim());
-          await admin.deleteLot(report.lot.id);
-        }, 'Lot deleted · report resolved'),
+          await admin.takedownLot(report.lot.id);
+        }, 'Lot taken down · report resolved'),
     },
     {
       label: 'Ban seller',

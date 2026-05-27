@@ -1,11 +1,11 @@
 using Coiny.Application.Common.Querying;
 using Coiny.Application.Common.Requests;
 using Coiny.Application.Common.Results;
-using Coiny.Application.Features.Admin.Models;
+using Coiny.Application.Features.Moderation.Models;
 using Coiny.Domain.Enums;
 using MediatR;
 
-namespace Coiny.Application.Features.Admin.Requests;
+namespace Coiny.Application.Features.Moderation.Requests;
 
 /// <summary>
 /// Admin-only paginated reports listing. Sortable columns: <c>createdAt</c>, <c>resolvedAt</c>

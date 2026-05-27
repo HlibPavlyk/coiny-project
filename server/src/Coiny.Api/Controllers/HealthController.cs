@@ -5,6 +5,7 @@ namespace Coiny.Api.Controllers;
 
 [ApiController]
 [Route("_health")]
+[Tags("System")]
 public class HealthController : ControllerBase
 {
     public record HealthModel(string Status, string Version);

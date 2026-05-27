@@ -1,5 +1,4 @@
 using Coiny.Application.Common.Querying;
-using Coiny.Application.Common.Requests;
 using Coiny.Application.Common.Results;
 using Coiny.Application.Common.Search;
 using Coiny.Application.Features.Lots.Models;
@@ -61,11 +60,6 @@ public class LotsController(IMediator mediator) : ControllerBase
     public Task<Result<FacetedPage<LotCardModel>>> Search([FromBody] SearchLotsRequest request, CancellationToken ct) =>
         mediator.Send(request, ct);
 
-    /// <summary>Authenticated caller's own lots in any status (soft-deleted included with deletedAt).</summary>
-    [Authorize, HttpPost("mine/list")]
-    public Task<Result<Paginated<MyLotItemModel>>> ListMine([FromBody] GetMyLotsRequest request, CancellationToken ct) =>
-        mediator.Send(request, ct);
-
     /// <summary>Upload a single image to a Draft lot (max 5 per lot, max 10 MB, JPEG/PNG/WebP).</summary>
     [Authorize, Consumes("multipart/form-data"), HttpPost("{id:guid}/images")]
     [RequestSizeLimit(10 * 1024 * 1024)]
@@ -86,7 +80,6 @@ public class LotsController(IMediator mediator) : ControllerBase
         mediator.Send(request with { LotId = id }, ct);
 
     /// <summary>File a report on a lot. Anonymous allowed; rate-limited (3/hour anon, 5/hour authenticated).</summary>
-    [Tags("Reports")]
     [HttpPost("{id:guid}/report")]
     public Task<Result> Report(Guid id, [FromBody] ReportLotRequest request, CancellationToken ct) =>
         mediator.Send(request with { LotId = id }, ct);

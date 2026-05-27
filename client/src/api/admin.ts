@@ -22,17 +22,17 @@ export interface GetReportsRequest extends PageRequest {
 
 export const admin = {
   searchReports: (request: GetReportsRequest) =>
-    api<Paginated<ReportItemModel>>('/api/v1/admin/reports/search', { method: 'POST', body: request }),
+    api<Paginated<ReportItemModel>>('/api/v1/moderation/reports/search', { method: 'POST', body: request }),
   dismissReport: (id: string, resolutionNote?: string) =>
-    api<void>(`/api/v1/admin/reports/${id}/dismiss`, { method: 'POST', body: { resolutionNote } }),
+    api<void>(`/api/v1/moderation/reports/${id}/dismiss`, { method: 'POST', body: { resolutionNote } }),
   takeAction: (id: string, resolutionNote: string) =>
-    api<void>(`/api/v1/admin/reports/${id}/take-action`, { method: 'POST', body: { resolutionNote } }),
-  deleteLot: (lotId: string) =>
-    api<void>(`/api/v1/admin/lots/${lotId}/delete`, { method: 'POST' }),
+    api<void>(`/api/v1/moderation/reports/${id}/take-action`, { method: 'POST', body: { resolutionNote } }),
+  takedownLot: (lotId: string) =>
+    api<void>(`/api/v1/moderation/lots/${lotId}/takedown`, { method: 'POST' }),
   banUser: (userId: string, reason: string) =>
-    api<void>(`/api/v1/admin/users/${userId}/ban`, { method: 'POST', body: { reason } }),
+    api<void>(`/api/v1/moderation/users/${userId}/ban`, { method: 'POST', body: { reason } }),
   unbanUser: (userId: string) =>
-    api<void>(`/api/v1/admin/users/${userId}/unban`, { method: 'POST' }),
+    api<void>(`/api/v1/moderation/users/${userId}/unban`, { method: 'POST' }),
 };
 
 /** Paginated reports for the moderation table; the full request is the cache key. */

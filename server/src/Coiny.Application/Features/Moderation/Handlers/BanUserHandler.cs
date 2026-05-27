@@ -5,7 +5,7 @@ using Coiny.Application.Abstractions.Providers;
 using Coiny.Application.Abstractions.Realtime;
 using Coiny.Application.Common.Authorization;
 using Coiny.Application.Common.Results;
-using Coiny.Application.Features.Admin.Requests;
+using Coiny.Application.Features.Moderation.Requests;
 using Coiny.Application.Features.Lots.Events;
 using Coiny.Domain.Entities;
 using Coiny.Domain.Enums;
@@ -13,7 +13,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace Coiny.Application.Features.Admin.Handlers;
+namespace Coiny.Application.Features.Moderation.Handlers;
 
 /// <summary>
 /// Bans a user and runs the auto-cleanup pipeline (per <c>/docs/06-open-questions.md</c> A5).

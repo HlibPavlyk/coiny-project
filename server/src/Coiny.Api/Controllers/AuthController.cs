@@ -14,6 +14,7 @@ namespace Coiny.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/auth")]
+[Tags("Auth")]
 public class AuthController(IMediator mediator, IConfiguration configuration) : ControllerBase
 {
     /// <summary>Register a new user with email + password and send a verification email.</summary>
@@ -43,11 +44,6 @@ public class AuthController(IMediator mediator, IConfiguration configuration) : 
     [Authorize, HttpPost("verify-email/resend")]
     public Task<Result> ResendVerification(CancellationToken ct) =>
         mediator.Send(new ResendVerificationRequest(), ct);
-
-    /// <summary>Return the authenticated user's profile.</summary>
-    [Authorize, HttpGet("me")]
-    public Task<Result<MeModel>> Me(CancellationToken ct) =>
-        mediator.Send(new MeRequest(), ct);
 
     /// <summary>Begin the Google OIDC challenge. Redirects to Google's consent page.</summary>
     [HttpGet("google")]

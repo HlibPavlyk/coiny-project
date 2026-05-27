@@ -23,7 +23,7 @@ export interface LoginPayload {
 }
 
 export const auth = {
-  me: () => api<MeModel>('/api/v1/auth/me'),
+  me: () => api<MeModel>('/api/v1/users/me'),
 
   register: (payload: RegisterPayload) =>
     api<MeModel>('/api/v1/auth/register', { method: 'POST', body: payload }),

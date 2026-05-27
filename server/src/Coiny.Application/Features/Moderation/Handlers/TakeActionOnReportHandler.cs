@@ -3,25 +3,26 @@ using Coiny.Application.Abstractions.Http;
 using Coiny.Application.Abstractions.Providers;
 using Coiny.Application.Common.Authorization;
 using Coiny.Application.Common.Results;
-using Coiny.Application.Features.Admin.Requests;
+using Coiny.Application.Features.Moderation.Requests;
 using Coiny.Domain.Entities;
 using Coiny.Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace Coiny.Application.Features.Admin.Handlers;
+namespace Coiny.Application.Features.Moderation.Handlers;
 
 /// <summary>
-/// Admin dismisses an open report. Idempotency guard: only an <c>Open</c> report can be resolved, so a
-/// second dismiss (or dismissing an already-actioned report) returns 409.
+/// Admin records that a report was actioned. This handler only flips the resolution state and stores
+/// the note; the actual mutation (delete lot / ban user) is a separate explicit admin call, so the
+/// audit trail stays clean. Only an <c>Open</c> report can be actioned (409 otherwise).
 /// </summary>
-public class DismissReportHandler(
+public class TakeActionOnReportHandler(
     IApplicationDbContext db,
     ICurrentUserService currentUser,
     IDateTimeProvider clock)
-    : IRequestHandler<DismissReportRequest, Result>
+    : IRequestHandler<TakeActionOnReportRequest, Result>
 {
-    public async Task<Result> Handle(DismissReportRequest request, CancellationToken ct)
+    public async Task<Result> Handle(TakeActionOnReportRequest request, CancellationToken ct)
     {
         if (!currentUser.CanModerate())
             return Result.Failure(Error.Forbidden("Admin.Forbidden", "Moderator or Administrator role required."));
@@ -33,7 +34,7 @@ public class DismissReportHandler(
         if (report.Status != ReportStatus.Open)
             return Result.Failure(Error.Conflict("Report.AlreadyResolved", "This report is already resolved."));
 
-        report.Status = ReportStatus.Dismissed;
+        report.Status = ReportStatus.ActionTaken;
         report.ResolvedAt = clock.UtcNow;
         report.ResolvedByUserId = currentUser.UserId;
         report.ResolutionNote = request.ResolutionNote;

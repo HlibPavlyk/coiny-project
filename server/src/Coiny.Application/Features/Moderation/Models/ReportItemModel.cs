@@ -1,6 +1,6 @@
 using Coiny.Domain.Enums;
 
-namespace Coiny.Application.Features.Admin.Models;
+namespace Coiny.Application.Features.Moderation.Models;
 
 /// <summary>The lot a report targets, as shown in the admin reports table.</summary>
 public record ReportLotInfo(Guid Id, string Title, string CoverImageUrl);

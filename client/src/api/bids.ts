@@ -46,7 +46,7 @@ export const bids = {
       body: paginate,
     }),
   myBidsSearch: (paginate: PageRequest) =>
-    api<Paginated<MyBidItemModel>>(`/api/v1/bids/mine/list`, {
+    api<Paginated<MyBidItemModel>>(`/api/v1/users/me/bids/list`, {
       method: 'POST',
       body: paginate,
     }),

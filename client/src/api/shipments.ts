@@ -35,7 +35,7 @@ export interface ShipmentDetailModel {
 
 export const shipments = {
   getByPaymentId: (paymentId: string) =>
-    api<ShipmentDetailModel>(`/api/v1/shipments/${paymentId}`),
+    api<ShipmentDetailModel>(`/api/v1/payments/${paymentId}/shipment`),
 };
 
 /** Statuses the polling job no longer touches — used to stop the timeline auto-refetch. */

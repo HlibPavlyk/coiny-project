@@ -1,7 +1,7 @@
 using Coiny.Application.Common.Results;
 using MediatR;
 
-namespace Coiny.Application.Features.Admin.Requests;
+namespace Coiny.Application.Features.Moderation.Requests;
 
 /// <summary>
 /// Admin dismisses a report with no further action. <see cref="ReportId"/> comes from the route;

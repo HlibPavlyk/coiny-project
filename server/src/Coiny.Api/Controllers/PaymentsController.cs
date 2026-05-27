@@ -1,4 +1,3 @@
-using Coiny.Application.Common.Querying;
 using Coiny.Application.Common.Results;
 using Coiny.Application.Features.Payments.Models;
 using Coiny.Application.Features.Payments.Requests;
@@ -11,18 +10,19 @@ namespace Coiny.Api.Controllers;
 [ApiController]
 [Tags("Payments")]
 [Route("api/v1/payments")]
+[Authorize]
 public class PaymentsController(IMediator mediator) : ControllerBase
 {
     /// <summary>
     /// Idempotently create (or reuse) the caller's Stripe Connect Express account and
     /// return a short-lived onboarding URL. Frontend redirects to the URL immediately.
     /// </summary>
-    [Authorize, HttpPost("connect/onboard")]
+    [HttpPost("connect/onboard")]
     public Task<Result<ConnectOnboardResponse>> ConnectOnboard(CancellationToken ct) =>
         mediator.Send(new ConnectOnboardRequest(), ct);
 
     /// <summary>Refresh the caller's Stripe Connect onboarding status from Stripe.</summary>
-    [Authorize, HttpGet("connect/status")]
+    [HttpGet("connect/status")]
     public Task<Result<ConnectStatusResponse>> ConnectStatus(CancellationToken ct) =>
         mediator.Send(new GetConnectStatusRequest(), ct);
 
@@ -31,15 +31,16 @@ public class PaymentsController(IMediator mediator) : ControllerBase
     /// the returned link in a new tab so the seller can view their balance, transfers,
     /// payouts, and bank account settings on Stripe-hosted UI.
     /// </summary>
-    [Authorize, HttpGet("connect/dashboard-link")]
+    [HttpGet("connect/dashboard-link")]
     public Task<Result<ExpressDashboardLinkResponse>> ExpressDashboardLink(CancellationToken ct) =>
         mediator.Send(new GetExpressDashboardLinkRequest(), ct);
 
     /// <summary>
     /// Stage shipping recipient details on a Sold lot. Only the winning bidder may call.
-    /// Creates a Shipment row in <c>PendingTtn</c> state — must come before /intent.
+    /// Creates a Shipment row in <c>PendingTtn</c> state — must come before the payment-intent step.
+    /// Nested under the won lot (no payment exists yet), per the routing convention.
     /// </summary>
-    [Authorize, HttpPost("{lotId:guid}/checkout-details")]
+    [HttpPost("/api/v1/lots/{lotId:guid}/checkout-details")]
     public Task<Result> CheckoutDetails(Guid lotId, [FromBody] CheckoutDetailsBody body, CancellationToken ct) =>
         mediator.Send(new CheckoutDetailsRequest(
             lotId,
@@ -53,25 +54,16 @@ public class PaymentsController(IMediator mediator) : ControllerBase
     /// <summary>
     /// Create the Stripe PaymentIntent (USD, manual capture, destination charge to the seller's
     /// Connect account). Returns the client secret for the frontend's card-confirmation step.
+    /// Nested under the won lot (no payment exists yet), per the routing convention.
     /// </summary>
-    [Authorize, HttpPost("{lotId:guid}/intent")]
+    [HttpPost("/api/v1/lots/{lotId:guid}/payment-intent")]
     public Task<Result<CreatePaymentIntentResponse>> CreateIntent(Guid lotId, CancellationToken ct) =>
         mediator.Send(new CreatePaymentIntentRequest(lotId), ct);
 
     /// <summary>Buyer or seller view of a payment, including the linked shipment id and status.</summary>
-    [Authorize, HttpGet("{paymentId:guid}")]
+    [HttpGet("{paymentId:guid}")]
     public Task<Result<PaymentDetailModel>> GetById(Guid paymentId, CancellationToken ct) =>
         mediator.Send(new GetPaymentByIdRequest(paymentId), ct);
-
-    /// <summary>
-    /// Caller's purchase history (payments where caller is the buyer). Eagerly joins the lot
-    /// title/cover and the linked shipment status so the dashboard renders in one round-trip.
-    /// </summary>
-    [Authorize, HttpPost("mine/list")]
-    public Task<Result<Paginated<MyPurchaseItemModel>>> ListMine(
-        [FromBody] GetMyPurchasesRequest request,
-        CancellationToken ct) =>
-        mediator.Send(request, ct);
 }
 
 public record CheckoutDetailsBody(

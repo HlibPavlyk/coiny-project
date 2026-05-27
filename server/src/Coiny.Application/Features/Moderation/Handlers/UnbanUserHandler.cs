@@ -3,12 +3,12 @@ using Coiny.Application.Abstractions.Http;
 using Coiny.Application.Abstractions.Providers;
 using Coiny.Application.Common.Authorization;
 using Coiny.Application.Common.Results;
-using Coiny.Application.Features.Admin.Requests;
+using Coiny.Application.Features.Moderation.Requests;
 using Coiny.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace Coiny.Application.Features.Admin.Handlers;
+namespace Coiny.Application.Features.Moderation.Handlers;
 
 /// <summary>
 /// Lifts a ban: clears <c>IsBanned</c> and the ban metadata. Lots cancelled and payments cancelled by

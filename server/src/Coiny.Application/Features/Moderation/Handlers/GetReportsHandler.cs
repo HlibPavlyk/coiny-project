@@ -4,13 +4,13 @@ using Coiny.Application.Common.Authorization;
 using Coiny.Application.Common.Extensions;
 using Coiny.Application.Common.Querying;
 using Coiny.Application.Common.Results;
-using Coiny.Application.Features.Admin.Models;
-using Coiny.Application.Features.Admin.Requests;
+using Coiny.Application.Features.Moderation.Models;
+using Coiny.Application.Features.Moderation.Requests;
 using Coiny.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace Coiny.Application.Features.Admin.Handlers;
+namespace Coiny.Application.Features.Moderation.Handlers;
 
 /// <summary>
 /// Paginated admin reports listing, filtered by status and ordered by the requested column (default

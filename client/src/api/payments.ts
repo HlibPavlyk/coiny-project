@@ -91,15 +91,15 @@ export const payments = {
     api<ExpressDashboardLinkResponse>('/api/v1/payments/connect/dashboard-link'),
 
   checkoutDetails: (lotId: string, body: CheckoutDetailsBody) =>
-    api<void>(`/api/v1/payments/${lotId}/checkout-details`, { method: 'POST', body }),
+    api<void>(`/api/v1/lots/${lotId}/checkout-details`, { method: 'POST', body }),
 
   createIntent: (lotId: string) =>
-    api<CreatePaymentIntentResponse>(`/api/v1/payments/${lotId}/intent`, { method: 'POST' }),
+    api<CreatePaymentIntentResponse>(`/api/v1/lots/${lotId}/payment-intent`, { method: 'POST' }),
 
   getById: (paymentId: string) => api<PaymentDetailModel>(`/api/v1/payments/${paymentId}`),
 
   myPurchasesSearch: (paginate: PageRequest) =>
-    api<Paginated<MyPurchaseItemModel>>('/api/v1/payments/mine/list', {
+    api<Paginated<MyPurchaseItemModel>>('/api/v1/users/me/payments/list', {
       method: 'POST',
       body: paginate,
     }),

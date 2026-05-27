@@ -183,7 +183,7 @@ export const lots = {
       body: { lotId: id, imageIds },
     }),
   myLotsSearch: (request: MyLotsRequest) =>
-    api<Paginated<MyLotItem>>(`/api/v1/lots/mine/list`, { method: 'POST', body: request }),
+    api<Paginated<MyLotItem>>(`/api/v1/users/me/lots/list`, { method: 'POST', body: request }),
   search: (request: SearchLotsRequest) =>
     api<SearchLotsResponse>(`/api/v1/lots/search`, { method: 'POST', body: request }),
   publicLots: (request: PublicLotsRequest) =>

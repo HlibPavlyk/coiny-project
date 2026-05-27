@@ -1,7 +1,7 @@
 using Coiny.Application.Common.Results;
 using MediatR;
 
-namespace Coiny.Application.Features.Admin.Requests;
+namespace Coiny.Application.Features.Moderation.Requests;
 
 /// <summary>
 /// Admin records that a report was actioned. This only flips the report's resolution state — the

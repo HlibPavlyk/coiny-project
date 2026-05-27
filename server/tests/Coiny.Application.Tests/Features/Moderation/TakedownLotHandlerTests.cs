@@ -2,8 +2,8 @@ using Coiny.Application.Abstractions.Http;
 using Coiny.Application.Abstractions.Providers;
 using Coiny.Application.Common.Authorization;
 using Coiny.Application.Common.Results;
-using Coiny.Application.Features.Admin.Handlers;
-using Coiny.Application.Features.Admin.Requests;
+using Coiny.Application.Features.Moderation.Handlers;
+using Coiny.Application.Features.Moderation.Requests;
 using Coiny.Application.Features.Lots.Events;
 using Coiny.Domain.Entities;
 using Coiny.Domain.Enums;
@@ -12,9 +12,9 @@ using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
 
-namespace Coiny.Application.Tests.Features.Admin;
+namespace Coiny.Application.Tests.Features.Moderation;
 
-public class DeleteLotAdminHandlerTests
+public class TakedownLotHandlerTests
 {
     private static readonly DateTime BaseTime = new(2026, 5, 22, 12, 0, 0, DateTimeKind.Utc);
 
@@ -27,8 +27,8 @@ public class DeleteLotAdminHandlerTests
         Guid lot = SeedLot(ctx, LotStatus.Active);
         await ctx.SaveChangesAsync();
 
-        var handler = new DeleteLotAdminHandler(ctx, NonAdmin(), new TestClock(BaseTime));
-        Result result = await handler.Handle(new DeleteLotAdminRequest(lot), CancellationToken.None);
+        var handler = new TakedownLotHandler(ctx, NonAdmin(), new TestClock(BaseTime));
+        Result result = await handler.Handle(new TakedownLotRequest(lot), CancellationToken.None);
 
         result.IsFailure.Should().BeTrue();
         result.Error.Type.Should().Be(ErrorType.Forbidden);
@@ -43,8 +43,8 @@ public class DeleteLotAdminHandlerTests
         Guid lot = SeedLot(ctx, LotStatus.Active);
         await ctx.SaveChangesAsync();
 
-        var handler = new DeleteLotAdminHandler(ctx, Admin(), new TestClock(BaseTime));
-        Result result = await handler.Handle(new DeleteLotAdminRequest(lot), CancellationToken.None);
+        var handler = new TakedownLotHandler(ctx, Admin(), new TestClock(BaseTime));
+        Result result = await handler.Handle(new TakedownLotRequest(lot), CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
         Lot stored = await ctx.Lots.IgnoreQueryFilters().SingleAsync(l => l.Id == lot);
@@ -66,8 +66,8 @@ public class DeleteLotAdminHandlerTests
         Guid lot = SeedLot(ctx, LotStatus.Sold);
         await ctx.SaveChangesAsync();
 
-        var handler = new DeleteLotAdminHandler(ctx, Admin(), new TestClock(BaseTime));
-        Result result = await handler.Handle(new DeleteLotAdminRequest(lot), CancellationToken.None);
+        var handler = new TakedownLotHandler(ctx, Admin(), new TestClock(BaseTime));
+        Result result = await handler.Handle(new TakedownLotRequest(lot), CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
         (await ctx.Lots.IgnoreQueryFilters().SingleAsync(l => l.Id == lot)).IsDeleted.Should().BeTrue();
@@ -83,8 +83,8 @@ public class DeleteLotAdminHandlerTests
         Guid lot = SeedLot(ctx, LotStatus.Active, deleted: true);
         await ctx.SaveChangesAsync();
 
-        var handler = new DeleteLotAdminHandler(ctx, Admin(), new TestClock(BaseTime));
-        Result result = await handler.Handle(new DeleteLotAdminRequest(lot), CancellationToken.None);
+        var handler = new TakedownLotHandler(ctx, Admin(), new TestClock(BaseTime));
+        Result result = await handler.Handle(new TakedownLotRequest(lot), CancellationToken.None);
 
         result.IsFailure.Should().BeTrue();
         result.Error.Code.Should().Be("Lot.AlreadyDeleted");
@@ -95,9 +95,9 @@ public class DeleteLotAdminHandlerTests
     public async Task Missing_lot_returns_not_found()
     {
         using var ctx = NewDb();
-        var handler = new DeleteLotAdminHandler(ctx, Admin(), new TestClock(BaseTime));
+        var handler = new TakedownLotHandler(ctx, Admin(), new TestClock(BaseTime));
 
-        Result result = await handler.Handle(new DeleteLotAdminRequest(Guid.NewGuid()), CancellationToken.None);
+        Result result = await handler.Handle(new TakedownLotRequest(Guid.NewGuid()), CancellationToken.None);
 
         result.IsFailure.Should().BeTrue();
         result.Error.Type.Should().Be(ErrorType.NotFound);

@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Coiny.Api.Controllers;
 
 [ApiController]
-[Tags("Config")]
+[Tags("System")]
 [Route("api/v1/config")]
 public class ConfigController(IMediator mediator) : ControllerBase
 {

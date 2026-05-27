@@ -10,9 +10,9 @@ public static class DependencyInjectionExtensions
     public static void AddApplication(this IServiceCollection services)
     {
         services.AddMediatR(cfg =>
-            cfg.RegisterServicesFromAssembly(typeof(IApplicationMarker).Assembly));
+            cfg.RegisterServicesFromAssembly(typeof(ApplicationAssemblyMarker).Assembly));
 
-        services.AddValidatorsFromAssemblyContaining<IApplicationMarker>();
+        services.AddValidatorsFromAssemblyContaining<ApplicationAssemblyMarker>();
 
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
     }

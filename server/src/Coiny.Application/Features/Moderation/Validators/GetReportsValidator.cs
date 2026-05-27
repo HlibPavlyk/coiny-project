@@ -1,7 +1,7 @@
-using Coiny.Application.Features.Admin.Requests;
+using Coiny.Application.Features.Moderation.Requests;
 using FluentValidation;
 
-namespace Coiny.Application.Features.Admin.Validators;
+namespace Coiny.Application.Features.Moderation.Validators;
 
 /// <summary>Rejects a malformed status filter before the handler runs; null (all states) is allowed.</summary>
 public class GetReportsValidator : AbstractValidator<GetReportsRequest>

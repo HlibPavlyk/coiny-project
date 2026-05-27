@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Coiny.Api.Controllers;
 
 [ApiController]
-[Tags("Stripe Webhooks")]
+[Tags("System")]
 [Route("webhooks/stripe")]
 public class StripeWebhookController(StripeWebhookProcessor processor) : ControllerBase
 {

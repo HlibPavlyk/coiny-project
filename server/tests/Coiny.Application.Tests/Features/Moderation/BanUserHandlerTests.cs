@@ -3,8 +3,8 @@ using Coiny.Application.Abstractions.Providers;
 using Coiny.Application.Abstractions.Realtime;
 using Coiny.Application.Common.Authorization;
 using Coiny.Application.Common.Results;
-using Coiny.Application.Features.Admin.Handlers;
-using Coiny.Application.Features.Admin.Requests;
+using Coiny.Application.Features.Moderation.Handlers;
+using Coiny.Application.Features.Moderation.Requests;
 using Coiny.Application.Features.Lots.Events;
 using Coiny.Application.Tests.Fakes;
 using Coiny.Domain.Entities;
@@ -15,7 +15,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
-namespace Coiny.Application.Tests.Features.Admin;
+namespace Coiny.Application.Tests.Features.Moderation;
 
 public class BanUserHandlerTests
 {
