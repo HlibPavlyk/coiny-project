@@ -29,10 +29,7 @@ const KNOWN_KEYS: Record<SubcategoryKind, { key: string; label: string }[]> = {
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div
-      className="grid gap-x-6 py-2.5 border-b border-border-soft text-[13px]"
-      style={{ gridTemplateColumns: '150px 1fr' }}
-    >
+    <div className="flex flex-col sm:grid sm:grid-cols-[150px_1fr] gap-1 sm:gap-x-6 py-2.5 border-b border-border-soft text-[13px]">
       <span className="text-text-3">{label}</span>
       <span className="text-text font-medium break-words">{value}</span>
     </div>

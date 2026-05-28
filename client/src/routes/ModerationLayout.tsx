@@ -34,17 +34,22 @@ export function ModerationLayout() {
   return (
     <div>
       <TopNav />
-      <div className="max-w-[1180px] mx-auto px-7 py-8">
+      <div className="max-w-[1180px] mx-auto px-4 sm:px-7 py-6 sm:py-8">
         {header && (
           <div className="mb-4">
-            <h1 className="text-[28px] font-bold tracking-tight m-0">{header.title}</h1>
+            <h1 className="text-title-sm sm:text-title font-bold tracking-tight m-0">{header.title}</h1>
             {header.subtitle && (
-              <p className="text-[13.5px] text-text-3 m-0 mt-1">{header.subtitle}</p>
+              <p className="text-[13px] sm:text-[13.5px] text-text-3 m-0 mt-1">{header.subtitle}</p>
             )}
           </div>
         )}
-        <div className="grid gap-5" style={{ gridTemplateColumns: '240px 1fr' }}>
-          <ModerationSidebar openReportsCount={openReports?.totalCount} />
+        <div className="md:hidden mb-4">
+          <ModerationSidebar openReportsCount={openReports?.totalCount} variant="topbar" />
+        </div>
+        <div className="md:grid md:gap-5 md:grid-cols-[240px_1fr]">
+          <div className="hidden md:block">
+            <ModerationSidebar openReportsCount={openReports?.totalCount} />
+          </div>
           <div>
             <Outlet />
           </div>

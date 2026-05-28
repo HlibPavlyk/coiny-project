@@ -148,7 +148,7 @@ export function ImageUploader({ lotId, images, onChange, max = 5 }: ImageUploade
       </div>
 
       {(images.length > 0 || uploading.length > 0) && (
-        <div className="grid gap-2 mt-3" style={{ gridTemplateColumns: 'repeat(5, 1fr)' }}>
+        <div className="grid gap-2 mt-3 grid-cols-3 sm:grid-cols-4 md:grid-cols-5">
           {images.map((img, i) => (
             <div
               key={img.id}

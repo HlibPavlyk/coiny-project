@@ -77,26 +77,32 @@ export function MyAccountLayout() {
     staleTime: 30_000,
   });
 
+  const counts = {
+    lots: lotsData?.totalCount,
+    bids: bidsData?.totalCount,
+    purchases: purchasesData?.totalCount,
+  };
+
   return (
     <div>
       <TopNav />
-      <div className="max-w-[1180px] mx-auto px-7 py-8">
+      <div className="max-w-[1180px] mx-auto px-4 sm:px-7 py-6 sm:py-8">
         {header && (
           <div className="mb-4">
-            <h1 className="text-[28px] font-bold tracking-tight m-0">{header.title}</h1>
+            <h1 className="text-title-sm sm:text-title font-bold tracking-tight m-0">{header.title}</h1>
             {header.subtitle && (
-              <p className="text-[13.5px] text-text-3 m-0 mt-1">{header.subtitle}</p>
+              <p className="text-[13px] sm:text-[13.5px] text-text-3 m-0 mt-1">{header.subtitle}</p>
             )}
           </div>
         )}
-        <div className="grid gap-5" style={{ gridTemplateColumns: '240px 1fr' }}>
-          <MyAccountSidebar
-            counts={{
-              lots: lotsData?.totalCount,
-              bids: bidsData?.totalCount,
-              purchases: purchasesData?.totalCount,
-            }}
-          />
+        {/* Mobile (< md): horizontal-scroll tab strip. Desktop (≥ md): vertical sidebar 240px. */}
+        <div className="md:hidden mb-4">
+          <MyAccountSidebar counts={counts} variant="topbar" />
+        </div>
+        <div className="md:grid md:gap-5 md:grid-cols-[240px_1fr]">
+          <div className="hidden md:block">
+            <MyAccountSidebar counts={counts} />
+          </div>
           <div>
             <Outlet />
           </div>

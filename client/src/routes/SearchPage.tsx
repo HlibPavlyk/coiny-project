@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { TopNav } from '@/components/TopNav';
 import { Footer } from '@/components/Footer';
@@ -46,6 +46,17 @@ const num = (value: string | null): number | undefined =>
 export default function SearchPage() {
   const [params, setParams] = useSearchParams();
   const { data: tree } = useCategoryTree();
+  const [filtersOpen, setFiltersOpen] = useState(false);
+
+  // Close the mobile filter sheet on Escape — chrome usually swallows pull-to-refresh anyway.
+  useEffect(() => {
+    if (!filtersOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setFiltersOpen(false);
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [filtersOpen]);
 
   // ── URL-driven state ──────────────────────────────────────────────────────
   const q = params.get('q') ?? '';
@@ -170,14 +181,40 @@ export default function SearchPage() {
         </p>
       </div>
 
-      {/* Layout: filters + results. min-height keeps the footer from leaping when a filter shrinks
-          the result set to a short list. */}
-      <div
-        className="max-w-[1280px] mx-auto px-7 pt-6 grid gap-8 min-h-[70vh]"
-        style={{ gridTemplateColumns: '240px 1fr' }}
-      >
-        <aside>
-          <div className="flex items-center justify-between mb-4">
+      {/* Layout: filters + results. On desktop, side-by-side. On mobile, filters live behind a
+          "Filters" button that opens a bottom-sheet drawer; results take full width. */}
+      <div className="max-w-[1280px] mx-auto px-4 sm:px-7 pt-6 grid gap-6 lg:gap-8 min-h-[70vh] grid-cols-1 lg:grid-cols-[240px_1fr]">
+        {/* Mobile drawer backdrop. Aside below becomes a fixed overlay when filtersOpen on mobile. */}
+        {filtersOpen && (
+          <div
+            className="lg:hidden fixed inset-0 z-40"
+            style={{ background: 'rgba(15, 23, 42, 0.45)' }}
+            onClick={() => setFiltersOpen(false)}
+          />
+        )}
+        <aside
+          className={
+            filtersOpen
+              ? 'fixed inset-y-0 left-0 z-50 w-[88vw] max-w-[360px] bg-surface overflow-y-auto p-4 lg:static lg:w-auto lg:max-w-none lg:p-0'
+              : 'hidden lg:block'
+          }
+        >
+          {/* Mobile drawer close button. */}
+          {filtersOpen && (
+            <div className="flex items-center justify-between mb-3 pb-3 border-b border-border-soft lg:hidden">
+              <div className="text-sm font-semibold">Filters</div>
+              <button
+                type="button"
+                onClick={() => setFiltersOpen(false)}
+                aria-label="Close filters"
+                className="p-2 -mr-1 rounded-md hover:bg-bg-soft transition"
+              >
+                <Icon name="x" size={18} stroke={1.8} />
+              </button>
+            </div>
+          )}
+          {/* "FILTERS" sub-heading is desktop-only — the mobile drawer already has a "Filters" title at the top. */}
+          <div className="hidden lg:flex items-center justify-between mb-4">
             <div className="text-[11px] uppercase tracking-wider font-semibold text-text-3">Filters</div>
             {hasFilters && (
               <button type="button" onClick={clearAll} className="text-xs text-accent hover:text-accent-deep">
@@ -263,22 +300,48 @@ export default function SearchPage() {
         </aside>
 
         <div>
-          <div className="flex items-center justify-end mb-4 gap-2">
-            <label htmlFor="sort" className="text-[13px] text-text-3">
-              Sort:
-            </label>
-            <select
-              id="sort"
-              value={effectiveSort}
-              onChange={(e) => update({ sort: e.target.value })}
-              className="rounded-md border border-border-strong bg-surface text-sm py-1.5 px-2.5"
-            >
-              {q && <option value="relevance">Relevance</option>}
-              <option value="endsAt">Ending soonest</option>
-              <option value="newest">Newest</option>
-              <option value="priceAsc">Price low → high</option>
-              <option value="priceDesc">Price high → low</option>
-            </select>
+          {/* Toolbar: on mobile shows [Filters] [Clear all] | [Sort]; on lg+ shows [Sort] only since
+              filters live in the persistent sidebar. */}
+          <div className="flex items-center justify-between lg:justify-end mb-4 gap-2 flex-wrap">
+            <div className="flex items-center gap-2 lg:hidden">
+              <button
+                type="button"
+                onClick={() => setFiltersOpen(true)}
+                className="inline-flex items-center gap-1.5 rounded-md border border-border-strong bg-surface hover:bg-bg-soft text-text font-medium px-3 py-2 text-[13px]"
+              >
+                <Icon name="list" size={14} />
+                Filters
+                {hasFilters && (
+                  <span className="rounded-full bg-accent text-white text-[10px] font-bold w-1.5 h-1.5 p-0" />
+                )}
+              </button>
+              {hasFilters && (
+                <button
+                  type="button"
+                  onClick={clearAll}
+                  className="text-[12px] text-accent hover:text-accent-deep"
+                >
+                  Clear all
+                </button>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <label htmlFor="sort" className="text-[13px] text-text-3">
+                Sort:
+              </label>
+              <select
+                id="sort"
+                value={effectiveSort}
+                onChange={(e) => update({ sort: e.target.value })}
+                className="rounded-md border border-border-strong bg-surface text-sm py-1.5 px-2.5"
+              >
+                {q && <option value="relevance">Relevance</option>}
+                <option value="endsAt">Ending soonest</option>
+                <option value="newest">Newest</option>
+                <option value="priceAsc">Price low → high</option>
+                <option value="priceDesc">Price high → low</option>
+              </select>
+            </div>
           </div>
 
           {isError ? (

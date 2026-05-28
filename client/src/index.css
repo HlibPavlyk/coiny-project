@@ -35,7 +35,19 @@
   --color-info: #1E40AF;
   --color-info-soft: #DBEAFE;
 
-  /* Type */
+  /* Type — fixed rem-based scale (per .impeccable.md design principles). App-UI density
+     keeps base at 14px / 0.875rem; hero text upshifts via responsive utilities. Tailwind v4
+     @theme turns any `--text-*` token into a `text-*` utility class. Reach for arbitrary
+     `text-[Xpx]` only when none of the canonical sizes carry the role (rare). */
+  --text-caption:  0.6875rem;       /* 11px — uppercase labels, small status pills, metadata */
+  --text-micro:    0.75rem;         /* 12px — tertiary copy, table cells, secondary metadata */
+  --text-small:    0.8125rem;       /* 13px — body-secondary, card captions */
+  --text-body:     0.875rem;        /* 14px — base body text (== html font-size) */
+  --text-medium:   0.9375rem;       /* 15px — emphasized body, key card text */
+  --text-lead:     1.0625rem;       /* 17px — sub-headers, emphasized paragraphs */
+  --text-title-sm: 1.375rem;        /* 22px — section H2, lot detail title (mobile) */
+  --text-title:    1.75rem;         /* 28px — page H1 (desktop) */
+
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-mono: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 
@@ -116,4 +128,61 @@ html, body, #root {
 }
 .toast-enter {
   animation: toast-slide-in 220ms ease-out;
+}
+
+/*
+ * Hide the browser's native `<input type="search">` decorations. Chrome/Safari render a blue
+ * "x" clear-button when the input has content; we render our own custom X in every search field
+ * (TopNav search, mobile search panel, etc.), so the native one is a visual duplicate.
+ */
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-results-button,
+input[type="search"]::-webkit-search-results-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/*
+ * iOS Safari auto-zooms when a form control with font-size < 16px receives focus — to "help" the
+ * user see what they're typing. The behaviour only disables when font-size ≥ 16px.
+ *
+ * We force 16px on form controls ONLY on iOS, leaving Android (which respects our viewport meta
+ * and doesn't auto-zoom) and desktop alone — so the rest of the app keeps its 14px-base density.
+ *
+ * iOS detection via `@supports (-webkit-touch-callout: none)` — that property only exists on iOS
+ * WebKit; Android Chrome and desktop browsers don't match.
+ *
+ * NOT done via `user-scalable=no` viewport meta — that breaks accessibility (pinch-to-zoom).
+ */
+@supports (-webkit-touch-callout: none) {
+  @media screen and (max-width: 767px) {
+    input, select, textarea {
+      font-size: 16px !important;
+    }
+  }
+}
+
+/*
+ * A11y: respect prefers-reduced-motion. Disables CSS animations + transitions globally for users
+ * who set this preference (OS-level). Keeps state changes instant.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/*
+ * A11y: keyboard focus visible. Custom buttons + links lose default focus rings when we set
+ * `outline-none` deeper in components. Provide a global focus-visible ring on every focusable
+ * interactive element (button, a, input, etc.) so keyboard users can track focus.
+ */
+:where(button, a, [role="button"], input, select, textarea, summary):focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: 4px;
 }

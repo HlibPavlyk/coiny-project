@@ -1,6 +1,14 @@
-import { createBrowserRouter } from 'react-router-dom';
-import { Stub } from './Stub';
+import { Outlet, createBrowserRouter } from 'react-router-dom';
 import { RequireAuth } from '@/components/RequireAuth';
+import NotFoundPage from './NotFoundPage';
+import InternalErrorPage from './InternalErrorPage';
+
+/**
+ * Pathless root route — exists solely to attach a single <c>errorElement</c> that catches any
+ * thrown render-time error or loader rejection in any descendant route. Without it, an uncaught
+ * error in a leaf component shows a blank white page.
+ */
+const RootErrorBoundary = () => <Outlet />;
 import SignInPage from './SignInPage';
 import SignUpPage from './SignUpPage';
 import VerifyEmailPage from './VerifyEmailPage';
@@ -30,7 +38,10 @@ import { ModerationLayout } from './ModerationLayout';
  * Stub routing tree mirroring /docs/03-frontend-structure.md.
  * Real components ship in tasks 22–25; admin page comes in sprint 4.
  */
-export const router = createBrowserRouter([
+export const router = createBrowserRouter([{
+  element: <RootErrorBoundary />,
+  errorElement: <InternalErrorPage />,
+  children: [
   // Public
   { path: '/', element: <HomePage /> },
   { path: '/category/:slug', element: <CategoryPage /> },
@@ -116,6 +127,7 @@ export const router = createBrowserRouter([
     ],
   },
 
-  // 404
-  { path: '*', element: <Stub name="Not found" /> },
-]);
+  // 404 — any unmatched route lands here.
+  { path: '*', element: <NotFoundPage /> },
+  ],
+}]);

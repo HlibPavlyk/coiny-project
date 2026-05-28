@@ -32,6 +32,11 @@ export function CheckoutDetailsForm({ lotId, defaultName = '', onSubmitted }: Pr
   const cityInputRef = useRef<HTMLInputElement>(null);
   const warehouseInputRef = useRef<HTMLInputElement>(null);
 
+  // Keyboard-nav highlights. Reset whenever the result list shape changes so Enter doesn't
+  // accidentally pick a stale row. -1 = nothing highlighted; Enter then falls through.
+  const [cityHi, setCityHi] = useState(-1);
+  const [whHi, setWhHi] = useState(-1);
+
   // 250ms debounce on the city query keeps NP autocomplete responsive without hammering.
   useEffect(() => {
     const handle = setTimeout(() => setDebouncedQuery(cityQuery.trim()), 250);
@@ -139,30 +144,68 @@ export function CheckoutDetailsForm({ lotId, defaultName = '', onSubmitted }: Pr
               ref={cityInputRef}
               type="text"
               value={cityQuery}
-              onChange={(e) => setCityQuery(e.target.value)}
+              onChange={(e) => {
+                setCityQuery(e.target.value);
+                setCityHi(-1);
+              }}
+              onKeyDown={(e) => {
+                const list = cities.data?.cities ?? [];
+                if (e.key === 'Escape') {
+                  setCityHi(-1);
+                  setCityQuery('');
+                  return;
+                }
+                if (list.length === 0) return;
+                if (e.key === 'ArrowDown') {
+                  e.preventDefault();
+                  setCityHi((h) => (h + 1) % list.length);
+                } else if (e.key === 'ArrowUp') {
+                  e.preventDefault();
+                  setCityHi((h) => (h <= 0 ? list.length - 1 : h - 1));
+                } else if (e.key === 'Enter' && cityHi >= 0 && list[cityHi]) {
+                  e.preventDefault();
+                  setPickedCity(list[cityHi]);
+                  setCityHi(-1);
+                }
+              }}
               placeholder="Start typing the city name (e.g. Київ)"
+              aria-autocomplete="list"
+              aria-expanded={debouncedQuery.length >= 2 && (cities.data?.cities.length ?? 0) > 0}
               className="w-full rounded-md border border-border-strong bg-surface px-3 py-2 text-[14px]"
               autoComplete="off"
             />
             {debouncedQuery.length >= 2 && (
-              <div className="absolute z-10 left-0 right-0 mt-1 max-h-60 overflow-auto rounded-md border border-border bg-surface shadow-md">
+              <div
+                role="listbox"
+                className="absolute z-10 left-0 right-0 mt-1 max-h-60 overflow-auto rounded-md border border-border bg-surface shadow-md"
+              >
                 {cities.isLoading && (
                   <div className="px-3 py-2 text-[13px] text-text-3">Searching…</div>
                 )}
                 {cities.data?.cities.length === 0 && (
                   <div className="px-3 py-2 text-[13px] text-text-3">No matches.</div>
                 )}
-                {cities.data?.cities.map((c) => (
-                  <button
-                    type="button"
-                    key={c.ref}
-                    onClick={() => setPickedCity(c)}
-                    className="block w-full text-left px-3 py-2 text-[14px] hover:bg-bg-soft"
-                  >
-                    <span className="font-medium">{c.name}</span>
-                    <span className="text-text-3 ml-2 text-[12.5px]">{c.area}</span>
-                  </button>
-                ))}
+                {cities.data?.cities.map((c, i) => {
+                  const active = i === cityHi;
+                  return (
+                    <button
+                      type="button"
+                      key={c.ref}
+                      role="option"
+                      aria-selected={active}
+                      onMouseEnter={() => setCityHi(i)}
+                      onClick={() => {
+                        setPickedCity(c);
+                        setCityHi(-1);
+                      }}
+                      className="block w-full text-left px-3 py-2 text-[14px]"
+                      style={{ background: active ? 'var(--color-bg-soft)' : 'transparent' }}
+                    >
+                      <span className="font-medium">{c.name}</span>
+                      <span className="text-text-3 ml-2 text-[12.5px]">{c.area}</span>
+                    </button>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -197,9 +240,33 @@ export function CheckoutDetailsForm({ lotId, defaultName = '', onSubmitted }: Pr
               ref={warehouseInputRef}
               type="text"
               value={warehouseQuery}
-              onChange={(e) => setWarehouseQuery(e.target.value)}
+              onChange={(e) => {
+                setWarehouseQuery(e.target.value);
+                setWhHi(-1);
+              }}
               onFocus={() => setWarehouseFocused(true)}
               onBlur={() => setTimeout(() => setWarehouseFocused(false), 150)}
+              onKeyDown={(e) => {
+                if (e.key === 'Escape') {
+                  setWhHi(-1);
+                  setWarehouseFocused(false);
+                  return;
+                }
+                if (filteredWarehouses.length === 0) return;
+                if (e.key === 'ArrowDown') {
+                  e.preventDefault();
+                  setWhHi((h) => (h + 1) % filteredWarehouses.length);
+                } else if (e.key === 'ArrowUp') {
+                  e.preventDefault();
+                  setWhHi((h) => (h <= 0 ? filteredWarehouses.length - 1 : h - 1));
+                } else if (e.key === 'Enter' && whHi >= 0 && filteredWarehouses[whHi]) {
+                  e.preventDefault();
+                  setPickedWarehouse(filteredWarehouses[whHi]);
+                  setWarehouseQuery('');
+                  setWarehouseFocused(false);
+                  setWhHi(-1);
+                }
+              }}
               disabled={!pickedCity}
               placeholder={
                 !pickedCity
@@ -208,33 +275,46 @@ export function CheckoutDetailsForm({ lotId, defaultName = '', onSubmitted }: Pr
                     ? 'Loading branches…'
                     : 'Search by branch number or street'
               }
+              aria-autocomplete="list"
+              aria-expanded={!!pickedCity && warehouseFocused && filteredWarehouses.length > 0}
               className="w-full rounded-md border border-border-strong bg-surface px-3 py-2 text-[14px] disabled:opacity-60 disabled:cursor-not-allowed"
               autoComplete="off"
             />
             {pickedCity && warehouseFocused && (
-              <div className="absolute z-10 left-0 right-0 mt-1 max-h-60 overflow-auto rounded-md border border-border bg-surface shadow-md">
+              <div
+                role="listbox"
+                className="absolute z-10 left-0 right-0 mt-1 max-h-60 overflow-auto rounded-md border border-border bg-surface shadow-md"
+              >
                 {warehouses.isLoading && (
                   <div className="px-3 py-2 text-[13px] text-text-3">Loading…</div>
                 )}
                 {!warehouses.isLoading && filteredWarehouses.length === 0 && (
                   <div className="px-3 py-2 text-[13px] text-text-3">No matches.</div>
                 )}
-                {filteredWarehouses.map((w) => (
-                  <button
-                    type="button"
-                    key={w.ref}
-                    onMouseDown={(e) => e.preventDefault()} // keep input from blurring before click
-                    onClick={() => {
-                      setPickedWarehouse(w);
-                      setWarehouseQuery('');
-                      setWarehouseFocused(false);
-                    }}
-                    className="block w-full text-left px-3 py-2 text-[14px] hover:bg-bg-soft"
-                  >
-                    <span className="font-medium">№{w.number}</span>
-                    <span className="text-text-3 ml-2 text-[12.5px]">{w.address}</span>
-                  </button>
-                ))}
+                {filteredWarehouses.map((w, i) => {
+                  const active = i === whHi;
+                  return (
+                    <button
+                      type="button"
+                      key={w.ref}
+                      role="option"
+                      aria-selected={active}
+                      onMouseDown={(e) => e.preventDefault()} // keep input from blurring before click
+                      onMouseEnter={() => setWhHi(i)}
+                      onClick={() => {
+                        setPickedWarehouse(w);
+                        setWarehouseQuery('');
+                        setWarehouseFocused(false);
+                        setWhHi(-1);
+                      }}
+                      className="block w-full text-left px-3 py-2 text-[14px]"
+                      style={{ background: active ? 'var(--color-bg-soft)' : 'transparent' }}
+                    >
+                      <span className="font-medium">№{w.number}</span>
+                      <span className="text-text-3 ml-2 text-[12.5px]">{w.address}</span>
+                    </button>
+                  );
+                })}
               </div>
             )}
           </div>

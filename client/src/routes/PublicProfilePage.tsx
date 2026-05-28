@@ -9,6 +9,7 @@ import { Icon } from '@/components/Icon';
 import { users } from '@/api/users';
 import { formatKopiykasAsUah } from '@/lib/money';
 import { ApiError } from '@/api/fetch';
+import { Skeleton, SkeletonLine } from '@/components/Skeleton';
 
 /**
  * Public seller profile per design-brief §2.7. No auth required.
@@ -66,8 +67,14 @@ export default function PublicProfilePage() {
   return (
     <div>
       <TopNav />
-      <div className="max-w-[1180px] mx-auto px-7 py-10">
-        {profile.isLoading && <p className="text-text-3 mt-4">Loading…</p>}
+      <div className="max-w-[1180px] mx-auto px-4 sm:px-7 py-6 sm:py-10">
+        {profile.isLoading && (
+          <div className="mt-4 space-y-4">
+            <SkeletonLine width="w-1/3" />
+            <SkeletonLine width="w-2/3" />
+            <Skeleton className="h-32 w-full mt-4" />
+          </div>
+        )}
 
         {profile.isError && profile.error instanceof ApiError && profile.error.status === 404 && (
           <div className="mt-8 text-center">
@@ -80,12 +87,14 @@ export default function PublicProfilePage() {
 
         {profile.isSuccess && (
           <>
-            {/* Hero */}
-            <section className="flex flex-col md:flex-row gap-6 md:items-center">
-              <AvatarLarge initials={initials} size={104} />
+            {/* Hero — on mobile: avatar + name side-by-side (compact), then meta below, then Report at end. */}
+            <section className="flex items-start gap-4 sm:gap-6 md:items-center">
+              <AvatarLarge initials={initials} size={72} />
               <div className="flex-1 min-w-0">
-                <h1 className="text-3xl font-bold m-0 leading-tight">{profile.data.displayName}</h1>
-                <div className="mt-2 flex flex-wrap items-center gap-3 text-[13.5px] text-text-3">
+                <h1 className="text-[22px] sm:text-3xl font-bold m-0 leading-tight break-words">
+                  {profile.data.displayName}
+                </h1>
+                <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12.5px] sm:text-[13.5px] text-text-3">
                   <span className="inline-flex items-center gap-1.5">
                     <Icon name="medal" size={14} stroke={1.8} color="var(--color-accent-deep)" />
                     Trust score <span className="mono font-semibold text-text">{profile.data.trustScore}</span>
@@ -99,7 +108,20 @@ export default function PublicProfilePage() {
                     </>
                   )}
                 </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    alert(
+                      'To report a seller, please report one of their active lots. Admins review reports tied to specific listings and can ban the seller from the moderation queue.',
+                    );
+                  }}
+                  className="mt-3 sm:hidden inline-flex items-center gap-1.5 rounded-md border border-border-strong bg-surface hover:bg-bg-soft font-medium px-3 py-1.5 text-[12.5px]"
+                >
+                  <Icon name="shield" size={13} stroke={1.8} />
+                  Report user
+                </button>
               </div>
+              {/* Desktop Report button — separate column on md+ so it sits next to the meta. */}
               <button
                 type="button"
                 onClick={() => {
@@ -107,7 +129,7 @@ export default function PublicProfilePage() {
                     'To report a seller, please report one of their active lots. Admins review reports tied to specific listings and can ban the seller from the moderation queue.',
                   );
                 }}
-                className="self-start inline-flex items-center gap-1.5 rounded-md border border-border-strong bg-surface hover:bg-bg-soft font-medium px-3.5 py-2 text-[12.5px]"
+                className="hidden sm:inline-flex self-start items-center gap-1.5 rounded-md border border-border-strong bg-surface hover:bg-bg-soft font-medium px-3.5 py-2 text-[12.5px]"
               >
                 <Icon name="shield" size={13} stroke={1.8} />
                 Report user
@@ -123,7 +145,7 @@ export default function PublicProfilePage() {
                 value={
                   profile.data.lotsSold === 0
                     ? '—'
-                    : `${formatKopiykasAsUah(profile.data.avgSalePriceUahKopiykas)} UAH`
+                    : formatKopiykasAsUah(profile.data.avgSalePriceUahKopiykas)
                 }
               />
               <StatCell label="Last active" value={lastActiveLabel || '—'} />

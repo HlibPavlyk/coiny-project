@@ -12,11 +12,13 @@ import { Icon } from '@/components/Icon';
 function StatTile({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
     <div className="flex-1 min-w-0">
-      <div className="text-[11px] uppercase tracking-wider font-semibold text-text-3">{label}</div>
-      <div className="mono text-[22px] font-bold mt-1" style={{ letterSpacing: '-0.01em' }}>
+      <div className="text-[10px] sm:text-[11px] uppercase tracking-wider font-semibold text-text-3 leading-tight">
+        {label}
+      </div>
+      <div className="mono text-[17px] sm:text-[22px] font-bold mt-1 truncate" style={{ letterSpacing: '-0.01em' }}>
         {value}
       </div>
-      {sub && <div className="text-[11.5px] text-text-3 mt-0.5">{sub}</div>}
+      {sub && <div className="text-[11.5px] text-text-3 mt-0.5 truncate">{sub}</div>}
     </div>
   );
 }
@@ -130,26 +132,45 @@ export default function MyProfilePage() {
               </div>
             )}
 
-            {/* Identity card */}
-            <section className="bg-surface border border-border rounded-lg p-[22px] mb-3.5">
-              <div className="flex gap-5 items-center">
-                <AvatarLarge initials={initials} size={84} />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2.5 flex-wrap">
-                    <span className="mono text-[19px] font-bold">{user.displayName}</span>
-                    <VerificationStatusPill verified={user.emailVerified} />
-                  </div>
-                  <div className="text-[13.5px] text-text-3 mt-1">{user.email}</div>
-                  <div className="flex gap-4 mt-3.5 pt-3.5 border-t border-border-soft">
-                    <StatTile label="TrustScore" value={String(user.trustScore)} />
-                    <StatTile label="Member since" value={memberSince} />
-                    <StatTile
-                      label="Roles"
-                      value={String(user.roles.length)}
-                      sub={user.roles.join(' · ')}
-                    />
+            {/* Identity card. Mobile: avatar + name+email row, stats span full width below.
+                Desktop: avatar | (name+email+stats) two-column. */}
+            <section className="bg-surface border border-border rounded-lg p-4 sm:p-[22px] mb-3.5">
+              <div className="flex flex-col sm:flex-row sm:gap-5 sm:items-center">
+                <div className="flex items-center gap-3 sm:gap-5">
+                  <AvatarLarge initials={initials} size={64} />
+                  <div className="flex-1 min-w-0 sm:hidden">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="mono text-[17px] font-bold break-all">{user.displayName}</span>
+                      <VerificationStatusPill verified={user.emailVerified} />
+                    </div>
+                    <div className="text-[12.5px] text-text-3 mt-0.5 break-all">{user.email}</div>
                   </div>
                 </div>
+                <div className="hidden sm:block flex-1 min-w-0">
+                  <div className="flex items-center gap-2.5 flex-wrap">
+                    <span className="mono text-[19px] font-bold break-all">{user.displayName}</span>
+                    <VerificationStatusPill verified={user.emailVerified} />
+                  </div>
+                  <div className="text-[13.5px] text-text-3 mt-1 break-all">{user.email}</div>
+                </div>
+                <div className="grid grid-cols-3 gap-3 mt-4 sm:mt-3.5 pt-4 sm:pt-3.5 border-t border-border-soft sm:hidden">
+                  <StatTile label="TrustScore" value={String(user.trustScore)} />
+                  <StatTile label="Member since" value={memberSince} />
+                  <StatTile
+                    label="Roles"
+                    value={String(user.roles.length)}
+                    sub={user.roles.join(' · ')}
+                  />
+                </div>
+              </div>
+              <div className="hidden sm:flex gap-4 mt-3.5 pt-3.5 border-t border-border-soft">
+                <StatTile label="TrustScore" value={String(user.trustScore)} />
+                <StatTile label="Member since" value={memberSince} />
+                <StatTile
+                  label="Roles"
+                  value={String(user.roles.length)}
+                  sub={user.roles.join(' · ')}
+                />
               </div>
             </section>
 

@@ -7,12 +7,9 @@ export function Footer() {
     // flex column) plus `pt-16` so there is always 4rem of breathing room above the
     // visible footer panel, even when page content is tall and mt-auto collapses to 0.
     <footer className="mt-auto pt-16">
-      <div className="bg-surface border-t border-border px-7 pt-10 pb-7">
-        <div
-          className="max-w-[1280px] mx-auto grid gap-10"
-          style={{ gridTemplateColumns: '1.5fr 1fr 1fr 1fr' }}
-        >
-          <div>
+      <div className="bg-surface border-t border-border px-4 sm:px-7 pt-10 pb-7">
+        <div className="max-w-[1280px] mx-auto grid gap-8 sm:gap-10 grid-cols-2 md:grid-cols-[1.5fr_1fr_1fr_1fr]">
+          <div className="col-span-2 md:col-span-1">
             <Logo />
             <p className="text-[13px] text-text-3 leading-relaxed mt-3 max-w-[320px]">
               Trusted Ukrainian numismatic auction with payment escrow via Stripe and delivery handled
@@ -45,7 +42,7 @@ export function Footer() {
             </ul>
           </div>
         </div>
-        <div className="max-w-[1280px] mx-auto mt-8 pt-5 border-t border-border-soft flex justify-between items-center text-[12px] text-text-3">
+        <div className="max-w-[1280px] mx-auto mt-8 pt-5 border-t border-border-soft flex flex-col sm:flex-row gap-2 sm:gap-0 sm:justify-between sm:items-center text-[12px] text-text-3">
           <span>© 2026 Coiny. All rights reserved.</span>
           <div className="flex gap-4">
             <a className="hover:text-text-2 cursor-pointer">Terms</a>

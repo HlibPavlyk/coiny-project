@@ -7,6 +7,7 @@ import { moderation, useReports, type ReportItemModel, type ReportStatus } from 
 import { lots } from '@/api/lots';
 import { ApiError } from '@/api/fetch';
 import { useToastStore } from '@/state/useToastStore';
+import { SkeletonRow } from '@/components/Skeleton';
 
 type Tab = ReportStatus | 'All';
 
@@ -143,9 +144,9 @@ export default function AdminReportsPage() {
         </div>
 
         <div className="bg-surface border border-border rounded-lg overflow-hidden">
-          {/* Header */}
+          {/* Header — desktop only, the 7-column grid doesn't fit below md. */}
           <div
-            className="grid items-center gap-3 px-4 py-2.5 border-b border-border text-[11px] uppercase tracking-wider font-semibold text-text-3"
+            className="hidden md:grid items-center gap-3 px-4 py-2.5 border-b border-border text-[11px] uppercase tracking-wider font-semibold text-text-3"
             style={{ gridTemplateColumns: GRID }}
           >
             <span />
@@ -158,45 +159,69 @@ export default function AdminReportsPage() {
           </div>
 
           {isLoading ? (
-            <div className="py-10 text-center text-text-3 text-sm">Loading…</div>
+            <div className="py-3 px-4 space-y-3">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <SkeletonRow key={i} height="h-14" />
+              ))}
+            </div>
           ) : items.length === 0 ? (
-            <div className="py-12 text-center text-text-3 text-sm">No reports here.</div>
+            <div className="py-12 text-center text-text-3 text-sm">
+              {tab === 'Open' ? 'Inbox zero — no open reports.' : 'No reports in this tab.'}
+            </div>
           ) : (
             items.map((report) => (
               <div
                 key={report.id}
-                className="grid items-center gap-3 px-4 py-3 border-b border-border-soft last:border-b-0"
+                className="flex flex-col md:grid md:items-center gap-3 px-4 py-3 border-b border-border-soft last:border-b-0 md:gap-3"
                 style={{ gridTemplateColumns: GRID }}
               >
-                <div className="relative w-10 h-10 rounded bg-bg-soft overflow-hidden">
-                  {report.lot.coverImageUrl ? (
-                    <img src={report.lot.coverImageUrl} alt="" className="w-full h-full object-cover" />
-                  ) : (
-                    <LotImagePlaceholder kind="coin" variant={report.lot.id.charCodeAt(0) % 6} />
-                  )}
-                </div>
+                <div className="flex gap-3 md:contents">
+                  <div className="relative w-10 h-10 rounded bg-bg-soft overflow-hidden flex-shrink-0">
+                    {report.lot.coverImageUrl ? (
+                      <img src={report.lot.coverImageUrl} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <LotImagePlaceholder kind="coin" variant={report.lot.id.charCodeAt(0) % 6} />
+                    )}
+                  </div>
 
-                <div className="min-w-0">
-                  <Link
-                    to={`/lot/${report.lot.id}`}
-                    className="text-[13px] font-medium text-text hover:text-accent-deep no-underline truncate block"
-                  >
-                    {report.lot.title}
-                  </Link>
-                  <div className="text-[11px] text-text-3 mt-0.5 truncate">
-                    {report.reporterDisplayName ?? (report.reporterIp ? `IP ${report.reporterIp}` : 'Anonymous')}
+                  <div className="min-w-0 flex-1">
+                    <Link
+                      to={`/lot/${report.lot.id}`}
+                      className="text-[13px] font-medium text-text hover:text-accent-deep no-underline truncate block"
+                    >
+                      {report.lot.title}
+                    </Link>
+                    <div className="text-[11px] text-text-3 mt-0.5 truncate">
+                      {report.reporterDisplayName ?? (report.reporterIp ? `IP ${report.reporterIp}` : 'Anonymous')}
+                    </div>
+                    {/* Mobile-only: reason · age · status under the title since they don't fit as grid cells. */}
+                    <div className="flex items-center gap-2 mt-1.5 flex-wrap md:hidden">
+                      <span className="text-[11px] text-text-2">{humanizeReason(report.reason)}</span>
+                      <span className="text-[11px] text-text-3">· {timeAgo(report.createdAt)}</span>
+                      <span
+                        className="inline-block rounded-full font-semibold text-[10px]"
+                        style={{
+                          padding: '3px 9px',
+                          background: STATUS_COLORS[report.status].bg,
+                          color: STATUS_COLORS[report.status].color,
+                          letterSpacing: '0.03em',
+                        }}
+                      >
+                        {report.status === 'ActionTaken' ? 'Action taken' : report.status}
+                      </span>
+                    </div>
+                    {report.note && (
+                      <div className="text-[11.5px] text-text-3 mt-1.5 md:hidden line-clamp-2">{report.note}</div>
+                    )}
                   </div>
                 </div>
 
-                <div className="text-[12px] text-text-2">{humanizeReason(report.reason)}</div>
-
-                <div className="text-[12px] text-text-3 truncate" title={report.note ?? undefined}>
+                <div className="hidden md:block text-[12px] text-text-2">{humanizeReason(report.reason)}</div>
+                <div className="hidden md:block text-[12px] text-text-3 truncate" title={report.note ?? undefined}>
                   {report.note || '—'}
                 </div>
-
-                <div className="text-[12px] text-text-3">{timeAgo(report.createdAt)}</div>
-
-                <div>
+                <div className="hidden md:block text-[12px] text-text-3">{timeAgo(report.createdAt)}</div>
+                <div className="hidden md:block">
                   <span
                     className="inline-block rounded-full font-semibold text-[10px]"
                     style={{
@@ -210,7 +235,7 @@ export default function AdminReportsPage() {
                   </span>
                 </div>
 
-                <div className="flex gap-1.5 justify-end">
+                <div className="flex gap-1.5 justify-end flex-wrap md:flex-nowrap">
                   {report.status === 'Open' ? (
                     <>
                       <button
@@ -219,7 +244,7 @@ export default function AdminReportsPage() {
                           setNote('');
                           setModal({ type: 'dismiss', report });
                         }}
-                        className="rounded-md border border-border-strong bg-surface hover:bg-bg-soft text-text font-medium px-3 py-1.5 text-[12px]"
+                        className="rounded-md border border-border-strong bg-surface hover:bg-bg-soft text-text font-medium px-3 py-2 md:py-1.5 text-[12px]"
                         style={{ cursor: 'pointer' }}
                       >
                         Dismiss
@@ -230,7 +255,7 @@ export default function AdminReportsPage() {
                           setNote('');
                           setModal({ type: 'takeAction', report });
                         }}
-                        className="rounded-md bg-accent hover:bg-accent-deep text-white font-medium px-3 py-1.5 text-[12px]"
+                        className="rounded-md bg-accent hover:bg-accent-deep text-white font-medium px-3 py-2 md:py-1.5 text-[12px]"
                         style={{ cursor: 'pointer' }}
                       >
                         Take action

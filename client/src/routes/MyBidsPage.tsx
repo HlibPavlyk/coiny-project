@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Icon } from '@/components/Icon';
+import { SkeletonRow } from '@/components/Skeleton';
 import { LotImagePlaceholder } from '@/components/LotImagePlaceholder';
 import { CountdownTimer } from '@/components/CountdownTimer';
 import { useMyBids, type MyBidItemModel } from '@/api/bids';
@@ -49,62 +50,65 @@ function BidRow({ bid }: { bid: MyBidItemModel }) {
   const { lot, amountUahKopiykas } = bid;
   const status = lot.status;
 
-  return (
-    <div
-      className="grid items-center gap-4 py-3.5 border-b border-border-soft last:border-b-0"
-      style={{ gridTemplateColumns: '64px 1fr auto auto auto' }}
-    >
-      <div className="relative w-16 h-16 rounded-md overflow-hidden bg-bg-soft">
-        {lot.coverImageUrl ? (
-          <img src={lot.coverImageUrl} alt="" className="w-full h-full object-cover" />
-        ) : (
-          <LotImagePlaceholder kind="coin" variant={lot.id.charCodeAt(0) % 6} />
-        )}
-      </div>
+  const statusPill = status === 'Active'
+    ? (lot.isCallerLeading ? <Pill kind="success">You&apos;re leading</Pill> : <Pill kind="warning">Outbid</Pill>)
+    : status === 'Sold'
+      ? (lot.isCallerLeading ? <Pill kind="success">Won</Pill> : <Pill kind="neutral">Lost</Pill>)
+      : <Pill kind="neutral">{status}</Pill>;
 
-      <div className="min-w-0">
-        <Link
-          to={`/lot/${lot.id}`}
-          className="text-[14px] font-medium text-text hover:text-accent-deep no-underline truncate block"
-        >
-          {lot.title}
-        </Link>
-        <div className="text-[12px] text-text-3 mt-0.5 flex items-center gap-3 flex-wrap">
-          <span>
-            Your bid:{' '}
-            <span className="mono font-medium text-text-2">
-              {formatKopiykasAsUah(amountUahKopiykas, { integer: true })}
+  return (
+    <div className="flex flex-col sm:grid sm:items-center gap-3 sm:gap-4 py-3.5 border-b border-border-soft last:border-b-0 sm:grid-cols-[64px_1fr_auto_auto_auto]">
+      <div className="flex gap-3 sm:contents">
+        <div className="relative w-16 h-16 rounded-md overflow-hidden bg-bg-soft flex-shrink-0">
+          {lot.coverImageUrl ? (
+            <img src={lot.coverImageUrl} alt="" className="w-full h-full object-cover" />
+          ) : (
+            <LotImagePlaceholder kind="coin" variant={lot.id.charCodeAt(0) % 6} />
+          )}
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <Link
+            to={`/lot/${lot.id}`}
+            className="text-[14px] font-medium text-text hover:text-accent-deep no-underline truncate block"
+          >
+            {lot.title}
+          </Link>
+          <div className="text-[12px] text-text-3 mt-0.5 flex items-center gap-3 flex-wrap">
+            <span>
+              Your bid:{' '}
+              <span className="mono font-medium text-text-2">
+                {formatKopiykasAsUah(amountUahKopiykas, { integer: true })}
+              </span>
             </span>
-          </span>
-          <span>
-            Current:{' '}
-            <span className="mono font-medium text-text-2">
-              {formatKopiykasAsUah(lot.currentPriceUahKopiykas, { integer: true })}
+            <span>
+              Current:{' '}
+              <span className="mono font-medium text-text-2">
+                {formatKopiykasAsUah(lot.currentPriceUahKopiykas, { integer: true })}
+              </span>
             </span>
-          </span>
-          {status === 'Active' && <CountdownTimer endsAt={lot.endsAt} size="sm" />}
+            {status === 'Active' && <CountdownTimer endsAt={lot.endsAt} size="sm" />}
+          </div>
+          <div className="flex items-center gap-2 mt-1.5 sm:hidden">
+            {statusPill}
+            <span
+              className="inline-block rounded-full font-semibold text-[10px]"
+              style={{
+                padding: '3px 9px',
+                background: 'var(--color-bg-soft)',
+                color: 'var(--color-text-2)',
+                letterSpacing: '0.04em',
+              }}
+            >
+              {status}
+            </span>
+          </div>
         </div>
       </div>
 
-      <div>
-        {status === 'Active' ? (
-          lot.isCallerLeading ? (
-            <Pill kind="success">You're leading</Pill>
-          ) : (
-            <Pill kind="warning">Outbid</Pill>
-          )
-        ) : status === 'Sold' ? (
-          lot.isCallerLeading ? (
-            <Pill kind="success">Won</Pill>
-          ) : (
-            <Pill kind="neutral">Lost</Pill>
-          )
-        ) : (
-          <Pill kind="neutral">{status}</Pill>
-        )}
-      </div>
+      <div className="hidden sm:block">{statusPill}</div>
 
-      <div>
+      <div className="hidden sm:block">
         <span
           className="inline-block rounded-full font-semibold text-[10px]"
           style={{
@@ -120,7 +124,7 @@ function BidRow({ bid }: { bid: MyBidItemModel }) {
 
       <Link
         to={`/lot/${lot.id}`}
-        className="inline-flex items-center gap-1 rounded-md border border-border-strong bg-surface hover:bg-bg-soft text-text font-medium px-3 py-1.5 text-[12px] no-underline"
+        className="inline-flex items-center justify-center gap-1 rounded-md border border-border-strong bg-surface hover:bg-bg-soft text-text font-medium px-3 py-2 sm:py-1.5 text-[12px] no-underline"
       >
         View
         <Icon name="arrowR" size={12} />
@@ -207,13 +211,17 @@ export default function MyBidsPage() {
 
         <div className="bg-surface border border-border rounded-lg px-4">
           {isLoading ? (
-            <div className="py-10 text-center text-text-3 text-sm">Loading…</div>
+            <div className="py-3 space-y-3">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <SkeletonRow key={i} height="h-16" />
+              ))}
+            </div>
           ) : rows.length === 0 ? (
             <div className="py-12 text-center">
               <p className="text-text-3 text-sm m-0">
-                {tab === 'Active' && 'No active bids — browse lots to get started.'}
+                {tab === 'Active' && 'No active bids — browse lots and place your first.'}
                 {tab === 'Won' && 'No wins yet — keep bidding!'}
-                {tab === 'Lost' && 'Nothing in this tab.'}
+                {tab === 'Lost' && 'Nothing in this tab — your unsuccessful bids will appear here.'}
               </p>
             </div>
           ) : (

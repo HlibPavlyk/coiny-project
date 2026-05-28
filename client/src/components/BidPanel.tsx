@@ -233,7 +233,7 @@ export function BidPanel({
               title="Verify your email to bid"
               body={
                 <>
-                  We sent a link to <span className="mono">{user.email}</span>.
+                  We sent a link to <span className="mono break-all">{user.email}</span>.
                 </>
               }
             />

@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { lots, type ReportReason } from '@/api/lots';
 import { ApiError } from '@/api/fetch';
 import { useToastStore } from '@/state/useToastStore';
+import { useFocusTrap } from '@/lib/useFocusTrap';
 
 interface ReportLotModalProps {
   open: boolean;
@@ -27,6 +28,8 @@ export function ReportLotModal({ open, lotId, onClose }: ReportLotModalProps) {
   const [note, setNote] = useState('');
   const [busy, setBusy] = useState(false);
   const pushToast = useToastStore((s) => s.push);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(dialogRef, open);
 
   // Reset state when the modal closes so a re-open starts fresh.
   useEffect(() => {
@@ -90,6 +93,7 @@ export function ReportLotModal({ open, lotId, onClose }: ReportLotModalProps) {
       }}
     >
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-label="Report this lot"

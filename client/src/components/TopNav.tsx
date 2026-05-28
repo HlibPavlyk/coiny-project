@@ -6,7 +6,9 @@ import { LotImagePlaceholder } from './LotImagePlaceholder';
 import { useCategoryTree, type CategoryNode } from '@/api/categories';
 import { useSuggestLots, type LotSuggestItem } from '@/api/lots';
 import { useAuthStore } from '@/state/useAuthStore';
+import type { MeModel } from '@/api/auth';
 import { formatKopiykasAsUah } from '@/lib/money';
+import { useFocusTrap } from '@/lib/useFocusTrap';
 
 interface TopNavProps {
   showSearch?: boolean;
@@ -112,156 +114,374 @@ export function TopNav({ showSearch = true }: TopNavProps) {
       active ? 'text-text bg-bg-soft' : 'text-text-2 hover:bg-bg-soft'
     }`;
 
+  // Mobile drawer state. Closes on route change so the user lands on the new page with chrome reset.
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  useEffect(() => setDrawerOpen(false), [location.pathname, location.search]);
+
+  // Mobile search-panel state. Opens via the magnifier icon on mobile; the same `q` / `isOpen`
+  // state powers the desktop inline search so suggestions look identical in both modes.
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  useEffect(() => setMobileSearchOpen(false), [location.pathname, location.search]);
+  // Esc closes the panel.
+  useEffect(() => {
+    if (!mobileSearchOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMobileSearchOpen(false);
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [mobileSearchOpen]);
+
   return (
-    <header
-      className="sticky top-0 z-50 border-b border-border"
-      style={{ background: 'rgba(250, 250, 247, 0.92)', backdropFilter: 'blur(10px)' }}
-    >
-      <div className="max-w-[1280px] mx-auto px-7 py-3.5 flex items-center gap-8">
-        <Link to="/" className="no-underline">
+    <>
+      <header
+        className="sticky top-0 z-50 border-b border-border"
+        style={{ background: 'rgba(250, 250, 247, 0.92)', backdropFilter: 'blur(10px)' }}
+      >
+        {/* Single-row header on all viewports. Mobile gets a search-icon button that opens a
+            dropdown panel below the header (rendered just after `</header>` further down). */}
+        <div className="max-w-[1280px] mx-auto px-4 sm:px-7 py-2.5 sm:py-3.5 flex items-center gap-3 md:gap-8">
+          {/* Mobile hamburger (visible < md). */}
+          <button
+            type="button"
+            onClick={() => setDrawerOpen(true)}
+            aria-label="Open menu"
+            className="md:hidden p-2 -ml-1 rounded-md hover:bg-bg-soft transition"
+          >
+            <Icon name="list" size={20} stroke={1.8} />
+          </button>
+
+          <Link to="/" className="no-underline flex-shrink-0">
+            <Logo />
+          </Link>
+
+          {/* Categories nav — desktop only. Hover-dropdowns don't work on touch; mobile uses drawer. */}
+          <nav className="hidden md:flex gap-1 ml-2">
+            <Link to="/" className={navItemClass(location.pathname === '/')}>
+              Home
+            </Link>
+            {tree?.roots.map((root) => (
+              <div key={root.id} className="relative group flex items-center">
+                <Link to={`/search?category=${root.slug}`} className={navItemClass(rootActive(root))}>
+                  {root.name}
+                </Link>
+                {root.children.length > 0 && (
+                  <div className="absolute left-0 top-full pt-1.5 hidden group-hover:block z-50 min-w-[210px]">
+                    <div
+                      className="bg-surface border border-border rounded-lg py-2"
+                      style={{ boxShadow: 'var(--shadow-card-hover)' }}
+                    >
+                      {root.children.map((child) => (
+                        <div key={child.id}>
+                          <Link
+                            to={`/search?category=${child.slug}`}
+                            className="block px-3.5 py-1.5 text-[13px] font-medium text-text-2 hover:text-text hover:bg-bg-soft no-underline"
+                          >
+                            {child.name}
+                          </Link>
+                          {child.children.map((grandchild) => (
+                            <Link
+                              key={grandchild.id}
+                              to={`/search?category=${grandchild.slug}`}
+                              className="block pl-7 pr-3.5 py-1 text-[12.5px] text-text-3 hover:text-text hover:bg-bg-soft no-underline"
+                            >
+                              {grandchild.name}
+                            </Link>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </nav>
+
+          {/* Desktop inline search. Mobile gets an icon-button instead (see actions block below). */}
+          {showSearch && (
+            <form
+              ref={formRef}
+              onSubmit={submitSearch}
+              className="hidden md:block flex-1 max-w-[380px] ml-auto relative"
+              role="search"
+            >
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-text-3 pointer-events-none">
+                <Icon name="search" size={16} />
+              </div>
+              <input
+                type="search"
+                value={q}
+                onChange={(e) => {
+                  setQ(e.target.value);
+                  setIsOpen(true);
+                }}
+                onFocus={() => setIsOpen(true)}
+                onKeyDown={onKeyDown}
+                placeholder="Search lots…"
+                aria-label="Search lots"
+                aria-autocomplete="list"
+                aria-controls="header-search-suggest"
+                aria-expanded={isOpen && items.length > 0}
+                autoComplete="off"
+                className="w-full rounded-md py-2 pl-9 pr-3 text-sm border bg-bg-soft transition focus:outline-none focus:border-accent focus:bg-surface"
+                style={{ borderColor: 'transparent' }}
+              />
+
+              {isOpen && q.trim().length >= 2 && (
+                <SuggestDropdown
+                  id="header-search-suggest"
+                  items={items}
+                  highlighted={highlighted}
+                  onHover={setHighlighted}
+                  onPick={() => setIsOpen(false)}
+                  onSeeAll={() => {
+                    goToSearch(q);
+                    setIsOpen(false);
+                  }}
+                  query={q.trim()}
+                />
+              )}
+            </form>
+          )}
+
+          <div className={`flex items-center gap-1 sm:gap-2 ${showSearch ? 'ml-auto md:ml-0' : 'ml-auto'}`}>
+            {/* Mobile-only search trigger. Tap → opens the search dropdown panel below the header. */}
+            {showSearch && (
+              <button
+                type="button"
+                onClick={() => setMobileSearchOpen((o) => !o)}
+                aria-label="Search lots"
+                aria-expanded={mobileSearchOpen}
+                className="md:hidden p-2 rounded-md hover:bg-bg-soft transition"
+              >
+                <Icon name="search" size={20} stroke={1.8} />
+              </button>
+            )}
+            {user ? (
+              <>
+                {canModerate && (
+                  <Link
+                    to="/moderation"
+                    aria-label="Moderation"
+                    className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md hover:bg-bg-soft transition no-underline text-[13.5px] font-medium text-text-2"
+                  >
+                    <Icon name="shield" size={16} stroke={1.6} />
+                    Moderation
+                  </Link>
+                )}
+                <Link
+                  to="/my-bids"
+                  className="hidden lg:inline-flex rounded-md hover:bg-bg-soft px-3 py-1.5 text-[13.5px] font-medium text-text-2 no-underline"
+                >
+                  My bids
+                </Link>
+                <Link
+                  to="/lots/new"
+                  className="inline-flex items-center gap-1.5 rounded-md bg-accent hover:bg-accent-deep text-white font-medium px-2.5 sm:px-3 py-1.5 sm:py-1.5 text-[13.5px] no-underline transition"
+                  aria-label="Create lot"
+                >
+                  <Icon name="plus" size={14} stroke={2} color="#fff" />
+                  <span className="hidden sm:inline">Create lot</span>
+                </Link>
+                <Link
+                  to="/profile"
+                  className="ml-1 w-9 h-9 sm:w-8 sm:h-8 rounded-full text-white text-xs font-semibold flex items-center justify-center no-underline flex-shrink-0"
+                  style={{ background: 'linear-gradient(135deg, #C8B380, #8A6A2A)' }}
+                  aria-label="My profile"
+                >
+                  {initials}
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/sign-in"
+                  className="rounded-md hover:bg-bg-soft px-2.5 sm:px-3 py-1.5 text-[13.5px] font-medium text-text-2 no-underline whitespace-nowrap"
+                >
+                  Sign in
+                </Link>
+                <Link
+                  to="/sign-up"
+                  className="hidden sm:inline-block rounded-md bg-accent hover:bg-accent-deep text-white font-medium px-3 py-1.5 text-[13.5px] no-underline transition whitespace-nowrap"
+                >
+                  Create account
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
+      </header>
+
+      {/* Mobile search dropdown panel — appears below the header sticky on top of page content.
+          Tap-outside or Esc closes. The same `formRef` / `q` / suggest state powers it as the
+          desktop inline search, so suggestions look identical. */}
+      {showSearch && mobileSearchOpen && (
+        <MobileSearchPanel
+          formRef={formRef}
+          q={q}
+          setQ={setQ}
+          isOpen={isOpen}
+          setIsOpen={setIsOpen}
+          items={items}
+          highlighted={highlighted}
+          setHighlighted={setHighlighted}
+          onKeyDown={onKeyDown}
+          submitSearch={submitSearch}
+          goToSearch={goToSearch}
+          onClose={() => setMobileSearchOpen(false)}
+        />
+      )}
+
+      {/* Mobile slide-out drawer. Closed by default; opens from the left when hamburger is tapped. */}
+      <MobileDrawer
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        tree={tree}
+        user={user}
+        canModerate={canModerate}
+      />
+    </>
+  );
+}
+
+interface MobileDrawerProps {
+  open: boolean;
+  onClose: () => void;
+  tree: ReturnType<typeof useCategoryTree>['data'];
+  user: MeModel | null;
+  canModerate: boolean;
+}
+
+/**
+ * Off-canvas mobile drawer with the navigation that doesn't fit in the compact header. Backdrop and
+ * Escape close. Each link closes the drawer via the route-change effect in TopNav.
+ */
+function MobileDrawer({ open, onClose, tree, user, canModerate }: MobileDrawerProps) {
+  const signOut = useAuthStore((s) => s.signOut);
+  const navigate = useNavigate();
+  const drawerRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(drawerRef, open);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [open, onClose]);
+
+  // Lock body scroll while drawer is open so the page behind doesn't scroll under it.
+  useEffect(() => {
+    if (!open) return;
+    const original = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = original;
+    };
+  }, [open]);
+
+  if (!open) return null;
+
+  const linkCls = 'block px-3 py-3 rounded-md text-[15px] font-medium text-text-2 hover:bg-bg-soft no-underline transition';
+  const subLinkCls = 'block px-3 py-2 rounded-md text-[14px] text-text-3 hover:bg-bg-soft hover:text-text no-underline transition';
+
+  return (
+    <div className="md:hidden fixed inset-0 z-[100]" role="dialog" aria-modal="true" aria-label="Navigation menu">
+      <div
+        className="absolute inset-0"
+        style={{ background: 'rgba(15, 23, 42, 0.45)' }}
+        onClick={onClose}
+      />
+      <div
+        ref={drawerRef}
+        className="absolute left-0 top-0 bottom-0 w-[85vw] max-w-[340px] bg-surface flex flex-col overflow-y-auto"
+        style={{ boxShadow: '0 10px 40px rgba(15, 12, 8, 0.18)' }}
+      >
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border">
           <Logo />
-        </Link>
-        <nav className="flex gap-1 ml-2">
-          <Link to="/" className={navItemClass(location.pathname === '/')}>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close menu"
+            className="p-2 -mr-1 rounded-md hover:bg-bg-soft transition"
+          >
+            <Icon name="x" size={20} stroke={1.8} />
+          </button>
+        </div>
+
+        <nav className="px-3 py-3 flex-1">
+          <Link to="/" className={linkCls}>
             Home
           </Link>
           {tree?.roots.map((root) => (
-            <div key={root.id} className="relative group flex items-center">
-              <Link to={`/search?category=${root.slug}`} className={navItemClass(rootActive(root))}>
+            <div key={root.id} className="mb-1">
+              <Link to={`/search?category=${root.slug}`} className={linkCls}>
                 {root.name}
               </Link>
-              {root.children.length > 0 && (
-                <div className="absolute left-0 top-full pt-1.5 hidden group-hover:block z-50 min-w-[210px]">
-                  <div
-                    className="bg-surface border border-border rounded-lg py-2"
-                    style={{ boxShadow: 'var(--shadow-card-hover)' }}
-                  >
-                    {root.children.map((child) => (
-                      <div key={child.id}>
-                        <Link
-                          to={`/search?category=${child.slug}`}
-                          className="block px-3.5 py-1.5 text-[13px] font-medium text-text-2 hover:text-text hover:bg-bg-soft no-underline"
-                        >
-                          {child.name}
-                        </Link>
-                        {child.children.map((grandchild) => (
-                          <Link
-                            key={grandchild.id}
-                            to={`/search?category=${grandchild.slug}`}
-                            className="block pl-7 pr-3.5 py-1 text-[12.5px] text-text-3 hover:text-text hover:bg-bg-soft no-underline"
-                          >
-                            {grandchild.name}
-                          </Link>
-                        ))}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+              {root.children.map((child) => (
+                <Link key={child.id} to={`/search?category=${child.slug}`} className={`pl-7 ${subLinkCls}`}>
+                  {child.name}
+                </Link>
+              ))}
             </div>
           ))}
-        </nav>
 
-        {showSearch && (
-          <form
-            ref={formRef}
-            onSubmit={submitSearch}
-            className="flex-1 max-w-[380px] ml-auto relative"
-            role="search"
-          >
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-text-3 pointer-events-none">
-              <Icon name="search" size={16} />
-            </div>
-            <input
-              type="search"
-              value={q}
-              onChange={(e) => {
-                setQ(e.target.value);
-                setIsOpen(true);
-              }}
-              onFocus={() => setIsOpen(true)}
-              onKeyDown={onKeyDown}
-              placeholder="Search lots…"
-              aria-label="Search lots"
-              aria-autocomplete="list"
-              aria-controls="header-search-suggest"
-              aria-expanded={isOpen && items.length > 0}
-              autoComplete="off"
-              className="w-full rounded-md py-2 pl-9 pr-3 text-sm border bg-bg-soft transition focus:outline-none focus:border-accent focus:bg-surface"
-              style={{ borderColor: 'transparent' }}
-            />
-
-            {isOpen && q.trim().length >= 2 && (
-              <SuggestDropdown
-                id="header-search-suggest"
-                items={items}
-                highlighted={highlighted}
-                onHover={setHighlighted}
-                onPick={() => setIsOpen(false)}
-                onSeeAll={() => {
-                  goToSearch(q);
-                  setIsOpen(false);
-                }}
-                query={q.trim()}
-              />
-            )}
-          </form>
-        )}
-
-        <div className={`flex items-center gap-2 ${showSearch ? '' : 'ml-auto'}`}>
-          {user ? (
+          {user && (
             <>
+              <div className="h-px bg-border-soft my-3" />
+              <Link to="/my-bids" className={linkCls}>
+                My bids
+              </Link>
+              <Link to="/my-lots" className={linkCls}>
+                My lots
+              </Link>
+              <Link to="/my-purchases" className={linkCls}>
+                My purchases
+              </Link>
               {canModerate && (
-                <Link
-                  to="/moderation"
-                  aria-label="Moderation"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md hover:bg-bg-soft transition no-underline text-[13.5px] font-medium text-text-2"
-                >
-                  <Icon name="shield" size={16} stroke={1.6} />
+                <Link to="/moderation" className={`${linkCls} flex items-center gap-2`}>
+                  <Icon name="shield" size={14} />
                   Moderation
                 </Link>
               )}
-              <Link
-                to="/my-bids"
-                className="rounded-md hover:bg-bg-soft px-3 py-1.5 text-[13.5px] font-medium text-text-2 no-underline"
-              >
-                My bids
-              </Link>
-              <Link
-                to="/lots/new"
-                className="inline-flex items-center gap-1.5 rounded-md bg-accent hover:bg-accent-deep text-white font-medium px-3 py-1.5 text-[13.5px] no-underline transition"
-              >
-                <Icon name="plus" size={14} stroke={2} color="#fff" />
-                Create lot
-              </Link>
-              <Link
-                to="/profile"
-                className="ml-1 w-8 h-8 rounded-full text-white text-xs font-semibold flex items-center justify-center no-underline"
-                style={{ background: 'linear-gradient(135deg, #C8B380, #8A6A2A)' }}
-                aria-label="My profile"
-              >
-                {initials}
-              </Link>
             </>
+          )}
+        </nav>
+
+        <div className="px-3 py-3 border-t border-border">
+          {user ? (
+            <button
+              type="button"
+              onClick={async () => {
+                await signOut();
+                navigate('/', { replace: true });
+                onClose();
+              }}
+              className="w-full flex items-center justify-center gap-2 rounded-md border border-border-strong bg-surface hover:bg-bg-soft text-text font-medium px-4 py-3 text-[14px]"
+            >
+              <Icon name="arrowL" size={14} />
+              Sign out
+            </button>
           ) : (
-            <>
-              <Link
-                to="/sign-in"
-                className="rounded-md hover:bg-bg-soft px-3 py-1.5 text-[13.5px] font-medium text-text-2 no-underline"
-              >
-                Sign in
-              </Link>
+            <div className="flex flex-col gap-2">
               <Link
                 to="/sign-up"
-                className="rounded-md bg-accent hover:bg-accent-deep text-white font-medium px-3 py-1.5 text-[13.5px] no-underline transition"
+                className="rounded-md bg-accent hover:bg-accent-deep text-white font-medium px-4 py-3 text-[14px] no-underline text-center"
               >
                 Create account
               </Link>
-            </>
+              <Link
+                to="/sign-in"
+                className="rounded-md border border-border-strong bg-surface hover:bg-bg-soft text-text font-medium px-4 py-3 text-[14px] no-underline text-center"
+              >
+                Sign in
+              </Link>
+            </div>
           )}
         </div>
       </div>
-    </header>
+    </div>
   );
 }
 
@@ -301,7 +521,7 @@ function SuggestDropdown({ id, items, highlighted, query, onHover, onPick, onSee
                     to={`/lot/${item.id}`}
                     onClick={onPick}
                     onMouseEnter={() => onHover(idx)}
-                    className="flex items-center gap-2.5 px-3 py-2 no-underline text-text"
+                    className="flex items-center gap-2.5 px-3.5 py-2.5 no-underline text-text"
                     style={{ background: active ? 'var(--color-bg-soft)' : 'transparent' }}
                   >
                     <div className="relative w-10 h-10 rounded bg-bg-soft overflow-hidden flex-shrink-0">
@@ -336,6 +556,124 @@ function SuggestDropdown({ id, items, highlighted, query, onHover, onPick, onSee
           </button>
         </>
       )}
+    </div>
+  );
+}
+
+interface MobileSearchPanelProps {
+  formRef: React.RefObject<HTMLFormElement | null>;
+  q: string;
+  setQ: (v: string) => void;
+  isOpen: boolean;
+  setIsOpen: (v: boolean) => void;
+  items: LotSuggestItem[];
+  highlighted: number;
+  setHighlighted: (i: number) => void;
+  onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+  submitSearch: (e: React.FormEvent) => void;
+  goToSearch: (term: string) => void;
+  onClose: () => void;
+}
+
+/**
+ * Mobile search panel rendered below the header. Backdrop is semi-transparent so the user still
+ * sees that this is part of the page (not a separate screen). Input gets focus on mount.
+ */
+function MobileSearchPanel({
+  formRef,
+  q,
+  setQ,
+  isOpen,
+  setIsOpen,
+  items,
+  highlighted,
+  setHighlighted,
+  onKeyDown,
+  submitSearch,
+  goToSearch,
+  onClose,
+}: MobileSearchPanelProps) {
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  useEffect(() => {
+    inputRef.current?.focus();
+    setIsOpen(true);
+  }, [setIsOpen]);
+
+  return (
+    <div className="md:hidden fixed inset-0 z-40 pointer-events-none" role="dialog" aria-modal="false" aria-label="Search">
+      {/* Backdrop — covers below the header (top:56px ≈ header height). pointer-events on so outside-tap closes. */}
+      <button
+        type="button"
+        aria-label="Close search"
+        onClick={onClose}
+        className="absolute inset-x-0 top-[56px] bottom-0 pointer-events-auto"
+        style={{ background: 'rgba(15, 23, 42, 0.45)' }}
+      />
+      {/* Panel itself — floats below the header as a rounded card with margins from the screen
+          edges (not flush). Looks like a dropdown, not a full-width banner. */}
+      <div
+        className="absolute left-3 right-3 top-[64px] bg-surface border border-border rounded-lg pointer-events-auto"
+        style={{ boxShadow: '0 8px 24px rgba(15, 12, 8, 0.12), 0 2px 6px rgba(15, 12, 8, 0.06)' }}
+      >
+        <form
+          ref={formRef}
+          onSubmit={(e) => {
+            submitSearch(e);
+            onClose();
+          }}
+          className="p-3 relative"
+          role="search"
+        >
+          <div className="relative">
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-text-3 pointer-events-none">
+              <Icon name="search" size={16} />
+            </div>
+            <input
+              ref={inputRef}
+              type="search"
+              value={q}
+              onChange={(e) => {
+                setQ(e.target.value);
+                setIsOpen(true);
+              }}
+              onKeyDown={onKeyDown}
+              placeholder="Search lots…"
+              aria-label="Search lots"
+              autoComplete="off"
+              className="w-full rounded-md py-2.5 pl-9 pr-10 text-sm border bg-bg-soft transition focus:outline-none focus:border-accent focus:bg-surface"
+              style={{ borderColor: 'transparent' }}
+            />
+            <button
+              type="button"
+              onClick={() => {
+                if (q) setQ('');
+                else onClose();
+              }}
+              aria-label={q ? 'Clear' : 'Close'}
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-md hover:bg-bg-soft text-text-3"
+            >
+              <Icon name="x" size={14} stroke={2} />
+            </button>
+          </div>
+
+          {isOpen && q.trim().length >= 2 && (
+            <div className="mt-2 -mx-0">
+              <SuggestDropdown
+                id="mobile-search-suggest"
+                items={items}
+                highlighted={highlighted}
+                onHover={setHighlighted}
+                onPick={onClose}
+                onSeeAll={() => {
+                  goToSearch(q);
+                  onClose();
+                }}
+                query={q.trim()}
+              />
+            </div>
+          )}
+        </form>
+      </div>
     </div>
   );
 }

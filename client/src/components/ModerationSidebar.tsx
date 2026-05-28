@@ -7,15 +7,12 @@ interface NavItem {
   label: string;
   icon: IconName;
   to: string;
-  /** Render as external (new tab) instead of in-app navigation. */
   external?: boolean;
-  /** If set, hide unless user has one of these roles. */
   requireRoles?: string[];
   count?: number;
 }
 
-// Hangfire is reverse-proxied via Vite (/hangfire → http://localhost:5000/hangfire) in dev and lives
-// at the same origin in prod (Caddy in front of the API), so a relative URL works in both.
+// Hangfire is reverse-proxied via Vite in dev and same-origin in prod, so a relative URL works in both.
 const HANGFIRE_URL = '/hangfire';
 
 const items: NavItem[] = [
@@ -28,55 +25,47 @@ const items: NavItem[] = [
 
 interface ModerationSidebarProps {
   active?: string;
-  /** Optional badge text rendered next to Reports (e.g. open count). */
   openReportsCount?: number;
+  variant?: 'sidebar' | 'topbar';
 }
 
-export function ModerationSidebar({ active, openReportsCount }: ModerationSidebarProps) {
-  const location = useLocation();
+export function ModerationSidebar({ active, openReportsCount, variant = 'sidebar' }: ModerationSidebarProps) {
   const roles = useAuthStore((s) => s.user?.roles ?? []);
-
   const visibleItems = items.filter((it) => !it.requireRoles || it.requireRoles.some((r) => roles.includes(r)));
-  const reportsIdx = visibleItems.findIndex((it) => it.id === 'reports');
+
+  if (variant === 'topbar') return <TopbarVariant items={visibleItems} openReportsCount={openReportsCount} />;
+  return <SidebarVariant items={visibleItems} active={active} openReportsCount={openReportsCount} />;
+}
+
+function SidebarVariant({
+  items,
+  active,
+  openReportsCount,
+}: {
+  items: NavItem[];
+  active?: string;
+  openReportsCount?: number;
+}) {
+  const location = useLocation();
+  const reportsIdx = items.findIndex((it) => it.id === 'reports');
 
   return (
     <aside className="bg-surface border border-border rounded-lg p-2 self-start">
       <div className="px-3.5 pt-3.5 pb-2.5 mb-1.5 border-b border-border-soft">
-        <div className="text-[11px] font-semibold uppercase tracking-wider text-text-3">
-          Moderation
-        </div>
+        <div className="text-[11px] font-semibold uppercase tracking-wider text-text-3">Moderation</div>
       </div>
 
-      {visibleItems.map((it, idx) => {
-        const isActive =
-          !it.external && (active === it.id || location.pathname === it.to);
+      {items.map((it, idx) => {
+        const isActive = !it.external && (active === it.id || location.pathname === it.to);
         const count = it.id === 'reports' ? openReportsCount : it.count;
-
-        // Visual divider before the external "Background jobs" link.
-        const prevWasInternal = idx > 0 && !visibleItems[idx - 1].external;
+        const prevWasInternal = idx > 0 && !items[idx - 1].external;
         const needsDivider = it.external && prevWasInternal && idx !== reportsIdx;
 
         const labelMarkup = (
           <>
-            <Icon
-              name={it.icon}
-              size={16}
-              color={isActive ? 'var(--color-accent-deep)' : 'var(--color-text-3)'}
-            />
+            <Icon name={it.icon} size={16} color={isActive ? 'var(--color-accent-deep)' : 'var(--color-text-3)'} />
             <span className="flex-1">{it.label}</span>
-            {count !== undefined && (
-              <span
-                className="font-semibold rounded-full"
-                style={{
-                  fontSize: 11,
-                  padding: '2px 7px',
-                  background: isActive ? 'var(--color-accent-tint)' : 'var(--color-bg-soft)',
-                  color: isActive ? 'var(--color-accent-deep)' : 'var(--color-text-3)',
-                }}
-              >
-                {count}
-              </span>
-            )}
+            {count !== undefined && <CountPill value={count} active={isActive} />}
           </>
         );
 
@@ -102,5 +91,60 @@ export function ModerationSidebar({ active, openReportsCount }: ModerationSideba
         );
       })}
     </aside>
+  );
+}
+
+function TopbarVariant({ items, openReportsCount }: { items: NavItem[]; openReportsCount?: number }) {
+  const location = useLocation();
+  return (
+    <nav
+      aria-label="Moderation sections"
+      className="bg-surface border border-border rounded-lg p-1 overflow-x-auto"
+      style={{ scrollbarWidth: 'none' }}
+    >
+      <div className="flex gap-1 min-w-max">
+        {items.map((it) => {
+          const isActive = !it.external && location.pathname === it.to;
+          const count = it.id === 'reports' ? openReportsCount : it.count;
+          const cls = 'flex items-center gap-2 px-3 py-2.5 rounded-md text-[13px] font-medium whitespace-nowrap transition no-underline';
+          const style = {
+            color: isActive ? 'var(--color-text)' : 'var(--color-text-2)',
+            background: isActive ? 'var(--color-bg-soft)' : 'transparent',
+          } as const;
+          const content = (
+            <>
+              <Icon name={it.icon} size={14} color={isActive ? 'var(--color-accent-deep)' : 'var(--color-text-3)'} />
+              {it.label}
+              {count !== undefined && <CountPill value={count} active={isActive} />}
+            </>
+          );
+          return it.external ? (
+            <a key={it.id} href={it.to} target="_blank" rel="noreferrer" className={cls} style={style}>
+              {content}
+            </a>
+          ) : (
+            <Link key={it.id} to={it.to} className={cls} style={style}>
+              {content}
+            </Link>
+          );
+        })}
+      </div>
+    </nav>
+  );
+}
+
+function CountPill({ value, active }: { value: number; active: boolean }) {
+  return (
+    <span
+      className="font-semibold rounded-full"
+      style={{
+        fontSize: 11,
+        padding: '2px 7px',
+        background: active ? 'var(--color-accent-tint)' : 'var(--color-bg-soft)',
+        color: active ? 'var(--color-accent-deep)' : 'var(--color-text-3)',
+      }}
+    >
+      {value}
+    </span>
   );
 }

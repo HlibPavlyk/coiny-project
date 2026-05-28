@@ -1,4 +1,5 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+import { useFocusTrap } from '@/lib/useFocusTrap';
 
 export interface ModalAction {
   label: string;
@@ -33,6 +34,9 @@ interface ConfirmModalProps {
  * Escape or backdrop click (unless busy). Actions are disabled while busy or while a required note is empty.
  */
 export function ConfirmModal({ open, title, description, note, actions, onClose, busy }: ConfirmModalProps) {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(dialogRef, open);
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -56,6 +60,7 @@ export function ConfirmModal({ open, title, description, note, actions, onClose,
       }}
     >
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-label={title}

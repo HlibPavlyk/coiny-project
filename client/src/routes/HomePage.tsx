@@ -41,13 +41,40 @@ function CategoryCard({ root, idx }: { root: CategoryNode; idx: number }) {
   );
 }
 
-function EmptyHint() {
+/** Compact swipeable category chip — used on mobile in place of the full CategoryCard. */
+function CategoryChip({ root, idx }: { root: CategoryNode; idx: number }) {
+  const style = categoryCardStyles[idx] ?? categoryCardStyles[0];
+  return (
+    <Link
+      to={`/category/${root.slug}`}
+      className="flex-shrink-0 inline-flex items-center gap-2 rounded-full no-underline cursor-pointer transition hover:-translate-y-px snap-start"
+      style={{ background: style.bg, padding: '8px 14px' }}
+    >
+      <Icon name={style.icon} size={16} color={style.accent} stroke={1.6} />
+      <span className="text-[14px] font-semibold text-text">{root.name}</span>
+      <span className="mono text-[12px] font-semibold" style={{ color: style.accent }}>
+        · {subtreeLotCount(root)}
+      </span>
+    </Link>
+  );
+}
+
+function EmptyHint({ message = 'No lots here yet — check back soon.' }: { message?: string }) {
   return (
     <div className="bg-surface border border-dashed border-border rounded-lg py-10 px-6 text-center">
-      <p className="text-text-3 text-sm">No lots here yet — check back soon.</p>
+      <p className="text-text-3 text-sm m-0">{message}</p>
     </div>
   );
 }
+
+/** Section-specific empty-state copy. Generic fallback is fine for "Hot right now" and similar. */
+const EMPTY_MESSAGES: Record<string, string> = {
+  'Ending soon': 'No auctions ending in the next 24 hours.',
+  'New listings': 'No new listings yet — be the first to list one!',
+  'Recently sold': 'No lots have sold yet — closed wins will appear here.',
+  'Record prices': 'No record-setting prices to celebrate yet.',
+  'Hot right now': 'Quiet day — no hot bidding wars right now.',
+};
 
 /** Full-width panel whose body is a responsive grid of lot cards. */
 function LotGridSection({
@@ -65,23 +92,35 @@ function LotGridSection({
 }) {
   const { data, isLoading } = usePublicLots(request);
   return (
-    <section className="max-w-[1280px] mx-auto px-7 pt-10">
+    <section className="max-w-[1280px] mx-auto px-4 sm:px-7 pt-6 sm:pt-10">
       <Panel title={title} icon={icon} to={to} count={data?.totalCount}>
-        <div className="p-4">
+        <div className="py-2 sm:p-4">
           {isLoading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            <div
+              className="flex sm:grid sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 overflow-x-auto snap-x snap-mandatory sm:overflow-visible px-3 sm:px-0"
+              style={{ scrollPaddingInline: '12px' }}
+            >
               {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="bg-bg-soft border border-border rounded-lg" style={{ aspectRatio: '0.78' }} />
+                <div
+                  key={i}
+                  className="bg-bg-soft border border-border rounded-lg flex-shrink-0 w-[calc(50%-6px)] sm:w-auto snap-start"
+                  style={{ aspectRatio: '0.78' }}
+                />
               ))}
             </div>
           ) : data && data.items.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            <div
+              className="flex sm:grid sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 overflow-x-auto snap-x snap-mandatory sm:overflow-visible px-3 sm:px-0"
+              style={{ scrollPaddingInline: '12px' }}
+            >
               {data.items.map((lot) => (
-                <LotCard key={lot.id} lot={lot} compact sold={sold} />
+                <div key={lot.id} className="flex-shrink-0 w-[calc(50%-6px)] sm:w-auto snap-start">
+                  <LotCard lot={lot} compact sold={sold} />
+                </div>
               ))}
             </div>
           ) : (
-            <EmptyHint />
+            <EmptyHint message={EMPTY_MESSAGES[title]} />
           )}
         </div>
       </Panel>
@@ -157,21 +196,33 @@ function GridPanel({
   const items = data?.items ?? [];
   return (
     <Panel title={title} icon={icon} to={to} count={data?.totalCount}>
-      <div className="p-4">
+      <div className="py-2 sm:p-4">
         {isLoading ? (
-          <div className="grid grid-cols-3 gap-3">
+          <div
+            className="flex sm:grid sm:grid-cols-3 gap-3 overflow-x-auto snap-x snap-mandatory sm:overflow-visible px-3 sm:px-0"
+            style={{ scrollPaddingInline: '12px' }}
+          >
             {Array.from({ length: 9 }).map((_, i) => (
-              <div key={i} className="bg-bg-soft border border-border rounded-lg" style={{ aspectRatio: '0.78' }} />
+              <div
+                key={i}
+                className="bg-bg-soft border border-border rounded-lg flex-shrink-0 w-[calc(50%-6px)] sm:w-auto snap-start"
+                style={{ aspectRatio: '0.78' }}
+              />
             ))}
           </div>
         ) : items.length > 0 ? (
-          <div className="grid grid-cols-3 gap-3">
+          <div
+            className="flex sm:grid sm:grid-cols-3 gap-3 overflow-x-auto snap-x snap-mandatory sm:overflow-visible px-3 sm:px-0"
+            style={{ scrollPaddingInline: '12px' }}
+          >
             {items.slice(0, 9).map((lot) => (
-              <LotCard key={lot.id} lot={lot} compact sold={sold} />
+              <div key={lot.id} className="flex-shrink-0 w-[calc(50%-6px)] sm:w-auto snap-start">
+                <LotCard lot={lot} compact sold={sold} />
+              </div>
             ))}
           </div>
         ) : (
-          <EmptyHint />
+          <EmptyHint message={EMPTY_MESSAGES[title]} />
         )}
       </div>
     </Panel>
@@ -230,7 +281,7 @@ function BannerPanel({
         </Link>
       ) : (
         <div className="p-4">
-          <EmptyHint />
+          <EmptyHint message={EMPTY_MESSAGES[title]} />
         </div>
       )}
     </Panel>
@@ -294,7 +345,7 @@ function RankedListPanel({
         </ul>
       ) : (
         <div className="p-4">
-          <EmptyHint />
+          <EmptyHint message={EMPTY_MESSAGES[title]} />
         </div>
       )}
     </Panel>
@@ -310,12 +361,11 @@ export default function HomePage() {
 
       {/* Hero */}
       <section
-        className="border-b border-border"
+        className="border-b border-border overflow-hidden"
         style={{ background: 'linear-gradient(180deg, #FAFAF7 0%, #F2EEE2 100%)' }}
       >
         <div
-          className="max-w-[1280px] mx-auto px-7 grid gap-14 items-center"
-          style={{ gridTemplateColumns: '1.15fr 1fr', padding: '56px 28px 64px' }}
+          className="max-w-[1280px] mx-auto px-5 md:px-7 grid gap-8 md:gap-14 items-center grid-cols-1 lg:grid-cols-[1.15fr_1fr] py-10 md:py-14"
         >
           <div>
             <div
@@ -331,18 +381,18 @@ export default function HomePage() {
               Stripe escrow · Funds held until delivery
             </div>
             <h1
-              className="font-bold m-0 text-text"
-              style={{ fontSize: 52, lineHeight: 1.05, letterSpacing: '-0.025em' }}
+              className="font-bold m-0 text-text text-[34px] md:text-[44px] lg:text-[52px]"
+              style={{ lineHeight: 1.05, letterSpacing: '-0.025em' }}
             >
               Trusted Ukrainian
               <br />
               <span className="text-accent-deep">numismatic auctions</span>
             </h1>
-            <p className="text-[17px] text-text-2 mt-4 max-w-[480px]" style={{ lineHeight: 1.55 }}>
+            <p className="text-[15px] md:text-[17px] text-text-2 mt-4 max-w-[480px]" style={{ lineHeight: 1.55 }}>
               Coins, banknotes, medals and orders with guaranteed payment. Funds are released to
               sellers only after Nova Poshta confirms delivery.
             </p>
-            <div className="flex gap-2.5 mt-7">
+            <div className="flex flex-col sm:flex-row gap-2.5 mt-7">
               <Link
                 to="/search"
                 className="inline-flex items-center justify-center rounded-md bg-accent hover:bg-accent-deep text-white font-medium px-5 py-3 text-sm no-underline transition"
@@ -353,7 +403,7 @@ export default function HomePage() {
                 How it works
               </a>
             </div>
-            <div className="flex gap-8 mt-9 pt-6 border-t border-border">
+            <div className="flex flex-wrap gap-6 sm:gap-8 mt-9 pt-6 border-t border-border">
               {[
                 ['4,217', 'active lots'],
                 ['12,480', 'collectors'],
@@ -368,7 +418,9 @@ export default function HomePage() {
               ))}
             </div>
           </div>
-          <div className="relative" style={{ height: 420 }}>
+          {/* Decorative coin/medal/banknote — hidden on mobile, scaled on tablet, full on desktop.
+              `overflow-hidden` on the parent section is what tames the negative offsets. */}
+          <div className="hidden lg:block relative" style={{ height: 420 }}>
             <img
               src="/hero/banknote.png"
               alt=""
@@ -395,8 +447,21 @@ export default function HomePage() {
       </section>
 
       {/* Category cards */}
-      <section className="max-w-[1280px] mx-auto px-7 pt-10 pb-2">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {/* Mobile: horizontal-swipe category chips (~50px); Desktop: 3-column big cards.
+          Only `pt` here — the next section provides matching gap below via its own `pt`. Doubling
+          (categories pb + next section pt) is what created the visible asymmetry user reported. */}
+      <section className="max-w-[1280px] mx-auto pt-6 sm:pt-10">
+        {/* Extra left/right padding on the scroll container so the first chip doesn't kiss the
+            viewport edge. `scroll-padding-inline` keeps snap-start aligned with that inset. */}
+        <div
+          className="flex md:hidden gap-2 overflow-x-auto snap-x snap-mandatory px-5"
+          style={{ scrollbarWidth: 'none', scrollPaddingInline: '20px' }}
+        >
+          {tree?.roots.map((root, idx) => (
+            <CategoryChip key={root.id} root={root} idx={idx} />
+          ))}
+        </div>
+        <div className="hidden md:grid grid-cols-3 gap-4 px-7">
           {tree?.roots.map((root, idx) => (
             <CategoryCard key={root.id} root={root} idx={idx} />
           ))}
@@ -404,8 +469,8 @@ export default function HomePage() {
       </section>
 
       {/* Mosaic: wide live grid on the left; featured banner + record-price leaderboard on the right */}
-      <section className="max-w-[1280px] mx-auto px-7 pt-10">
-        <div className="grid gap-6 items-stretch" style={{ gridTemplateColumns: '1.5fr 1fr' }}>
+      <section className="max-w-[1280px] mx-auto px-4 sm:px-7 pt-6 sm:pt-10">
+        <div className="grid gap-6 items-stretch grid-cols-1 lg:grid-cols-[1.5fr_1fr]">
           <GridPanel
             title="Ending soon"
             icon="clock"

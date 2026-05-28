@@ -12,6 +12,7 @@ export default defineConfig({
   },
   server: {
     port: 5173,
+    allowedHosts: ['.ngrok-free.app'],
     proxy: {
       '/api': 'http://localhost:5000',
       '/auctionHub': { target: 'http://localhost:5000', ws: true },

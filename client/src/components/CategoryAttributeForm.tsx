@@ -87,7 +87,7 @@ export function CategoryAttributeForm({
 
   if (subcategoryKind === 'Coin') {
     return (
-      <div className="grid gap-4" style={{ gridTemplateColumns: '1fr 1fr' }}>
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
         <div>
           <CountryField value={v('country')} onChange={upd('country')} />
         </div>
@@ -145,7 +145,7 @@ export function CategoryAttributeForm({
 
   if (subcategoryKind === 'Banknote') {
     return (
-      <div className="grid gap-4" style={{ gridTemplateColumns: '1fr 1fr' }}>
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
         <div>
           <CountryField value={v('country')} onChange={upd('country')} />
         </div>
@@ -205,7 +205,7 @@ export function CategoryAttributeForm({
 
   // Medal
   return (
-    <div className="grid gap-4" style={{ gridTemplateColumns: '1fr 1fr' }}>
+    <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
       <div>
         <CountryField value={v('country')} onChange={upd('country')} />
       </div>

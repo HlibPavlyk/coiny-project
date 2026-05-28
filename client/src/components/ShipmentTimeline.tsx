@@ -52,7 +52,7 @@ export function ShipmentTimeline({ paymentId }: Props) {
     <div>
       {/* Header: recipient + TTN */}
       <div className="rounded-md border border-border bg-bg-soft p-3.5">
-        <div className="grid gap-2 text-[12.5px]" style={{ gridTemplateColumns: '120px 1fr' }}>
+        <div className="grid gap-2 text-[12.5px] grid-cols-[100px_1fr] sm:grid-cols-[120px_1fr]">
           <div className="text-text-3">Status</div>
           <div className="font-semibold">{STATUS_LABEL[data.status]}</div>
 

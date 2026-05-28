@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Icon } from '@/components/Icon';
+import { SkeletonRow } from '@/components/Skeleton';
 import { LotImagePlaceholder } from '@/components/LotImagePlaceholder';
 import { CountdownTimer } from '@/components/CountdownTimer';
 import { lots, type MyLotItem, type LotStatus } from '@/api/lots';
@@ -10,6 +11,19 @@ import { formatKopiykasAsUah } from '@/lib/money';
 import { useToastStore } from '@/state/useToastStore';
 
 type Tab = 'Draft' | 'Active' | 'Sold' | 'Ended';
+
+function emptyMessageFor(tab: Tab): string {
+  switch (tab) {
+    case 'Draft':
+      return 'No drafts — start one with “Create lot”.';
+    case 'Active':
+      return 'No active auctions. Publish a draft to see it here.';
+    case 'Sold':
+      return 'No sold lots yet — your closed wins will appear here.';
+    case 'Ended':
+      return 'No ended lots — auctions that closed without a sale will appear here.';
+  }
+}
 
 const TAB_TO_STATUS: Record<Tab, LotStatus | LotStatus[]> = {
   Draft: 'Draft',
@@ -55,35 +69,52 @@ function LotRow({
   };
 
   return (
-    <div className="grid items-center gap-4 py-3.5 border-b border-border-soft last:border-b-0"
-      style={{ gridTemplateColumns: '64px 1fr auto auto auto' }}
-    >
-      <div className="relative w-16 h-16 rounded-md overflow-hidden bg-bg-soft">
-        {lot.coverImageUrl ? (
-          <img src={lot.coverImageUrl} alt="" className="w-full h-full object-cover" />
-        ) : (
-          <LotImagePlaceholder kind="coin" variant={lot.id.charCodeAt(0) % 6} />
-        )}
-      </div>
+    <div className="flex flex-col sm:grid sm:items-center gap-3 sm:gap-4 py-3.5 border-b border-border-soft last:border-b-0 sm:grid-cols-[64px_1fr_auto_auto_auto]">
+      <div className="flex gap-3 sm:contents">
+        <div className="relative w-16 h-16 rounded-md overflow-hidden bg-bg-soft flex-shrink-0">
+          {lot.coverImageUrl ? (
+            <img src={lot.coverImageUrl} alt="" className="w-full h-full object-cover" />
+          ) : (
+            <LotImagePlaceholder kind="coin" variant={lot.id.charCodeAt(0) % 6} />
+          )}
+        </div>
 
-      <div className="min-w-0">
-        <Link
-          to={`/lot/${lot.id}`}
-          className="text-[14px] font-medium text-text hover:text-accent-deep no-underline truncate block"
-        >
-          {lot.title || '(untitled draft)'}
-        </Link>
-        <div className="text-[12px] text-text-3 mt-0.5 flex items-center gap-3">
-          <span>{lot.bidCount} {lot.bidCount === 1 ? 'bid' : 'bids'}</span>
-          {lot.status === 'Active' && <CountdownTimer endsAt={lot.endsAt} size="sm" />}
+        <div className="min-w-0 flex-1">
+          <Link
+            to={`/lot/${lot.id}`}
+            className="text-[14px] font-medium text-text hover:text-accent-deep no-underline truncate block"
+          >
+            {lot.title || '(untitled draft)'}
+          </Link>
+          <div className="text-[12px] text-text-3 mt-0.5 flex items-center gap-3">
+            <span>{lot.bidCount} {lot.bidCount === 1 ? 'bid' : 'bids'}</span>
+            {lot.status === 'Active' && <CountdownTimer endsAt={lot.endsAt} size="sm" />}
+          </div>
+          {/* Mobile-only: price + status chip inline under the title. Desktop has these as separate grid cells. */}
+          <div className="flex items-center justify-between gap-2 mt-1.5 sm:hidden">
+            <span className="mono text-[14px] font-bold">
+              {formatKopiykasAsUah(lot.currentPriceUahKopiykas, { integer: true })}
+            </span>
+            <span
+              className="inline-block rounded-full font-semibold text-[10px]"
+              style={{
+                padding: '3px 9px',
+                background: 'var(--color-bg-soft)',
+                color: 'var(--color-text-2)',
+                letterSpacing: '0.04em',
+              }}
+            >
+              {lot.status}
+            </span>
+          </div>
         </div>
       </div>
 
-      <div className="mono text-[14px] font-bold text-right">
+      <div className="hidden sm:block mono text-[14px] font-bold text-right">
         {formatKopiykasAsUah(lot.currentPriceUahKopiykas, { integer: true })}
       </div>
 
-      <div>
+      <div className="hidden sm:block">
         <span
           className="inline-block rounded-full font-semibold text-[10px]"
           style={{
@@ -97,11 +128,11 @@ function LotRow({
         </span>
       </div>
 
-      <div className="flex gap-1.5">
+      <div className="flex gap-1.5 flex-wrap sm:flex-nowrap">
         {canEdit && (
           <Link
             to={`/lots/${lot.id}/edit`}
-            className="inline-flex items-center gap-1 rounded-md border border-border-strong bg-surface hover:bg-bg-soft text-text font-medium px-3 py-1.5 text-[12px] no-underline"
+            className="inline-flex items-center gap-1 rounded-md border border-border-strong bg-surface hover:bg-bg-soft text-text font-medium px-3 py-2 sm:py-1.5 text-[12px] no-underline"
           >
             <Icon name="edit" size={12} />
             Edit
@@ -112,7 +143,7 @@ function LotRow({
             type="button"
             disabled={busy}
             onClick={cancel}
-            className="inline-flex items-center gap-1 rounded-md border border-border-strong bg-surface hover:bg-bg-soft text-text font-medium px-3 py-1.5 text-[12px] disabled:opacity-60"
+            className="inline-flex items-center gap-1 rounded-md border border-border-strong bg-surface hover:bg-bg-soft text-text font-medium px-3 py-2 sm:py-1.5 text-[12px] disabled:opacity-60"
             style={{ cursor: busy ? 'not-allowed' : 'pointer' }}
           >
             <Icon name="x" size={12} />
@@ -123,7 +154,7 @@ function LotRow({
           <button
             type="button"
             onClick={() => navigate(`/lot/${lot.id}`)}
-            className="inline-flex items-center gap-1 rounded-md border border-border-strong bg-surface hover:bg-bg-soft text-text font-medium px-3 py-1.5 text-[12px]"
+            className="inline-flex items-center gap-1 rounded-md border border-border-strong bg-surface hover:bg-bg-soft text-text font-medium px-3 py-2 sm:py-1.5 text-[12px]"
             style={{ cursor: 'pointer' }}
           >
             View
@@ -160,45 +191,40 @@ export default function MyLotsPage() {
 
   return (
     <>
-      <div className="border-b border-border flex justify-between items-end mb-2">
-        <div className="flex gap-1">
-          {tabs.map((t) => {
-            const active = tab === t.id;
-            return (
-              <button
-                key={t.id}
-                type="button"
-                onClick={() => setTab(t.id)}
-                className="px-4 py-2.5 text-[13px] font-medium"
-                style={{
-                  color: active ? 'var(--color-accent-deep)' : 'var(--color-text-3)',
-                  borderBottom: active ? '2px solid var(--color-accent)' : '2px solid transparent',
-                  marginBottom: -1,
-                  background: 'transparent',
-                  cursor: 'pointer',
-                }}
-              >
-                {t.label}
-              </button>
-            );
-          })}
-        </div>
-        <Link
-          to="/lots/new"
-          className="inline-flex items-center gap-1.5 rounded-md bg-accent hover:bg-accent-deep text-white font-medium px-3 py-1.5 text-[13px] no-underline mb-2"
-        >
-          <Icon name="plus" size={13} color="white" />
-          Create lot
-        </Link>
+      <div className="border-b border-border flex gap-1 mb-2">
+        {tabs.map((t) => {
+          const active = tab === t.id;
+          return (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => setTab(t.id)}
+              className="px-4 py-2.5 text-[13px] font-medium whitespace-nowrap"
+              style={{
+                color: active ? 'var(--color-accent-deep)' : 'var(--color-text-3)',
+                borderBottom: active ? '2px solid var(--color-accent)' : '2px solid transparent',
+                marginBottom: -1,
+                background: 'transparent',
+                cursor: 'pointer',
+              }}
+            >
+              {t.label}
+            </button>
+          );
+        })}
       </div>
 
       <div className="bg-surface border border-border rounded-lg px-4">
           {isLoading ? (
-            <div className="py-10 text-center text-text-3 text-sm">Loading…</div>
+            <div className="py-3 space-y-3">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <SkeletonRow key={i} height="h-16" />
+              ))}
+            </div>
           ) : !data || data.items.length === 0 ? (
             <div className="py-12 text-center">
               <p className="text-text-3 text-sm m-0">
-                No {tab.toLowerCase()} lots.
+                {emptyMessageFor(tab)}
               </p>
             </div>
           ) : (

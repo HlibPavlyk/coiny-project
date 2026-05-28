@@ -71,14 +71,14 @@ function LotSkeleton() {
   return (
     <div>
       <TopNav />
-      <div className="max-w-[1280px] mx-auto px-7 py-8">
-        <div className="bg-bg-soft rounded h-4 w-72 mb-6" />
-        <div className="grid gap-9" style={{ gridTemplateColumns: '1fr 360px' }}>
+      <div className="max-w-[1280px] mx-auto px-4 sm:px-7 py-8">
+        <div className="bg-bg-soft rounded h-4 w-2/3 sm:w-72 mb-6" />
+        <div className="grid gap-6 lg:gap-9 grid-cols-1 lg:grid-cols-[1fr_360px]">
           <div>
             <div className="bg-bg-soft rounded h-8 w-2/3 mb-6" />
             <div className="bg-bg-soft border border-border rounded-lg" style={{ aspectRatio: '1 / 1' }} />
           </div>
-          <div className="bg-bg-soft border border-border rounded-lg h-[420px]" />
+          <div className="bg-bg-soft border border-border rounded-lg h-[300px] lg:h-[420px]" />
         </div>
       </div>
       <Footer />
@@ -126,15 +126,15 @@ export default function LotPage() {
     <div>
       <TopNav />
 
-      <div className="max-w-[1280px] mx-auto px-7 pt-5 pb-2">
+      <div className="max-w-[1280px] mx-auto px-4 sm:px-7 pt-5 pb-2">
         <Breadcrumb parts={breadcrumbParts} />
       </div>
 
       {/* Title row (full width above the 2-column grid) */}
-      <div className="max-w-[1280px] mx-auto px-7 pt-3">
+      <div className="max-w-[1280px] mx-auto px-4 sm:px-7 pt-3">
         <div className="flex items-center gap-3 flex-wrap">
           <h1
-            className="font-bold m-0 text-text"
+            className="font-bold m-0 text-text break-words min-w-0"
             style={{ fontSize: 26, lineHeight: 1.25, letterSpacing: '-0.015em' }}
           >
             {lot.title}
@@ -169,11 +169,9 @@ export default function LotPage() {
         </div>
       </div>
 
-      {/* Main 2-column grid: gallery left, bid panel right (starts at same vertical level) */}
-      <div
-        className="max-w-[1280px] mx-auto px-7 pt-5 grid gap-9"
-        style={{ gridTemplateColumns: '3fr 2fr' }}
-      >
+      {/* Main 2-column grid on desktop, stacked on mobile. Bid panel goes BELOW the gallery on
+          mobile so the photos lead the page; on desktop it sits to the right for at-a-glance bidding. */}
+      <div className="max-w-[1280px] mx-auto px-4 sm:px-7 pt-5 grid gap-6 lg:gap-9 grid-cols-1 lg:grid-cols-[3fr_2fr]">
         {/* LEFT — gallery only */}
         <div>
           <ImageGallery images={lot.images} />
@@ -270,11 +268,9 @@ export default function LotPage() {
         </div>
       </div>
 
-      {/* Two-column info section. Left column stacks Attributes → Description so the
-          description sits directly under the attributes block at the same width.
-          Right column hosts the Bid history table. */}
-      <div className="max-w-[1280px] mx-auto px-7 pt-10 pb-14">
-        <div className="grid gap-9 items-start" style={{ gridTemplateColumns: '3fr 2fr' }}>
+      {/* Two-column info section on desktop, stacked on mobile. */}
+      <div className="max-w-[1280px] mx-auto px-4 sm:px-7 pt-8 sm:pt-10 pb-10 sm:pb-14">
+        <div className="grid gap-6 lg:gap-9 items-start grid-cols-1 lg:grid-cols-[3fr_2fr]">
           <div className="flex flex-col gap-8 min-w-0">
             <section>
               <h2 className="text-[11px] font-semibold uppercase tracking-wider text-text-3 m-0 mb-2">

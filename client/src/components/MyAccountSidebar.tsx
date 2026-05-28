@@ -1,7 +1,6 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Icon, type IconName } from '@/components/Icon';
 import { useAuthStore } from '@/state/useAuthStore';
-import { useNavigate } from 'react-router-dom';
 
 interface NavItem {
   id: string;
@@ -20,11 +19,17 @@ const items: NavItem[] = [
 
 interface MyAccountSidebarProps {
   active?: string;
-  /** Per-section totals — rendered as a badge on the matching item when ≥ 1. */
   counts?: Partial<Record<'lots' | 'bids' | 'purchases', number>>;
+  /** "sidebar" = vertical card (desktop), "topbar" = horizontal scroll-tabs (mobile). */
+  variant?: 'sidebar' | 'topbar';
 }
 
-export function MyAccountSidebar({ active, counts }: MyAccountSidebarProps) {
+export function MyAccountSidebar({ active, counts, variant = 'sidebar' }: MyAccountSidebarProps) {
+  if (variant === 'topbar') return <TopbarVariant counts={counts} />;
+  return <SidebarVariant active={active} counts={counts} />;
+}
+
+function SidebarVariant({ active, counts }: MyAccountSidebarProps) {
   const location = useLocation();
   const signOut = useAuthStore((s) => s.signOut);
   const navigate = useNavigate();
@@ -44,8 +49,7 @@ export function MyAccountSidebar({ active, counts }: MyAccountSidebarProps) {
 
       {items.map((it) => {
         const isActive = active === it.id || location.pathname === it.to;
-        const dyn = counts?.[it.id as 'lots' | 'bids' | 'purchases'];
-        const count = dyn !== undefined && dyn > 0 ? dyn : it.count;
+        const count = pickCount(it.id, counts);
         return (
           <Link
             key={it.id}
@@ -56,25 +60,9 @@ export function MyAccountSidebar({ active, counts }: MyAccountSidebarProps) {
               background: isActive ? 'var(--color-bg-soft)' : 'transparent',
             }}
           >
-            <Icon
-              name={it.icon}
-              size={16}
-              color={isActive ? 'var(--color-accent-deep)' : 'var(--color-text-3)'}
-            />
+            <Icon name={it.icon} size={16} color={isActive ? 'var(--color-accent-deep)' : 'var(--color-text-3)'} />
             <span className="flex-1">{it.label}</span>
-            {count !== undefined && (
-              <span
-                className="font-semibold rounded-full"
-                style={{
-                  fontSize: 11,
-                  padding: '2px 7px',
-                  background: isActive ? 'var(--color-accent-tint)' : 'var(--color-bg-soft)',
-                  color: isActive ? 'var(--color-accent-deep)' : 'var(--color-text-3)',
-                }}
-              >
-                {count}
-              </span>
-            )}
+            {count !== undefined && <CountPill value={count} active={isActive} />}
           </Link>
         );
       })}
@@ -90,5 +78,65 @@ export function MyAccountSidebar({ active, counts }: MyAccountSidebarProps) {
         Sign out
       </button>
     </aside>
+  );
+}
+
+/**
+ * Mobile-only horizontal scroll-strip. Renders the same nav items as the sidebar but in a single
+ * row that the user thumb-swipes. Sign-out is omitted here — it lives in the desktop sidebar and
+ * the mobile TopNav user menu (or could be added back if needed).
+ */
+function TopbarVariant({ counts }: { counts?: MyAccountSidebarProps['counts'] }) {
+  const location = useLocation();
+  return (
+    <nav
+      aria-label="My account sections"
+      className="bg-surface border border-border rounded-lg p-1 overflow-x-auto"
+      style={{ scrollbarWidth: 'none' }}
+    >
+      <div className="flex gap-1 min-w-max">
+        {items.map((it) => {
+          const isActive = location.pathname === it.to;
+          const count = pickCount(it.id, counts);
+          return (
+            <Link
+              key={it.id}
+              to={it.to}
+              className="flex items-center gap-2 px-3 py-2.5 rounded-md text-[13px] font-medium whitespace-nowrap transition no-underline"
+              style={{
+                color: isActive ? 'var(--color-text)' : 'var(--color-text-2)',
+                background: isActive ? 'var(--color-bg-soft)' : 'transparent',
+              }}
+            >
+              <Icon name={it.icon} size={14} color={isActive ? 'var(--color-accent-deep)' : 'var(--color-text-3)'} />
+              {it.label}
+              {count !== undefined && <CountPill value={count} active={isActive} />}
+            </Link>
+          );
+        })}
+      </div>
+    </nav>
+  );
+}
+
+function pickCount(id: string, counts?: MyAccountSidebarProps['counts']): number | undefined {
+  const item = items.find((i) => i.id === id);
+  const dyn = counts?.[id as 'lots' | 'bids' | 'purchases'];
+  return dyn !== undefined && dyn > 0 ? dyn : item?.count;
+}
+
+function CountPill({ value, active }: { value: number; active: boolean }) {
+  return (
+    <span
+      className="font-semibold rounded-full"
+      style={{
+        fontSize: 11,
+        padding: '2px 7px',
+        background: active ? 'var(--color-accent-tint)' : 'var(--color-bg-soft)',
+        color: active ? 'var(--color-accent-deep)' : 'var(--color-text-3)',
+      }}
+    >
+      {value}
+    </span>
   );
 }

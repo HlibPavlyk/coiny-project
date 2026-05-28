@@ -30,20 +30,20 @@ function defaultEndsAtLocal(): string {
 }
 
 function StepHeader({ step }: { step: Step }) {
-  const items: { n: Step; label: string }[] = [
-    { n: 1, label: 'Category' },
-    { n: 2, label: 'Details' },
-    { n: 3, label: 'Images & publish' },
+  const items: { n: Step; label: string; shortLabel: string }[] = [
+    { n: 1, label: 'Category', shortLabel: 'Category' },
+    { n: 2, label: 'Details', shortLabel: 'Details' },
+    { n: 3, label: 'Images & publish', shortLabel: 'Publish' },
   ];
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
       {items.map((it, i) => {
         const active = it.n === step;
         const done = it.n < step;
         return (
-          <div key={it.n} className="flex items-center gap-3">
+          <div key={it.n} className="flex items-center gap-2 sm:gap-3">
             <div
-              className="rounded-full flex items-center justify-center font-bold text-[12px]"
+              className="rounded-full flex items-center justify-center font-bold text-[12px] flex-shrink-0"
               style={{
                 width: 28,
                 height: 28,
@@ -55,13 +55,14 @@ function StepHeader({ step }: { step: Step }) {
               {done ? '✓' : it.n}
             </div>
             <span
-              className="text-[13px] font-medium"
+              className="text-[12px] sm:text-[13px] font-medium whitespace-nowrap"
               style={{ color: active ? 'var(--color-text)' : 'var(--color-text-3)' }}
             >
-              {it.label}
+              <span className="sm:hidden">{it.shortLabel}</span>
+              <span className="hidden sm:inline">{it.label}</span>
             </span>
             {i < items.length - 1 && (
-              <div className="w-12 h-px" style={{ background: 'var(--color-border)' }} />
+              <div className="w-6 sm:w-12 h-px" style={{ background: 'var(--color-border)' }} />
             )}
           </div>
         );
@@ -131,7 +132,7 @@ function CategoryPicker({
   );
 
   return (
-    <div className="grid gap-5" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
+    <div className="grid gap-5 grid-cols-1 sm:grid-cols-3">
       <Column
         title="Section"
         items={roots}
@@ -220,7 +221,7 @@ export default function CreateLotPage({ draft }: CreateLotPageProps = {}) {
           <h1 className="text-3xl font-bold m-0">Verify your email first</h1>
           <p className="text-text-2 mt-3">
             Before creating a lot, please confirm the email we sent to{' '}
-            <span className="mono">{user.email}</span>.
+            <span className="mono break-all">{user.email}</span>.
           </p>
           <button
             type="button"
@@ -457,7 +458,7 @@ export default function CreateLotPage({ draft }: CreateLotPageProps = {}) {
               </div>
             </div>
 
-            <div className="grid gap-4" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
               <div>
                 <FieldLabel htmlFor="lot-price">Starting price (UAH)</FieldLabel>
                 <FieldInput
@@ -545,7 +546,7 @@ export default function CreateLotPage({ draft }: CreateLotPageProps = {}) {
               <h3 className="text-[11px] font-semibold uppercase tracking-wider text-text-3 m-0 mb-3">
                 Review
               </h3>
-              <dl className="grid gap-y-2 text-[13px]" style={{ gridTemplateColumns: '160px 1fr' }}>
+              <dl className="grid gap-y-2 gap-x-3 text-[13px] grid-cols-[120px_1fr] sm:grid-cols-[160px_1fr]">
                 <dt className="text-text-3">Title</dt>
                 <dd className="m-0 font-medium">{title}</dd>
                 <dt className="text-text-3">Category</dt>
