@@ -1,10 +1,9 @@
+using Coiny.Application.Features.Lots.Models;
+using Coiny.Application.Features.Lots.SearchLots;
 using Coiny.Application.Abstractions.ExternalServices.Search;
 using Coiny.Application.Common.Querying;
 using Coiny.Application.Common.Results;
 using Coiny.Application.Common.Search;
-using Coiny.Application.Features.Lots.Handlers;
-using Coiny.Application.Features.Lots.Models;
-using Coiny.Application.Features.Lots.Requests;
 using Coiny.Domain.Enums;
 using Coiny.Infrastructure.Persistence;
 using FluentAssertions;

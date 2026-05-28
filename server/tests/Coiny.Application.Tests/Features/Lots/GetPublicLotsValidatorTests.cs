@@ -1,5 +1,4 @@
-using Coiny.Application.Features.Lots.Requests;
-using Coiny.Application.Features.Lots.Validators;
+using Coiny.Application.Features.Lots.GetPublicLots;
 using Coiny.Domain.Enums;
 using FluentAssertions;
 using Xunit;

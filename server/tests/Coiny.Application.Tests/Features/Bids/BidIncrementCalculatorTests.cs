@@ -1,4 +1,4 @@
-using Coiny.Application.Features.Bids.Pricing;
+using Coiny.Application.Features.Bids.PlaceBid;
 using FluentAssertions;
 using Xunit;
 

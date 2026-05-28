@@ -7,9 +7,9 @@ using Coiny.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Coiny.Application.Features.Auth.Events;
 using Coiny.Application.Features.Auctions.Events;
-using Coiny.Application.Features.Shipments.Events;
+using Coiny.Application.Features.Auth.Shared;
+using Coiny.Application.Features.Shipments.Shared;
 
 namespace Coiny.Infrastructure.Jobs;
 

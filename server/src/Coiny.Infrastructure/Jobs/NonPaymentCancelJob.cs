@@ -1,13 +1,11 @@
 using Coiny.Application.Abstractions.Infrastructure.Data;
 using Coiny.Application.Abstractions.ExternalServices.Payments;
 using Coiny.Application.Abstractions.Infrastructure.Providers;
-using Coiny.Application.Features.Lots;
 using Coiny.Domain.Entities;
 using Coiny.Domain.Enums;
 using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Coiny.Application.Features.Lots.Events;
 
 namespace Coiny.Infrastructure.Jobs;
 
@@ -91,8 +89,6 @@ public class NonPaymentCancelJob(
             {
                 AggregateType = nameof(Lot),
                 AggregateId = lot.Id,
-                EventType = LotEndedPayload.EventType,
-                Payload = new LotEndedPayload(lot.Id, lot.Status).Serialize(),
                 CreatedAt = now,
                 AttemptCount = 0,
             });

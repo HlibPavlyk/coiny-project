@@ -1,8 +1,7 @@
 using Coiny.Application.Abstractions.Infrastructure.Data;
 using Coiny.Application.Abstractions.Infrastructure.Providers;
 using Coiny.Application.Abstractions.ExternalServices.Search;
-using Coiny.Application.Features.Lots.Models;
-using Coiny.Application.Features.Lots.Services;
+using Coiny.Application.Features.Lots.SearchLots;
 using Coiny.Domain.Entities;
 using Coiny.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -40,8 +39,8 @@ public class SearchIndexFlushJob(
             return;
 
         // Collapse to one reconcile per lot. Each group's events are all marked processed together.
-        List<IGrouping<Guid, SearchOutboxEvent>> byLot = pending.GroupBy(e => e.AggregateId).ToList();
-        List<Guid> lotIds = byLot.Select(g => g.Key).ToList();
+        var byLot = pending.GroupBy(e => e.AggregateId).ToList();
+        var lotIds = byLot.Select(g => g.Key).ToList();
 
         // The global soft-delete query filter is intentionally honoured: a soft-deleted lot is simply
         // absent from this dictionary, and "absent" reconciles to a delete-from-index below.

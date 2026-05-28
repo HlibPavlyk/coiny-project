@@ -2,9 +2,7 @@ using Coiny.Application.Abstractions.Presentation.Http;
 using Coiny.Application.Abstractions.Infrastructure.Providers;
 using Coiny.Application.Common.Authorization;
 using Coiny.Application.Common.Results;
-using Coiny.Application.Features.Moderation.Handlers;
-using Coiny.Application.Features.Moderation.Requests;
-using Coiny.Application.Features.Lots.Events;
+using Coiny.Application.Features.Moderation.TakedownLot;
 using Coiny.Domain.Entities;
 using Coiny.Domain.Enums;
 using Coiny.Infrastructure.Persistence;
@@ -55,7 +53,7 @@ public class TakedownLotHandlerTests
         (await ctx.Categories.SingleAsync(c => c.Id == 1)).LotCountActive.Should().Be(2);
 
         SearchOutboxEvent evt = await ctx.SearchOutboxEvents.SingleAsync(e => e.AggregateId == lot);
-        evt.EventType.Should().Be(LotDeletedPayload.EventType);
+        evt.AggregateType.Should().Be(nameof(Lot));
     }
 
     [Fact]

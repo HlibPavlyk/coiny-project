@@ -1,8 +1,8 @@
 using Coiny.Application.Common.Querying;
 using Coiny.Application.Common.Requests;
 using Coiny.Application.Common.Results;
-using Coiny.Application.Features.Bids.Models;
-using Coiny.Application.Features.Bids.Requests;
+using Coiny.Application.Features.Bids.GetBidHistory;
+using Coiny.Application.Features.Bids.PlaceBid;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

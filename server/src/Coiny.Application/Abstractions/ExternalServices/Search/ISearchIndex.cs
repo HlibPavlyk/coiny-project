@@ -1,6 +1,7 @@
 using Coiny.Application.Common.Querying;
 using Coiny.Application.Common.Search;
 using Coiny.Application.Features.Lots.Models;
+using Coiny.Application.Features.Lots.SearchLots;
 
 namespace Coiny.Application.Abstractions.ExternalServices.Search;
 

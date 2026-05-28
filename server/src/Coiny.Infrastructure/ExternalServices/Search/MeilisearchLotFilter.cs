@@ -1,5 +1,6 @@
 using System.Globalization;
 using Coiny.Application.Features.Lots.Models;
+using Coiny.Application.Features.Lots.SearchLots;
 
 namespace Coiny.Infrastructure.ExternalServices.Search;
 

@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { TopNav } from '@/components/TopNav';
 import { Footer } from '@/components/Footer';
@@ -10,6 +10,7 @@ import { BidPanel } from '@/components/BidPanel';
 import { BidHistory } from '@/components/BidHistory';
 import { ConditionBadge } from '@/components/ConditionBadge';
 import { Icon } from '@/components/Icon';
+import { ReportLotModal } from '@/components/ReportLotModal';
 import { useLot } from '@/api/lots';
 import { useCategoryTree, findCategoryPath } from '@/api/categories';
 import { formatLocal } from '@/lib/datetime';
@@ -89,6 +90,7 @@ export default function LotPage() {
   const { id } = useParams<{ id: string }>();
   const { data: lot, isLoading, error } = useLot(id);
   const { data: tree } = useCategoryTree();
+  const [reportOpen, setReportOpen] = useState(false);
 
   const breadcrumbParts: BreadcrumbPart[] = useMemo(() => {
     const head: BreadcrumbPart = { label: 'Home', href: '/' };
@@ -249,6 +251,20 @@ export default function LotPage() {
                   </div>
                 ))}
               </div>
+
+              {/* Report footer — logically grouped with the trust/safety section. Outlined button so
+                  it reads as a real action without competing with the primary bid CTA on this page. */}
+              <div className="mt-3.5 pt-3.5 border-t border-border-soft">
+                <div className="text-[12px] text-text-3 mb-2">Spot something off?</div>
+                <button
+                  type="button"
+                  onClick={() => setReportOpen(true)}
+                  className="inline-flex w-full items-center justify-center gap-1.5 rounded-md border border-border-strong bg-surface hover:bg-bg-soft text-text font-medium px-3 py-2 text-[13px]"
+                >
+                  <Icon name="info" size={13} stroke={1.6} />
+                  Report this lot
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -299,6 +315,8 @@ export default function LotPage() {
       </div>
 
       <Footer />
+
+      <ReportLotModal open={reportOpen} lotId={lot.id} onClose={() => setReportOpen(false)} />
     </div>
   );
 }

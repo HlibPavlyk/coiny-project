@@ -3,14 +3,11 @@ using Coiny.Application.Abstractions.Infrastructure.Data;
 using Coiny.Application.Abstractions.Infrastructure.Jobs;
 using Coiny.Application.Abstractions.Infrastructure.Providers;
 using Coiny.Application.Abstractions.Presentation.Realtime;
-using Coiny.Application.Features.Auctions;
-using Coiny.Application.Features.Lots;
 using Coiny.Domain.Entities;
 using Coiny.Domain.Enums;
 using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Coiny.Application.Features.Lots.Events;
 using Coiny.Application.Features.Auctions.Events;
 
 namespace Coiny.Infrastructure.Jobs;
@@ -80,10 +77,8 @@ public class AuctionCloseJob(
 
             db.SearchOutboxEvents.Add(new SearchOutboxEvent
             {
-                AggregateType = "Lot",
+                AggregateType = nameof(Lot),
                 AggregateId = lot.Id,
-                EventType = LotEndedPayload.EventType,
-                Payload = new LotEndedPayload(lot.Id, lot.Status).Serialize(),
                 CreatedAt = now,
             });
         }
@@ -95,16 +90,14 @@ public class AuctionCloseJob(
 
             db.SearchOutboxEvents.Add(new SearchOutboxEvent
             {
-                AggregateType = "Lot",
+                AggregateType = nameof(Lot),
                 AggregateId = lot.Id,
-                EventType = LotSoldPayload.EventType,
-                Payload = new LotSoldPayload(lot.Id, topBid.Id, topBid.AmountUahKopiykas).Serialize(),
                 CreatedAt = now,
             });
 
             db.EmailOutboxEvents.Add(new EmailOutboxEvent
             {
-                AggregateType = "User",
+                AggregateType = nameof(User),
                 AggregateId = topBid.BidderId,
                 EventType = AuctionWonPayWithin96hPayload.EventType,
                 Payload = new AuctionWonPayWithin96hPayload(

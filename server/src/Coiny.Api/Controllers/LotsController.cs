@@ -1,8 +1,19 @@
 using Coiny.Application.Common.Querying;
 using Coiny.Application.Common.Results;
 using Coiny.Application.Common.Search;
+using Coiny.Application.Features.Lots.CreateLot;
+using Coiny.Application.Features.Lots.DeleteLot;
+using Coiny.Application.Features.Lots.DeleteLotImage;
+using Coiny.Application.Features.Lots.GetLotById;
+using Coiny.Application.Features.Lots.GetPublicLots;
 using Coiny.Application.Features.Lots.Models;
-using Coiny.Application.Features.Lots.Requests;
+using Coiny.Application.Features.Lots.PublishLot;
+using Coiny.Application.Features.Lots.ReorderLotImages;
+using Coiny.Application.Features.Lots.ReportLot;
+using Coiny.Application.Features.Lots.SearchLots;
+using Coiny.Application.Features.Lots.SuggestLots;
+using Coiny.Application.Features.Lots.UpdateLot;
+using Coiny.Application.Features.Lots.UploadLotImage;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -59,6 +70,14 @@ public class LotsController(IMediator mediator) : ControllerBase
     [HttpPost("search")]
     public Task<Result<FacetedPage<LotCardModel>>> Search([FromBody] SearchLotsRequest request, CancellationToken ct) =>
         mediator.Send(request, ct);
+
+    /// <summary>
+    /// Lightweight typeahead for the header search bar — up to 8 lots ranked by Meilisearch relevance.
+    /// GET (query string, no body) so HTTP-level caching and devtools URL-introspection work cleanly.
+    /// </summary>
+    [HttpGet("suggest")]
+    public Task<Result<IReadOnlyList<LotSuggestItem>>> Suggest([FromQuery] string q, CancellationToken ct) =>
+        mediator.Send(new SuggestLotsRequest(q), ct);
 
     /// <summary>Upload a single image to a Draft lot (max 5 per lot, max 10 MB, JPEG/PNG/WebP).</summary>
     [Authorize, Consumes("multipart/form-data"), HttpPost("{id:guid}/images")]

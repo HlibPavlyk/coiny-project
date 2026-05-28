@@ -1,7 +1,5 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { TopNav } from '@/components/TopNav';
-import { Footer } from '@/components/Footer';
 import { Icon } from '@/components/Icon';
 import { LotImagePlaceholder } from '@/components/LotImagePlaceholder';
 import { CountdownTimer } from '@/components/CountdownTimer';
@@ -175,14 +173,8 @@ export default function MyBidsPage() {
   const rows = rowsByTab ? rowsByTab[tab] : [];
 
   return (
-    <div>
-      <TopNav />
-      <div className="max-w-[1080px] mx-auto px-7 pt-8 pb-16">
-        <div className="flex items-baseline justify-between flex-wrap gap-3 mb-5">
-          <h1 className="text-[28px] font-bold m-0">My bids</h1>
-        </div>
-
-        <div className="border-b border-border flex gap-1 mb-2">
+    <>
+      <div className="border-b border-border flex gap-1 mb-2">
           {TABS.map((t) => {
             const active = tab === t.id;
             const count = rowsByTab ? rowsByTab[t.id].length : null;
@@ -228,8 +220,6 @@ export default function MyBidsPage() {
             rows.map((bid) => <BidRow key={bid.bidId} bid={bid} />)
           )}
         </div>
-      </div>
-      <Footer />
-    </div>
+    </>
   );
 }

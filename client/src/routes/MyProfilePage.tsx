@@ -7,9 +7,6 @@ import { payments } from '@/api/payments';
 import { ApiError } from '@/api/fetch';
 import { AvatarLarge } from '@/components/AvatarLarge';
 import { VerificationStatusPill } from '@/components/VerificationStatusPill';
-import { MyAccountSidebar } from '@/components/MyAccountSidebar';
-import { TopNav } from '@/components/TopNav';
-import { Footer } from '@/components/Footer';
 import { Icon } from '@/components/Icon';
 
 function StatTile({ label, value, sub }: { label: string; value: string; sub?: string }) {
@@ -97,21 +94,8 @@ export default function MyProfilePage() {
   };
 
   return (
-    <div>
-      <TopNav />
-      <div className="max-w-[1180px] mx-auto px-7 py-8">
-        <div className="mb-4">
-          <h1 className="text-[28px] font-bold tracking-tight m-0 mb-1">My account</h1>
-          <p className="text-[13.5px] text-text-3 m-0">
-            Manage your profile, lots, bids, and seller settings.
-          </p>
-        </div>
-
-        <div className="grid gap-5" style={{ gridTemplateColumns: '240px 1fr' }}>
-          <MyAccountSidebar active="profile" />
-
-          <div>
-            {/* Email verification block */}
+    <>
+      {/* Email verification block */}
             {!user.emailVerified && (
               <div
                 className="rounded-lg p-4 mb-3.5 flex gap-3.5 items-start"
@@ -267,11 +251,7 @@ export default function MyProfilePage() {
                   Once we ship the reviews feature, your buyer & seller ratings will live here.
                 </div>
               </div>
-            </ProfileSection>
-          </div>
-        </div>
-      </div>
-      <Footer />
-    </div>
+      </ProfileSection>
+    </>
   );
 }

@@ -2,26 +2,21 @@ namespace Coiny.Domain.Entities;
 
 /// <summary>
 /// Transactional outbox for Meilisearch search-index synchronization. Written in the same EF
-/// transaction that mutates a lot; drained asynchronously by the search-index flush job. Named for
-/// its consumer (search) to mirror <see cref="EmailOutboxEvent"/> (named for its consumer, email).
-/// Retains the generic outbox envelope (AggregateType / EventType / Payload) for symmetry with the
-/// email outbox; the search consumer reconciles by current lot state.
+/// transaction that mutates an aggregate; drained asynchronously by the search-index flush job,
+/// which reconciles by reading the current entity state from the DB (the payload is therefore
+/// intentionally absent — the row is just a "something changed for this aggregate" signal).
+/// <see cref="AggregateType"/> + <see cref="AggregateId"/> are kept as the generic envelope so the
+/// search outbox can carry non-<c>Lot</c> aggregates without a schema change.
 /// </summary>
 public class SearchOutboxEvent
 {
     public long Id { get; set; }
 
-    /// <summary>Entity type that produced the event, e.g. "Lot".</summary>
+    /// <summary>Entity type that produced the event, e.g. <c>"Lot"</c>. Today always <c>"Lot"</c>.</summary>
     public string AggregateType { get; set; } = string.Empty;
 
-    /// <summary>PK of the producing entity (e.g. Lot.Id).</summary>
+    /// <summary>PK of the producing entity (e.g. <c>Lot.Id</c>).</summary>
     public Guid AggregateId { get; set; }
-
-    /// <summary>Discriminator consumed by the search-index flush job: LotPublished, LotPriceChanged, LotEnded, LotSold, LotDeleted.</summary>
-    public string EventType { get; set; } = string.Empty;
-
-    /// <summary>JSON document body for the Meilisearch indexer. Stored as jsonb; Domain holds the raw JSON string.</summary>
-    public string Payload { get; set; } = "{}";
 
     public DateTime CreatedAt { get; set; }
 

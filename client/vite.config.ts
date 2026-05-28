@@ -17,6 +17,7 @@ export default defineConfig({
       '/auctionHub': { target: 'http://localhost:5000', ws: true },
       '/openapi': 'http://localhost:5000',
       '/scalar': 'http://localhost:5000',
+      '/hangfire': 'http://localhost:5000',
     },
   },
 });

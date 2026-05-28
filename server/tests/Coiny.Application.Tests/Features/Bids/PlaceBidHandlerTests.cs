@@ -1,11 +1,9 @@
+using Coiny.Application.Features.Bids.PlaceBid;
 using Coiny.Application.Abstractions.Presentation.Http;
 using Coiny.Application.Abstractions.Presentation.Realtime;
 using Coiny.Application.Abstractions.Infrastructure.Jobs;
 using Coiny.Application.Abstractions.Infrastructure.Providers;
 using Coiny.Application.Common.Results;
-using Coiny.Application.Features.Bids.Handlers;
-using Coiny.Application.Features.Bids.Models;
-using Coiny.Application.Features.Bids.Requests;
 using Coiny.Domain.Entities;
 using Coiny.Domain.Enums;
 using Coiny.Infrastructure.Persistence;
@@ -48,7 +46,7 @@ public class PlaceBidHandlerTests
         result.Value.NewBidCount.Should().Be(1);
 
         ctx.Bids.Should().HaveCount(1);
-        ctx.SearchOutboxEvents.Should().ContainSingle(o => o.EventType == "LotPriceChanged");
+        ctx.SearchOutboxEvents.Should().ContainSingle(o => o.AggregateId == _lotId);
         m.Notifier.NotifyLotChangedCalls.Should().Be(1);
         m.Notifier.LastLotId.Should().Be(_lotId);
         m.Scheduler.RescheduleCalls.Should().Be(0);

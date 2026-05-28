@@ -2,6 +2,7 @@ using Coiny.Application.Abstractions.Infrastructure.Providers;
 using Coiny.Application.Abstractions.ExternalServices.Search;
 using Coiny.Application.Common.Search;
 using Coiny.Application.Features.Lots.Models;
+using Coiny.Application.Features.Lots.SearchLots;
 using Coiny.Domain.Entities;
 using Coiny.Domain.Enums;
 using Coiny.Infrastructure.Jobs;
@@ -101,9 +102,9 @@ public class SearchIndexFlushJobTests
         using var ctx = NewDb();
         SeedCategory(ctx);
         Lot lot = SeedLot(ctx, LotStatus.Active);
-        SeedOutbox(ctx, lot.Id, "LotPublished");
-        SeedOutbox(ctx, lot.Id, "LotPriceChanged");
-        SeedOutbox(ctx, lot.Id, "LotPriceChanged");
+        SeedOutbox(ctx, lot.Id);
+        SeedOutbox(ctx, lot.Id);
+        SeedOutbox(ctx, lot.Id);
         await ctx.SaveChangesAsync();
 
         var index = new RecordingSearchIndex();
@@ -193,14 +194,12 @@ public class SearchIndexFlushJobTests
         return lot;
     }
 
-    private static SearchOutboxEvent SeedOutbox(ApplicationDbContext ctx, Guid lotId, string eventType = "LotPublished")
+    private static SearchOutboxEvent SeedOutbox(ApplicationDbContext ctx, Guid lotId)
     {
         var evt = new SearchOutboxEvent
         {
-            AggregateType = "Lot",
+            AggregateType = nameof(Lot),
             AggregateId = lotId,
-            EventType = eventType,
-            Payload = "{}",
             CreatedAt = Now,
         };
         ctx.SearchOutboxEvents.Add(evt);

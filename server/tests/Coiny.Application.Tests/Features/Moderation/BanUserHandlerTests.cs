@@ -3,9 +3,8 @@ using Coiny.Application.Abstractions.Presentation.Realtime;
 using Coiny.Application.Abstractions.Infrastructure.Providers;
 using Coiny.Application.Common.Authorization;
 using Coiny.Application.Common.Results;
-using Coiny.Application.Features.Moderation.Handlers;
-using Coiny.Application.Features.Moderation.Requests;
-using Coiny.Application.Features.Lots.Events;
+using Coiny.Application.Features.Moderation.BanUser;
+using Coiny.Application.Features.Moderation.UnbanUser;
 using Coiny.Application.Tests.Fakes;
 using Coiny.Domain.Entities;
 using Coiny.Domain.Enums;
@@ -120,7 +119,7 @@ public class BanUserHandlerTests
         (await ctx.Lots.SingleAsync(l => l.Id == lot2)).Status.Should().Be(LotStatus.Cancelled);
         (await ctx.Categories.SingleAsync(c => c.Id == 1)).LotCountActive.Should().Be(0);
 
-        var ended = await ctx.SearchOutboxEvents.Where(e => e.EventType == LotEndedPayload.EventType).ToListAsync();
+        var ended = await ctx.SearchOutboxEvents.ToListAsync();
         ended.Select(e => e.AggregateId).Should().BeEquivalentTo([lot1, lot2]);
         notifier.Notified.Should().BeEquivalentTo([lot1, lot2]);
     }

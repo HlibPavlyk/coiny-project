@@ -1,6 +1,5 @@
 using Coiny.Application.Common.Results;
-using Coiny.Application.Features.Categories.Models;
-using Coiny.Application.Features.Categories.Requests;
+using Coiny.Application.Features.Categories.GetCategoryTree;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 

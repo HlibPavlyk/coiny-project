@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { api } from './fetch';
 import type { LotCardModel } from '@/components/LotCard';
@@ -188,7 +189,52 @@ export const lots = {
     api<SearchLotsResponse>(`/api/v1/lots/search`, { method: 'POST', body: request }),
   publicLots: (request: PublicLotsRequest) =>
     api<Paginated<LotCardModel>>(`/api/v1/lots/list`, { method: 'POST', body: request }),
+  suggest: (q: string) =>
+    api<LotSuggestItem[]>(`/api/v1/lots/suggest?q=${encodeURIComponent(q)}`),
+  reportLot: (lotId: string, reason: ReportReason, note?: string) =>
+    api<void>(`/api/v1/lots/${lotId}/report`, {
+      method: 'POST',
+      body: { lotId, reason, note: note?.trim() || undefined },
+    }),
 };
+
+/** Mirrors <c>Coiny.Domain.Enums.ReportReason</c>. */
+export type ReportReason = 'Counterfeit' | 'NotAsDescribed' | 'Spam' | 'Inappropriate' | 'Other';
+
+/** Minimal projection for the typeahead dropdown — matches `LotSuggestItem` on the server. */
+export interface LotSuggestItem {
+  id: string;
+  title: string;
+  coverImageUrl: string;
+  categoryPath: string;
+  currentPriceUahKopiykas: number;
+}
+
+/**
+ * Debounced typeahead query. The hook is responsible for pacing the input — the API call fires only
+ * after the user has stopped typing for `debounceMs`. An empty/short query is disabled so we don't
+ * pummel the search index on backspace-to-empty.
+ */
+export function useSuggestLots(rawQ: string, debounceMs = 200) {
+  const [debounced, setDebounced] = useState('');
+  useEffect(() => {
+    const trimmed = rawQ.trim();
+    if (trimmed.length < 2) {
+      setDebounced('');
+      return;
+    }
+    const t = setTimeout(() => setDebounced(trimmed), debounceMs);
+    return () => clearTimeout(t);
+  }, [rawQ, debounceMs]);
+
+  return useQuery({
+    queryKey: ['lots', 'suggest', debounced],
+    queryFn: () => lots.suggest(debounced),
+    enabled: debounced.length >= 2,
+    placeholderData: keepPreviousData,
+    staleTime: 30_000,
+  });
+}
 
 /** Hook for paginated lots-in-category listing. */
 export function useLotsByCategory(categoryId: number | undefined, paginate: PageRequest) {

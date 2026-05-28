@@ -1,8 +1,12 @@
 using System.Security.Claims;
 using Coiny.Api.Pipeline;
 using Coiny.Application.Common.Results;
-using Coiny.Application.Features.Auth.Models;
-using Coiny.Application.Features.Auth.Requests;
+using Coiny.Application.Features.Auth.GoogleSignIn;
+using Coiny.Application.Features.Auth.Login;
+using Coiny.Application.Features.Auth.Register;
+using Coiny.Application.Features.Auth.ResendVerification;
+using Coiny.Application.Features.Auth.Shared;
+using Coiny.Application.Features.Auth.VerifyEmail;
 using MediatR;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;

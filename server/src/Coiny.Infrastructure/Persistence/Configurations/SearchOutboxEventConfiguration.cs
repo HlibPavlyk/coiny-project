@@ -17,14 +17,6 @@ public class SearchOutboxEventConfiguration : IEntityTypeConfiguration<SearchOut
             .HasMaxLength(100)
             .IsRequired();
 
-        builder.Property(e => e.EventType)
-            .HasMaxLength(100)
-            .IsRequired();
-
-        builder.Property(e => e.Payload)
-            .HasColumnType("jsonb")
-            .HasDefaultValue("{}");
-
         builder.Property(e => e.CreatedAt)
             .HasColumnType("timestamptz");
 

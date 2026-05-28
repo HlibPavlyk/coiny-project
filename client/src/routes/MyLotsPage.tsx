@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { TopNav } from '@/components/TopNav';
-import { Footer } from '@/components/Footer';
 import { Icon } from '@/components/Icon';
 import { LotImagePlaceholder } from '@/components/LotImagePlaceholder';
 import { CountdownTimer } from '@/components/CountdownTimer';
@@ -161,21 +159,9 @@ export default function MyLotsPage() {
   ];
 
   return (
-    <div>
-      <TopNav />
-      <div className="max-w-[1080px] mx-auto px-7 pt-8 pb-16">
-        <div className="flex items-baseline justify-between flex-wrap gap-3 mb-5">
-          <h1 className="text-[28px] font-bold m-0">My lots</h1>
-          <Link
-            to="/lots/new"
-            className="inline-flex items-center gap-1.5 rounded-md bg-accent hover:bg-accent-deep text-white font-medium px-4 py-2.5 text-sm no-underline"
-          >
-            <Icon name="plus" size={14} color="white" />
-            Create lot
-          </Link>
-        </div>
-
-        <div className="border-b border-border flex gap-1 mb-2">
+    <>
+      <div className="border-b border-border flex justify-between items-end mb-2">
+        <div className="flex gap-1">
           {tabs.map((t) => {
             const active = tab === t.id;
             return (
@@ -197,8 +183,16 @@ export default function MyLotsPage() {
             );
           })}
         </div>
+        <Link
+          to="/lots/new"
+          className="inline-flex items-center gap-1.5 rounded-md bg-accent hover:bg-accent-deep text-white font-medium px-3 py-1.5 text-[13px] no-underline mb-2"
+        >
+          <Icon name="plus" size={13} color="white" />
+          Create lot
+        </Link>
+      </div>
 
-        <div className="bg-surface border border-border rounded-lg px-4">
+      <div className="bg-surface border border-border rounded-lg px-4">
           {isLoading ? (
             <div className="py-10 text-center text-text-3 text-sm">Loading…</div>
           ) : !data || data.items.length === 0 ? (
@@ -211,8 +205,6 @@ export default function MyLotsPage() {
             data.items.map((lot) => <LotRow key={lot.id} lot={lot} onCancelled={refresh} />)
           )}
         </div>
-      </div>
-      <Footer />
-    </div>
+    </>
   );
 }

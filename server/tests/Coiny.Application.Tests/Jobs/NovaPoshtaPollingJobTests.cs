@@ -2,6 +2,7 @@ using Coiny.Application.Abstractions.Infrastructure.Jobs;
 using Coiny.Application.Abstractions.Infrastructure.Providers;
 using Coiny.Application.Abstractions.ExternalServices.Shipping;
 using Coiny.Application.Features.Shipments;
+using Coiny.Application.Features.Shipments.Shared;
 using Coiny.Domain.Entities;
 using Coiny.Domain.Enums;
 using Coiny.Infrastructure.Jobs;
@@ -10,7 +11,6 @@ using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
-using Coiny.Application.Features.Shipments.Events;
 
 namespace Coiny.Application.Tests.Jobs;
 

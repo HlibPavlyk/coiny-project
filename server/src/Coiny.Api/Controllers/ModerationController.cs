@@ -1,8 +1,12 @@
 using Coiny.Application.Common.Authorization;
 using Coiny.Application.Common.Querying;
 using Coiny.Application.Common.Results;
-using Coiny.Application.Features.Moderation.Models;
-using Coiny.Application.Features.Moderation.Requests;
+using Coiny.Application.Features.Moderation.BanUser;
+using Coiny.Application.Features.Moderation.DismissReport;
+using Coiny.Application.Features.Moderation.GetReports;
+using Coiny.Application.Features.Moderation.TakeActionOnReport;
+using Coiny.Application.Features.Moderation.TakedownLot;
+using Coiny.Application.Features.Moderation.UnbanUser;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

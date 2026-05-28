@@ -19,8 +19,12 @@ import PayLotPage from './PayLotPage';
 import MyPurchasesPage from './MyPurchasesPage';
 import PublicProfilePage from './PublicProfilePage';
 import SearchPage from './SearchPage';
-import AdminLandingPage from './AdminLandingPage';
-import AdminReportsPage from './AdminReportsPage';
+import ModerationOverviewPage from './ModerationOverviewPage';
+import ModerationReportsPage from './ModerationReportsPage';
+import ModerationUsersPage from './ModerationUsersPage';
+import ModerationLotsPage from './ModerationLotsPage';
+import { MyAccountLayout } from './MyAccountLayout';
+import { ModerationLayout } from './ModerationLayout';
 
 /**
  * Stub routing tree mirroring /docs/03-frontend-structure.md.
@@ -42,38 +46,19 @@ export const router = createBrowserRouter([
   // Public profile
   { path: '/profile/:userId', element: <PublicProfilePage /> },
 
-  // Authenticated
+  // My account — single layout route so the sidebar stays mounted across child navigations.
   {
-    path: '/profile',
     element: (
       <RequireAuth>
-        <MyProfilePage />
+        <MyAccountLayout />
       </RequireAuth>
     ),
-  },
-  {
-    path: '/my-lots',
-    element: (
-      <RequireAuth>
-        <MyLotsPage />
-      </RequireAuth>
-    ),
-  },
-  {
-    path: '/my-bids',
-    element: (
-      <RequireAuth>
-        <MyBidsPage />
-      </RequireAuth>
-    ),
-  },
-  {
-    path: '/my-purchases',
-    element: (
-      <RequireAuth>
-        <MyPurchasesPage />
-      </RequireAuth>
-    ),
+    children: [
+      { path: '/profile', element: <MyProfilePage /> },
+      { path: '/my-lots', element: <MyLotsPage /> },
+      { path: '/my-bids', element: <MyBidsPage /> },
+      { path: '/my-purchases', element: <MyPurchasesPage /> },
+    ],
   },
   {
     path: '/my-purchases/:lotId/pay',
@@ -116,22 +101,19 @@ export const router = createBrowserRouter([
     ),
   },
 
-  // Admin / Moderator
+  // Moderation (Moderator + Admin) — layout-route pattern so the sidebar persists.
   {
-    path: '/admin',
     element: (
       <RequireAuth roles={['Admin', 'Moderator']}>
-        <AdminLandingPage />
+        <ModerationLayout />
       </RequireAuth>
     ),
-  },
-  {
-    path: '/admin/reports',
-    element: (
-      <RequireAuth roles={['Admin', 'Moderator']}>
-        <AdminReportsPage />
-      </RequireAuth>
-    ),
+    children: [
+      { path: '/moderation', element: <ModerationOverviewPage /> },
+      { path: '/moderation/reports', element: <ModerationReportsPage /> },
+      { path: '/moderation/users', element: <ModerationUsersPage /> },
+      { path: '/moderation/lots', element: <ModerationLotsPage /> },
+    ],
   },
 
   // 404

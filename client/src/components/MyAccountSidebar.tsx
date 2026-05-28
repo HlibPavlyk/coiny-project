@@ -20,9 +20,11 @@ const items: NavItem[] = [
 
 interface MyAccountSidebarProps {
   active?: string;
+  /** Per-section totals — rendered as a badge on the matching item when ≥ 1. */
+  counts?: Partial<Record<'lots' | 'bids' | 'purchases', number>>;
 }
 
-export function MyAccountSidebar({ active }: MyAccountSidebarProps) {
+export function MyAccountSidebar({ active, counts }: MyAccountSidebarProps) {
   const location = useLocation();
   const signOut = useAuthStore((s) => s.signOut);
   const navigate = useNavigate();
@@ -42,6 +44,8 @@ export function MyAccountSidebar({ active }: MyAccountSidebarProps) {
 
       {items.map((it) => {
         const isActive = active === it.id || location.pathname === it.to;
+        const dyn = counts?.[it.id as 'lots' | 'bids' | 'purchases'];
+        const count = dyn !== undefined && dyn > 0 ? dyn : it.count;
         return (
           <Link
             key={it.id}
@@ -58,7 +62,7 @@ export function MyAccountSidebar({ active }: MyAccountSidebarProps) {
               color={isActive ? 'var(--color-accent-deep)' : 'var(--color-text-3)'}
             />
             <span className="flex-1">{it.label}</span>
-            {it.count !== undefined && (
+            {count !== undefined && (
               <span
                 className="font-semibold rounded-full"
                 style={{
@@ -68,7 +72,7 @@ export function MyAccountSidebar({ active }: MyAccountSidebarProps) {
                   color: isActive ? 'var(--color-accent-deep)' : 'var(--color-text-3)',
                 }}
               >
-                {it.count}
+                {count}
               </span>
             )}
           </Link>

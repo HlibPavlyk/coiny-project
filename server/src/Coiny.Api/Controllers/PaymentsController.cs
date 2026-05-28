@@ -1,6 +1,10 @@
 using Coiny.Application.Common.Results;
-using Coiny.Application.Features.Payments.Models;
-using Coiny.Application.Features.Payments.Requests;
+using Coiny.Application.Features.Payments.CheckoutDetails;
+using Coiny.Application.Features.Payments.ConnectOnboard;
+using Coiny.Application.Features.Payments.CreatePaymentIntent;
+using Coiny.Application.Features.Payments.GetConnectStatus;
+using Coiny.Application.Features.Payments.GetExpressDashboardLink;
+using Coiny.Application.Features.Payments.GetPaymentById;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -41,15 +45,8 @@ public class PaymentsController(IMediator mediator) : ControllerBase
     /// Nested under the won lot (no payment exists yet), per the routing convention.
     /// </summary>
     [HttpPost("/api/v1/lots/{lotId:guid}/checkout-details")]
-    public Task<Result> CheckoutDetails(Guid lotId, [FromBody] CheckoutDetailsBody body, CancellationToken ct) =>
-        mediator.Send(new CheckoutDetailsRequest(
-            lotId,
-            body.RecipientCityRef,
-            body.RecipientCityLabel,
-            body.RecipientWarehouseRef,
-            body.RecipientWarehouseLabel,
-            body.RecipientName,
-            body.RecipientPhone), ct);
+    public Task<Result> CheckoutDetails(Guid lotId, [FromBody] CheckoutDetailsModel model, CancellationToken ct) =>
+        mediator.Send(new CheckoutDetailsRequest(lotId, model), ct);
 
     /// <summary>
     /// Create the Stripe PaymentIntent (USD, manual capture, destination charge to the seller's
@@ -65,11 +62,3 @@ public class PaymentsController(IMediator mediator) : ControllerBase
     public Task<Result<PaymentDetailModel>> GetById(Guid paymentId, CancellationToken ct) =>
         mediator.Send(new GetPaymentByIdRequest(paymentId), ct);
 }
-
-public record CheckoutDetailsBody(
-    string RecipientCityRef,
-    string RecipientCityLabel,
-    string RecipientWarehouseRef,
-    string RecipientWarehouseLabel,
-    string RecipientName,
-    string RecipientPhone);

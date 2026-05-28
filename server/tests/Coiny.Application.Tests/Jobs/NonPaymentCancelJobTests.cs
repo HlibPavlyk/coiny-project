@@ -9,7 +9,6 @@ using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
-using Coiny.Application.Features.Lots.Events;
 
 namespace Coiny.Application.Tests.Jobs;
 
@@ -50,8 +49,8 @@ public class NonPaymentCancelJobTests
         updatedLot.Status.Should().Be(LotStatus.EndedNoSale);
 
         SearchOutboxEvent outbox = await ctx.SearchOutboxEvents.SingleAsync();
-        outbox.EventType.Should().Be(LotEndedPayload.EventType);
         outbox.AggregateId.Should().Be(lot.Id);
+        outbox.AggregateType.Should().Be(nameof(Lot));
     }
 
     [Fact]

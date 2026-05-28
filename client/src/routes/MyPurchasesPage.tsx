@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { TopNav } from '@/components/TopNav';
-import { Footer } from '@/components/Footer';
 import { LotImagePlaceholder } from '@/components/LotImagePlaceholder';
 import { ShipmentTimeline } from '@/components/ShipmentTimeline';
 import { payments, type MyPurchaseItemModel, type PaymentStatus } from '@/api/payments';
@@ -143,17 +141,8 @@ export default function MyPurchasesPage() {
   const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   return (
-    <div>
-      <TopNav />
-      <div className="max-w-[1080px] mx-auto px-7 py-8">
-        <div className="flex items-baseline justify-between flex-wrap gap-3 mb-5">
-          <h1 className="text-[28px] font-bold m-0">My purchases</h1>
-          <p className="text-[13px] text-text-3 m-0">
-            <span className="mono font-semibold text-text">{total}</span> total
-          </p>
-        </div>
-
-        {isLoading ? (
+    <>
+      {isLoading ? (
           <div className="space-y-3">
             {Array.from({ length: 3 }).map((_, i) => (
               <div key={i} className="bg-bg-soft border border-border rounded-lg h-24" />
@@ -201,8 +190,6 @@ export default function MyPurchasesPage() {
             </button>
           </div>
         )}
-      </div>
-      <Footer />
-    </div>
+    </>
   );
 }

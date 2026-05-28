@@ -1,6 +1,7 @@
 using Coiny.Application.Common.Results;
-using Coiny.Application.Features.Shipments.Models;
-using Coiny.Application.Features.Shipments.Requests;
+using Coiny.Application.Features.Shipments.GetNpWarehouses;
+using Coiny.Application.Features.Shipments.GetShipmentByPaymentId;
+using Coiny.Application.Features.Shipments.SearchNpCities;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

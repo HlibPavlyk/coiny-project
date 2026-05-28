@@ -11,9 +11,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
-using Coiny.Application.Features.Auth.Events;
 using Coiny.Application.Features.Auctions.Events;
-using Coiny.Application.Features.Shipments.Events;
+using Coiny.Application.Features.Auth.Shared;
+using Coiny.Application.Features.Shipments.Shared;
 
 namespace Coiny.Application.Tests.Jobs;
 
@@ -29,7 +29,7 @@ public class EmailOutboxFlushJobTests
 
         ctx.EmailOutboxEvents.Add(new EmailOutboxEvent
         {
-            AggregateType = "User",
+            AggregateType = nameof(User),
             AggregateId = Guid.NewGuid(),
             EventType = EmailVerificationPayload.EventType,
             Payload = new EmailVerificationPayload(Guid.NewGuid(), "buyer@coiny.test", "tok-abc", "hash").Serialize(),
@@ -59,7 +59,7 @@ public class EmailOutboxFlushJobTests
         Payment payment = SeedPayment(ctx, buyer, lot);
         ctx.EmailOutboxEvents.Add(new EmailOutboxEvent
         {
-            AggregateType = "Lot",
+            AggregateType = nameof(Lot),
             AggregateId = lot.Id,
             EventType = AuctionWonPayWithin96hPayload.EventType,
             Payload = new AuctionWonPayWithin96hPayload(
@@ -88,7 +88,7 @@ public class EmailOutboxFlushJobTests
 
         ctx.EmailOutboxEvents.Add(new EmailOutboxEvent
         {
-            AggregateType = "Payment",
+            AggregateType = nameof(Payment),
             AggregateId = payment.Id,
             EventType = AuctionWonPayReminderPayload.EventType,
             Payload = new AuctionWonPayReminderPayload(
@@ -116,7 +116,7 @@ public class EmailOutboxFlushJobTests
 
         ctx.EmailOutboxEvents.Add(new EmailOutboxEvent
         {
-            AggregateType = "Shipment",
+            AggregateType = nameof(Shipment),
             AggregateId = shipment.Id,
             EventType = ShipmentStatusChangedPayload.EventType,
             Payload = new ShipmentStatusChangedPayload(
@@ -158,7 +158,7 @@ public class EmailOutboxFlushJobTests
 
         ctx.EmailOutboxEvents.Add(new EmailOutboxEvent
         {
-            AggregateType = "Shipment",
+            AggregateType = nameof(Shipment),
             AggregateId = shipment.Id,
             EventType = ShipmentStatusChangedPayload.EventType,
             Payload = new ShipmentStatusChangedPayload(
@@ -212,7 +212,7 @@ public class EmailOutboxFlushJobTests
 
         ctx.EmailOutboxEvents.Add(new EmailOutboxEvent
         {
-            AggregateType = "User",
+            AggregateType = nameof(User),
             AggregateId = Guid.NewGuid(),
             EventType = EmailVerificationPayload.EventType,
             Payload = new EmailVerificationPayload(Guid.NewGuid(), "x@y.z", "tok", "hash").Serialize(),

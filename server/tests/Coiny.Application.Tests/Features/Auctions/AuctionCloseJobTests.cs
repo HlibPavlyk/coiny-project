@@ -44,7 +44,7 @@ public class AuctionCloseJobTests
         lot.WinningBidId.Should().BeNull();
         lot.AuctionCloseJobId.Should().BeNull();
 
-        ctx.SearchOutboxEvents.Should().ContainSingle(o => o.EventType == "LotEnded" && o.AggregateId == _lotId);
+        ctx.SearchOutboxEvents.Should().ContainSingle(o => o.AggregateId == _lotId);
         ctx.EmailOutboxEvents.Should().BeEmpty();
         (await ctx.Categories.AsNoTracking().FirstAsync(c => c.Id == 1)).LotCountActive.Should().Be(0);
         f.Notifier.NotifyLotChangedCalls.Should().Be(1);
@@ -72,7 +72,7 @@ public class AuctionCloseJobTests
         lot.WinningBidId.Should().Be(winningBidId);
         lot.AuctionCloseJobId.Should().BeNull();
 
-        ctx.SearchOutboxEvents.Should().ContainSingle(o => o.EventType == "LotSold" && o.AggregateId == _lotId);
+        ctx.SearchOutboxEvents.Should().ContainSingle(o => o.AggregateId == _lotId);
         ctx.EmailOutboxEvents.Should().ContainSingle(e =>
             e.EventType == "AuctionWonPayWithin96h" && e.AggregateId == _bidderB);
         (await ctx.Categories.AsNoTracking().FirstAsync(c => c.Id == 1)).LotCountActive.Should().Be(0);

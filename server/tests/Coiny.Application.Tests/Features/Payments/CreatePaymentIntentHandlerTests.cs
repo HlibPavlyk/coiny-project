@@ -1,9 +1,7 @@
+using Coiny.Application.Features.Payments.CreatePaymentIntent;
 using Coiny.Application.Abstractions.Presentation.Http;
 using Coiny.Application.Abstractions.Infrastructure.Providers;
 using Coiny.Application.Common.Results;
-using Coiny.Application.Features.Payments.Handlers;
-using Coiny.Application.Features.Payments.Models;
-using Coiny.Application.Features.Payments.Requests;
 using Coiny.Application.Tests.Fakes;
 using Coiny.Domain.Entities;
 using Coiny.Domain.Enums;

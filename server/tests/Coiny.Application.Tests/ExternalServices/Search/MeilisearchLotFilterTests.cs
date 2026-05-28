@@ -1,4 +1,5 @@
 using Coiny.Application.Features.Lots.Models;
+using Coiny.Application.Features.Lots.SearchLots;
 using Coiny.Infrastructure.ExternalServices.Search;
 using FluentAssertions;
 using Xunit;

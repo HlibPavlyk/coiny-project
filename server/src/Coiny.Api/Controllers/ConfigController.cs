@@ -1,6 +1,5 @@
 using Coiny.Application.Common.Results;
-using Coiny.Application.Features.Payments.Models;
-using Coiny.Application.Features.Payments.Requests;
+using Coiny.Application.Features.Payments.GetPublicConfig;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

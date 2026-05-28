@@ -1,9 +1,7 @@
+using Coiny.Application.Features.Payments.GetMyPurchases;
 using Coiny.Application.Abstractions.Presentation.Http;
 using Coiny.Application.Common.Querying;
 using Coiny.Application.Common.Results;
-using Coiny.Application.Features.Payments.Handlers;
-using Coiny.Application.Features.Payments.Models;
-using Coiny.Application.Features.Payments.Requests;
 using Coiny.Domain.Entities;
 using Coiny.Domain.Enums;
 using Coiny.Infrastructure.Persistence;
