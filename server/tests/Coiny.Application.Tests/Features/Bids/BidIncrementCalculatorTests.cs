@@ -11,6 +11,7 @@ namespace Coiny.Application.Tests.Features.Bids;
 ///   - the boundary value itself (must jump to the next tier).
 /// Plus zero, top-tier saturation, and a near-MaxValue check.
 /// </summary>
+[Trait("Showcase", "true")]
 public class BidIncrementCalculatorTests
 {
     [Theory]

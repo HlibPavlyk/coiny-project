@@ -17,6 +17,7 @@ namespace Coiny.Application.Tests.Features.Auctions;
 /// Logic-level tests for the auction-close pipeline on EF in-memory. Race semantics with concurrent
 /// PlaceBidHandler writers are deferred to sprint-4 integration tests with real Postgres.
 /// </summary>
+[Trait("Showcase", "true")]
 public class AuctionCloseJobTests
 {
     private static readonly DateTime Now = new(2026, 5, 15, 12, 0, 0, DateTimeKind.Utc);

@@ -9,6 +9,7 @@ namespace Coiny.Application.Tests.ExternalServices.Stripe;
 /// MidpointRounding.AwayFromZero (NOT banker's rounding). These cases stress the
 /// half-cent boundaries where AwayFromZero and ToEven would diverge.
 /// </summary>
+[Trait("Showcase", "true")]
 public class CurrencyConverterTests
 {
     [Theory]

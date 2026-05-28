@@ -14,6 +14,13 @@ using Xunit;
 
 namespace Coiny.Application.Tests.ExternalServices.Stripe;
 
+/// <summary>
+/// Idempotency showcase for Stripe webhook ingestion. Replaying a captured event id is a no-op:
+/// the dedup table swallows the duplicate, the side-effect runs exactly once, and the
+/// processor returns success. Demonstrates the at-least-once delivery contract Stripe provides
+/// against the exactly-once semantics our payment state machine requires.
+/// </summary>
+[Trait("Showcase", "true")]
 public class StripeWebhookProcessorTests
 {
     private static readonly DateTime Now = new(2026, 5, 12, 12, 0, 0, DateTimeKind.Utc);

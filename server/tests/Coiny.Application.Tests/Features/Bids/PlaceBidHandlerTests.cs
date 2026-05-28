@@ -17,6 +17,7 @@ namespace Coiny.Application.Tests.Features.Bids;
 /// Logic-level tests for PlaceBidHandler over EF in-memory. Race semantics (SELECT FOR UPDATE)
 /// cannot be exercised here — they move to integration tests in sprint 4 backed by real Postgres.
 /// </summary>
+[Trait("Showcase", "true")]
 public class PlaceBidHandlerTests
 {
     private static readonly DateTime Now = new(2026, 5, 15, 12, 0, 0, DateTimeKind.Utc);
