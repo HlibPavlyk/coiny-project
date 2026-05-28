@@ -1,4 +1,4 @@
-using Coiny.Application.Abstractions.Identity;
+using Coiny.Application.Abstractions.Infrastructure.Identity;
 
 namespace Coiny.Application.Features.Auth.Models;
 

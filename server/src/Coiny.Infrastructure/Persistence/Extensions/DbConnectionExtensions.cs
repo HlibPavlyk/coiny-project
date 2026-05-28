@@ -1,5 +1,5 @@
-using Coiny.Application.Abstractions.Data;
-using Coiny.Application.Abstractions.Providers;
+using Coiny.Application.Abstractions.Infrastructure.Data;
+using Coiny.Application.Abstractions.Infrastructure.Providers;
 using Coiny.Infrastructure.Providers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;

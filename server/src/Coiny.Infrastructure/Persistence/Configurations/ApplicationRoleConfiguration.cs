@@ -1,4 +1,4 @@
-using Coiny.Domain.Identity;
+using Coiny.Domain.Entities;
 using Coiny.Infrastructure.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;

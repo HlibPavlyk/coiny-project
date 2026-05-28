@@ -1,4 +1,4 @@
-using Coiny.Application.Abstractions.Providers;
+using Coiny.Application.Abstractions.Infrastructure.Providers;
 using Coiny.Application.Features.Lots;
 using Coiny.Application.Tests.Fakes;
 using Coiny.Domain.Entities;
@@ -115,7 +115,7 @@ public class NonPaymentCancelJobTests
 
     private static NonPaymentCancelJob NewJob(
         ApplicationDbContext ctx,
-        Coiny.Application.Abstractions.Payments.IStripeClient stripe) =>
+        Coiny.Application.Abstractions.ExternalServices.Payments.IStripeClient stripe) =>
         new(ctx, stripe, new FixedClock(Now), NullLogger<NonPaymentCancelJob>.Instance);
 
     private static ApplicationDbContext NewDb()
@@ -181,39 +181,39 @@ public class NonPaymentCancelJobTests
     }
 
     private sealed class SelectivelyThrowingStripeClient(string throwOn)
-        : Coiny.Application.Abstractions.Payments.IStripeClient
+        : Coiny.Application.Abstractions.ExternalServices.Payments.IStripeClient
     {
         public int AttemptedCalls { get; private set; }
 
         public decimal UahPerUsdRate => 41.5m;
         public string PublishableKey => "pk_test";
 
-        public Task<Coiny.Application.Abstractions.Payments.StripeAccountInfo> CreateConnectAccountAsync(
+        public Task<Coiny.Application.Abstractions.ExternalServices.Payments.StripeAccountInfo> CreateConnectAccountAsync(
             string email, CancellationToken ct) => throw new NotImplementedException();
 
-        public Task<Coiny.Application.Abstractions.Payments.StripeAccountLink> CreateOnboardingLinkAsync(
+        public Task<Coiny.Application.Abstractions.ExternalServices.Payments.StripeAccountLink> CreateOnboardingLinkAsync(
             string accountId, CancellationToken ct) => throw new NotImplementedException();
 
-        public Task<Coiny.Application.Abstractions.Payments.StripeAccountInfo> GetAccountAsync(
+        public Task<Coiny.Application.Abstractions.ExternalServices.Payments.StripeAccountInfo> GetAccountAsync(
             string accountId, CancellationToken ct) => throw new NotImplementedException();
 
         public Task<string> CreateExpressDashboardLinkAsync(
             string accountId, CancellationToken ct) => throw new NotImplementedException();
 
-        public Task<Coiny.Application.Abstractions.Payments.StripePaymentIntentResult> CreatePaymentIntentAsync(
+        public Task<Coiny.Application.Abstractions.ExternalServices.Payments.StripePaymentIntentResult> CreatePaymentIntentAsync(
             long usdCents, string sellerAccountId, IDictionary<string, string> metadata,
             string idempotencyKey, CancellationToken ct) => throw new NotImplementedException();
 
-        public Task<Coiny.Application.Abstractions.Payments.StripePaymentIntentResult> CapturePaymentIntentAsync(
+        public Task<Coiny.Application.Abstractions.ExternalServices.Payments.StripePaymentIntentResult> CapturePaymentIntentAsync(
             string paymentIntentId, CancellationToken ct) => throw new NotImplementedException();
 
-        public Task<Coiny.Application.Abstractions.Payments.StripePaymentIntentResult> CancelPaymentIntentAsync(
+        public Task<Coiny.Application.Abstractions.ExternalServices.Payments.StripePaymentIntentResult> CancelPaymentIntentAsync(
             string paymentIntentId, string? reason, CancellationToken ct)
         {
             AttemptedCalls++;
             if (paymentIntentId == throwOn)
                 throw new InvalidOperationException("Simulated Stripe failure.");
-            return Task.FromResult(new Coiny.Application.Abstractions.Payments.StripePaymentIntentResult(
+            return Task.FromResult(new Coiny.Application.Abstractions.ExternalServices.Payments.StripePaymentIntentResult(
                 paymentIntentId, "canceled", null));
         }
     }

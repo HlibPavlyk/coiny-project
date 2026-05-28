@@ -1,4 +1,4 @@
-using Coiny.Application.Abstractions.Providers;
+using Coiny.Application.Abstractions.Infrastructure.Providers;
 
 namespace Coiny.Infrastructure.Providers;
 

@@ -1,4 +1,4 @@
-using Coiny.Domain.Identity;
+using Coiny.Domain.Entities;
 
 namespace Coiny.Infrastructure.Identity;
 

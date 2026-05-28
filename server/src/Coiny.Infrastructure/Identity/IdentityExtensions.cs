@@ -1,7 +1,6 @@
 using System.Text;
-using Coiny.Application.Abstractions.Identity;
+using Coiny.Application.Abstractions.Infrastructure.Identity;
 using Coiny.Domain.Entities;
-using Coiny.Domain.Identity;
 using Coiny.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;

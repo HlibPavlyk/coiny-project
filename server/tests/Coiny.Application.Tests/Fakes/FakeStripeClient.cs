@@ -1,4 +1,4 @@
-using Coiny.Application.Abstractions.Payments;
+using Coiny.Application.Abstractions.ExternalServices.Payments;
 
 namespace Coiny.Application.Tests.Fakes;
 

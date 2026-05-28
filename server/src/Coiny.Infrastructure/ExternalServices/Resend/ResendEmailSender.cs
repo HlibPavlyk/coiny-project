@@ -1,4 +1,4 @@
-using Coiny.Application.Abstractions.Email;
+using Coiny.Application.Abstractions.ExternalServices.Email;
 using Microsoft.Extensions.Options;
 using Resend;
 

@@ -1,7 +1,7 @@
-using Coiny.Application.Abstractions.Http;
-using Coiny.Application.Abstractions.Jobs;
-using Coiny.Application.Abstractions.Providers;
-using Coiny.Application.Abstractions.Realtime;
+using Coiny.Application.Abstractions.Presentation.Http;
+using Coiny.Application.Abstractions.Presentation.Realtime;
+using Coiny.Application.Abstractions.Infrastructure.Jobs;
+using Coiny.Application.Abstractions.Infrastructure.Providers;
 using Coiny.Application.Common.Results;
 using Coiny.Application.Features.Bids.Handlers;
 using Coiny.Application.Features.Bids.Models;

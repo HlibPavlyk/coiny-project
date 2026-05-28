@@ -1,4 +1,4 @@
-using Coiny.Application.Abstractions.Data;
+using Coiny.Application.Abstractions.Infrastructure.Data;
 using Coiny.Application.Common.Results;
 using Coiny.Application.Features.Categories.Models;
 using Coiny.Application.Features.Categories.Requests;

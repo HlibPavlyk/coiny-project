@@ -1,6 +1,6 @@
-using Coiny.Application.Abstractions.Data;
-using Coiny.Application.Abstractions.Jobs;
-using Coiny.Application.Abstractions.Payments;
+using Coiny.Application.Abstractions.Infrastructure.Data;
+using Coiny.Application.Abstractions.Infrastructure.Jobs;
+using Coiny.Application.Abstractions.ExternalServices.Payments;
 using Coiny.Domain.Entities;
 using Coiny.Domain.Enums;
 using Hangfire;

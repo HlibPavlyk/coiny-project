@@ -1,6 +1,6 @@
-using Coiny.Application.Abstractions.Data;
-using Coiny.Application.Abstractions.Http;
-using Coiny.Application.Abstractions.Identity;
+using Coiny.Application.Abstractions.Infrastructure.Data;
+using Coiny.Application.Abstractions.Presentation.Http;
+using Coiny.Application.Abstractions.Infrastructure.Identity;
 using Coiny.Application.Common.Results;
 using Coiny.Application.Features.Auth.Models;
 using Coiny.Application.Features.Auth.Requests;

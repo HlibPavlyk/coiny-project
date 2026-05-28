@@ -1,4 +1,4 @@
-using Coiny.Application.Abstractions.Data;
+using Coiny.Application.Abstractions.Infrastructure.Data;
 using Coiny.Domain.Entities;
 using Coiny.Infrastructure.ExternalServices.Stripe;
 using Microsoft.EntityFrameworkCore;

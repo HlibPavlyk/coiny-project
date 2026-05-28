@@ -1,7 +1,7 @@
-using Coiny.Application.Abstractions.Payments;
+using Coiny.Application.Abstractions.ExternalServices.Payments;
 using Microsoft.Extensions.Options;
 using Stripe;
-using IAppStripeClient = Coiny.Application.Abstractions.Payments.IStripeClient;
+using IAppStripeClient = Coiny.Application.Abstractions.ExternalServices.Payments.IStripeClient;
 
 namespace Coiny.Infrastructure.ExternalServices.Stripe;
 

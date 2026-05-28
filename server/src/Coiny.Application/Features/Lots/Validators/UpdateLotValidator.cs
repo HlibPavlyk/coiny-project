@@ -1,4 +1,4 @@
-using Coiny.Application.Abstractions.Providers;
+using Coiny.Application.Abstractions.Infrastructure.Providers;
 using Coiny.Application.Features.Lots.Requests;
 using FluentValidation;
 

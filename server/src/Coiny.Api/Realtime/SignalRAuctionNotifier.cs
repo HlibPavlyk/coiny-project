@@ -1,5 +1,4 @@
-using Coiny.Api.Hubs;
-using Coiny.Application.Abstractions.Realtime;
+using Coiny.Application.Abstractions.Presentation.Realtime;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Coiny.Api.Realtime;

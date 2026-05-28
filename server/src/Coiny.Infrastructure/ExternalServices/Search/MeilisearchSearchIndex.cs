@@ -1,4 +1,4 @@
-using Coiny.Application.Abstractions.Search;
+using Coiny.Application.Abstractions.ExternalServices.Search;
 using Coiny.Application.Common.Querying;
 using Coiny.Application.Common.Search;
 using Coiny.Application.Features.Lots.Models;

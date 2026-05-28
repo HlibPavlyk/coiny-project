@@ -1,4 +1,4 @@
-using Coiny.Application.Abstractions.Identity;
+using Coiny.Application.Abstractions.Infrastructure.Identity;
 using Coiny.Application.Common.Results;
 using Coiny.Domain.Entities;
 using Microsoft.AspNetCore.Identity;

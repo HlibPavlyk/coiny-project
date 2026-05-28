@@ -1,6 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using Coiny.Application.Abstractions.Http;
+using Coiny.Application.Abstractions.Presentation.Http;
 
 namespace Coiny.Api.Services;
 

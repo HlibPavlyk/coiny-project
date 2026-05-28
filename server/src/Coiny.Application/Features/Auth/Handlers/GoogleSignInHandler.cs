@@ -1,4 +1,4 @@
-using Coiny.Application.Abstractions.Identity;
+using Coiny.Application.Abstractions.Infrastructure.Identity;
 using Coiny.Application.Common.Results;
 using Coiny.Application.Features.Auth.Models;
 using Coiny.Application.Features.Auth.Requests;

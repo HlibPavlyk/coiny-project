@@ -1,5 +1,5 @@
-using Coiny.Application.Abstractions.Providers;
-using Coiny.Application.Abstractions.Shipping;
+using Coiny.Application.Abstractions.Infrastructure.Providers;
+using Coiny.Application.Abstractions.ExternalServices.Shipping;
 using Coiny.Infrastructure.ExternalServices.NovaPoshta;
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;

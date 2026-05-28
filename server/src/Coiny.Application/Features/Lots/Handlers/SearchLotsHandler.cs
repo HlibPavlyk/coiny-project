@@ -1,5 +1,5 @@
-using Coiny.Application.Abstractions.Data;
-using Coiny.Application.Abstractions.Search;
+using Coiny.Application.Abstractions.Infrastructure.Data;
+using Coiny.Application.Abstractions.ExternalServices.Search;
 using Coiny.Application.Common.Querying;
 using Coiny.Application.Common.Results;
 using Coiny.Application.Common.Search;

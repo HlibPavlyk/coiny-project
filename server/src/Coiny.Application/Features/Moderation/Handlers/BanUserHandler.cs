@@ -1,8 +1,8 @@
-using Coiny.Application.Abstractions.Data;
-using Coiny.Application.Abstractions.Http;
-using Coiny.Application.Abstractions.Payments;
-using Coiny.Application.Abstractions.Providers;
-using Coiny.Application.Abstractions.Realtime;
+using Coiny.Application.Abstractions.Infrastructure.Data;
+using Coiny.Application.Abstractions.Presentation.Http;
+using Coiny.Application.Abstractions.Presentation.Realtime;
+using Coiny.Application.Abstractions.ExternalServices.Payments;
+using Coiny.Application.Abstractions.Infrastructure.Providers;
 using Coiny.Application.Common.Authorization;
 using Coiny.Application.Common.Results;
 using Coiny.Application.Features.Moderation.Requests;

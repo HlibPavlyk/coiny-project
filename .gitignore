@@ -432,7 +432,7 @@ server-ref/
 
 .claude/
 CLAUDE.md
-# Local dev secrets — copy from appsettings.Development.json.example
+# Local dev secrets — copy the committed appsettings.json and fill real values here
 **/appsettings.Development.json
 **/appsettings.Local.json
 

@@ -1,6 +1,6 @@
 using System.Collections.Concurrent;
-using Coiny.Application.Abstractions.Providers;
-using Coiny.Application.Abstractions.Shipping;
+using Coiny.Application.Abstractions.Infrastructure.Providers;
+using Coiny.Application.Abstractions.ExternalServices.Shipping;
 using Microsoft.Extensions.Logging;
 
 namespace Coiny.Infrastructure.ExternalServices.NovaPoshta;

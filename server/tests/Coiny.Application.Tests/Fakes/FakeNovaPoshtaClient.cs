@@ -1,4 +1,4 @@
-using Coiny.Application.Abstractions.Shipping;
+using Coiny.Application.Abstractions.ExternalServices.Shipping;
 
 namespace Coiny.Application.Tests.Fakes;
 

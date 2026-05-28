@@ -1,4 +1,4 @@
-using Coiny.Application.Abstractions.Shipping;
+using Coiny.Application.Abstractions.ExternalServices.Shipping;
 using Coiny.Application.Common.Results;
 using Coiny.Application.Features.Shipments.Models;
 using Coiny.Application.Features.Shipments.Requests;

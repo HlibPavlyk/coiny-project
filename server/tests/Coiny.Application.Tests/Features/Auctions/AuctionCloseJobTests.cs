@@ -1,6 +1,6 @@
-using Coiny.Application.Abstractions.Jobs;
-using Coiny.Application.Abstractions.Providers;
-using Coiny.Application.Abstractions.Realtime;
+using Coiny.Application.Abstractions.Infrastructure.Jobs;
+using Coiny.Application.Abstractions.Infrastructure.Providers;
+using Coiny.Application.Abstractions.Presentation.Realtime;
 using Coiny.Application.Features.Auctions;
 using Coiny.Domain.Entities;
 using Coiny.Domain.Enums;

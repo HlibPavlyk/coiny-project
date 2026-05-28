@@ -1,5 +1,5 @@
 using System.Security.Claims;
-using Coiny.Api.Authentication;
+using Coiny.Api.Pipeline;
 using Coiny.Application.Common.Results;
 using Coiny.Application.Features.Auth.Models;
 using Coiny.Application.Features.Auth.Requests;

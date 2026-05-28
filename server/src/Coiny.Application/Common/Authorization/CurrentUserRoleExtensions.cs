@@ -1,4 +1,4 @@
-using Coiny.Application.Abstractions.Http;
+using Coiny.Application.Abstractions.Presentation.Http;
 
 namespace Coiny.Application.Common.Authorization;
 

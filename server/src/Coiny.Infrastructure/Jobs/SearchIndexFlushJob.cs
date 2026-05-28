@@ -1,6 +1,6 @@
-using Coiny.Application.Abstractions.Data;
-using Coiny.Application.Abstractions.Providers;
-using Coiny.Application.Abstractions.Search;
+using Coiny.Application.Abstractions.Infrastructure.Data;
+using Coiny.Application.Abstractions.Infrastructure.Providers;
+using Coiny.Application.Abstractions.ExternalServices.Search;
 using Coiny.Application.Features.Lots.Models;
 using Coiny.Application.Features.Lots.Services;
 using Coiny.Domain.Entities;

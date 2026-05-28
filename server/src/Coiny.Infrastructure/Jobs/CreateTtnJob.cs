@@ -1,7 +1,7 @@
-using Coiny.Application.Abstractions.Data;
-using Coiny.Application.Abstractions.Jobs;
-using Coiny.Application.Abstractions.Providers;
-using Coiny.Application.Abstractions.Shipping;
+using Coiny.Application.Abstractions.Infrastructure.Data;
+using Coiny.Application.Abstractions.Infrastructure.Jobs;
+using Coiny.Application.Abstractions.Infrastructure.Providers;
+using Coiny.Application.Abstractions.ExternalServices.Shipping;
 using Coiny.Application.Features.Shipments;
 using Coiny.Domain.Entities;
 using Coiny.Domain.Enums;

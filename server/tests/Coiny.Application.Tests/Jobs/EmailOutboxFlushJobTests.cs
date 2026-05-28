@@ -1,4 +1,4 @@
-using Coiny.Application.Abstractions.Email;
+using Coiny.Application.Abstractions.ExternalServices.Email;
 using Coiny.Application.Features.Auctions;
 using Coiny.Application.Features.Auth;
 using Coiny.Application.Features.Shipments;

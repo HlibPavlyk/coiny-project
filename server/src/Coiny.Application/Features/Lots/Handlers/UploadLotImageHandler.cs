@@ -1,7 +1,7 @@
-using Coiny.Application.Abstractions.Data;
-using Coiny.Application.Abstractions.Files;
-using Coiny.Application.Abstractions.Http;
-using Coiny.Application.Abstractions.Providers;
+using Coiny.Application.Abstractions.Infrastructure.Data;
+using Coiny.Application.Abstractions.ExternalServices.Files;
+using Coiny.Application.Abstractions.Presentation.Http;
+using Coiny.Application.Abstractions.Infrastructure.Providers;
 using Coiny.Application.Common.Results;
 using Coiny.Application.Features.Lots.Models;
 using Coiny.Application.Features.Lots.Requests;

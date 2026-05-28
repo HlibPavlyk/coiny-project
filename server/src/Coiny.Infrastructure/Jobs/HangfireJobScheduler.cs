@@ -1,4 +1,4 @@
-using Coiny.Application.Abstractions.Jobs;
+using Coiny.Application.Abstractions.Infrastructure.Jobs;
 using Hangfire;
 
 namespace Coiny.Infrastructure.Jobs;

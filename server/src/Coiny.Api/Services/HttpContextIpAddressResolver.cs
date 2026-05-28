@@ -1,5 +1,5 @@
 using System.Net;
-using Coiny.Application.Abstractions.Http;
+using Coiny.Application.Abstractions.Presentation.Http;
 
 namespace Coiny.Api.Services;
 

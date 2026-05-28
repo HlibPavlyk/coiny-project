@@ -1,5 +1,5 @@
-using Coiny.Application.Abstractions.Data;
-using Coiny.Application.Abstractions.Providers;
+using Coiny.Application.Abstractions.Infrastructure.Data;
+using Coiny.Application.Abstractions.Infrastructure.Providers;
 using Coiny.Application.Common.Results;
 using Coiny.Application.Features.Auth.Requests;
 using Coiny.Domain.Entities;

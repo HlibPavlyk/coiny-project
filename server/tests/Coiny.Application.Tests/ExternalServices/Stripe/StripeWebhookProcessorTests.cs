@@ -1,5 +1,5 @@
-using Coiny.Application.Abstractions.Jobs;
-using Coiny.Application.Abstractions.Providers;
+using Coiny.Application.Abstractions.Infrastructure.Jobs;
+using Coiny.Application.Abstractions.Infrastructure.Providers;
 using Coiny.Application.Common.Results;
 using Coiny.Domain.Entities;
 using Coiny.Domain.Enums;

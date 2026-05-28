@@ -1,4 +1,4 @@
-using Coiny.Application.Abstractions.Providers;
+using Coiny.Application.Abstractions.Infrastructure.Providers;
 using Coiny.Application.Features.Shipments;
 using Coiny.Application.Tests.Fakes;
 using Coiny.Domain.Entities;
@@ -115,7 +115,7 @@ public class CreateTtnJobTests
 
     private static CreateTtnJob NewJob(
         ApplicationDbContext ctx,
-        Coiny.Application.Abstractions.Shipping.INovaPoshtaClient? np = null) =>
+        Coiny.Application.Abstractions.ExternalServices.Shipping.INovaPoshtaClient? np = null) =>
         new(
             ctx,
             np ?? new FakeNovaPoshtaClient(),
@@ -186,21 +186,21 @@ public class CreateTtnJobTests
         public DateTime UtcNow { get; } = utcNow;
     }
 
-    private sealed class ThrowingNovaPoshtaClient : Coiny.Application.Abstractions.Shipping.INovaPoshtaClient
+    private sealed class ThrowingNovaPoshtaClient : Coiny.Application.Abstractions.ExternalServices.Shipping.INovaPoshtaClient
     {
-        public Task<IReadOnlyList<Coiny.Application.Abstractions.Shipping.NpCity>> SearchSettlementsAsync(
+        public Task<IReadOnlyList<Coiny.Application.Abstractions.ExternalServices.Shipping.NpCity>> SearchSettlementsAsync(
             string query, CancellationToken ct) =>
             throw new InvalidOperationException("not used");
 
-        public Task<IReadOnlyList<Coiny.Application.Abstractions.Shipping.NpWarehouse>> GetWarehousesAsync(
+        public Task<IReadOnlyList<Coiny.Application.Abstractions.ExternalServices.Shipping.NpWarehouse>> GetWarehousesAsync(
             string cityRef, CancellationToken ct) =>
             throw new InvalidOperationException("not used");
 
-        public Task<Coiny.Application.Abstractions.Shipping.NpInternetDocument> SaveInternetDocumentAsync(
-            Coiny.Application.Abstractions.Shipping.NpSaveDocumentRequest request, CancellationToken ct) =>
+        public Task<Coiny.Application.Abstractions.ExternalServices.Shipping.NpInternetDocument> SaveInternetDocumentAsync(
+            Coiny.Application.Abstractions.ExternalServices.Shipping.NpSaveDocumentRequest request, CancellationToken ct) =>
             throw new InvalidOperationException("NP simulated transport failure");
 
-        public Task<IReadOnlyList<Coiny.Application.Abstractions.Shipping.NpTrackingStatus>> GetStatusDocumentsAsync(
+        public Task<IReadOnlyList<Coiny.Application.Abstractions.ExternalServices.Shipping.NpTrackingStatus>> GetStatusDocumentsAsync(
             IReadOnlyList<string> ttns, CancellationToken ct) =>
             throw new InvalidOperationException("not used");
     }
