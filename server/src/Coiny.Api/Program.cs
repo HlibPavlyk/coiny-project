@@ -68,12 +68,38 @@ var app = builder.Build();
 // usually want to control migrations manually) stays unchanged. Coolify deploys set this to
 // `true` in prod env so a fresh Postgres container gets the full schema on its first boot.
 // Idempotent on every later boot: EF checks __EFMigrationsHistory and no-ops if up-to-date.
-// On migration failure the container exits non-zero → Coolify keeps the previous image running.
+//
+// Retry loop: on first deploy Coolify spins up Postgres and the API container nearly
+// simultaneously, so Npgsql's first DNS resolve can fail with `EAI_AGAIN` (Docker's embedded DNS
+// hasn't propagated the alias yet) or `Connection refused` (Postgres still initializing). We back
+// off up to a minute total — long enough for Postgres init, short enough that a genuinely broken
+// connection string still surfaces as a deploy failure for Coolify to roll back.
 if (builder.Configuration.GetValue<bool>("MIGRATE_ON_STARTUP"))
 {
     using IServiceScope migrationScope = app.Services.CreateScope();
     var db = migrationScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    await db.Database.MigrateAsync();
+    var migrationLogger = migrationScope.ServiceProvider
+        .GetRequiredService<ILoggerFactory>()
+        .CreateLogger("Coiny.Migration");
+
+    const int maxAttempts = 12;
+    TimeSpan delay = TimeSpan.FromSeconds(5);
+    for (int attempt = 1; ; attempt++)
+    {
+        try
+        {
+            await db.Database.MigrateAsync();
+            migrationLogger.LogInformation("EF migrations applied on attempt {Attempt}", attempt);
+            break;
+        }
+        catch (Exception ex) when (attempt < maxAttempts)
+        {
+            migrationLogger.LogWarning(ex,
+                "EF migration attempt {Attempt} failed ({Error}); retrying in {Delay}s",
+                attempt, ex.Message, delay.TotalSeconds);
+            await Task.Delay(delay);
+        }
+    }
 }
 
 app.UseExceptionHandler();
