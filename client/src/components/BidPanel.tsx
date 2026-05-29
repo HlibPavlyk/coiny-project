@@ -8,6 +8,7 @@ import { ApiError } from '@/api/fetch';
 import { usePlaceBid } from '@/api/bids';
 import { auth } from '@/api/auth';
 import type { LotDetailModel, LotStatus } from '@/api/lots';
+import { formatLocalCompact } from '@/lib/datetime';
 import { CountdownTimer } from './CountdownTimer';
 import { Icon } from './Icon';
 import { formatKopiykasAsUah } from '@/lib/money';
@@ -141,14 +142,7 @@ export function BidPanel({
         {isClosed ? (
           <>
             {bidCount} {bidCount === 1 ? 'bid' : 'bids'} · ended{' '}
-            <span className="mono">
-              {new Date(endsAt).toLocaleString('en-US', {
-                day: 'numeric',
-                month: 'short',
-                hour: '2-digit',
-                minute: '2-digit',
-              })}
-            </span>
+            <span className="mono">{formatLocalCompact(endsAt)}</span>
           </>
         ) : (
           <>
@@ -194,13 +188,12 @@ export function BidPanel({
             border: '1px solid var(--color-accent-soft)',
           }}
         >
-          <Icon name="clock" size={14} color="var(--color-accent-deep)" />
-          <div className="flex-1">
-            <div className="text-[10px] uppercase tracking-wider font-semibold text-text-3 mb-0.5">
-              Time left
-            </div>
-            <CountdownTimer endsAt={endsAt} size="md" showIcon={false} />
-          </div>
+          {/* Headline-style countdown that fills the whole card. No absolute date here — it lives
+              in the page-meta line ("Ends ...") already, so the bidder gets the at-a-glance
+              ticking clock here and the static reference up top. Left-aligned so the icon
+              anchors at the card's start edge and the ticking text reads as one unit with it. */}
+          <Icon name="clock" size={20} color="var(--color-accent-deep)" />
+          <CountdownTimer endsAt={endsAt} size="xl" showIcon={false} showSeconds />
         </div>
       )}
 

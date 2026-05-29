@@ -98,6 +98,19 @@ public sealed class FakeStripeClient : IStripeClient
             ClientSecret: null));
     }
 
+    public int RetrievePaymentIntentCalls { get; private set; }
+    public string? LastRetrievedPaymentIntentId { get; private set; }
+
+    public Task<StripePaymentIntentResult> RetrievePaymentIntentAsync(string paymentIntentId, CancellationToken ct)
+    {
+        RetrievePaymentIntentCalls++;
+        LastRetrievedPaymentIntentId = paymentIntentId;
+        return Task.FromResult(new StripePaymentIntentResult(
+            Id: paymentIntentId,
+            Status: "requires_payment_method",
+            ClientSecret: NextPaymentIntentClientSecret));
+    }
+
     public int CancelPaymentIntentCalls { get; private set; }
     public string? LastCancelledPaymentIntentId { get; private set; }
     public string? LastCancelReason { get; private set; }

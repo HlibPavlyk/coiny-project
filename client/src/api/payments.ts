@@ -32,7 +32,9 @@ export interface PaymentDetailModel {
   amountUahKopiykas: number;
   amountUsdCents: number;
   rateUsedUahPerUsd: number;
-  stripePaymentIntentId: string;
+  /** Null when the Payment row was pre-created at auction close but the buyer hasn't opened the
+   *  pay form yet (no Stripe intent minted). Set once CreatePaymentIntentHandler runs. */
+  stripePaymentIntentId: string | null;
   status: 'PendingAuthorization' | 'Authorized' | 'Captured' | 'Cancelled' | 'Failed';
   dueAt: string;
   authorizedAt?: string;
@@ -71,6 +73,16 @@ export type ShipmentStatus =
   | 'Returned'
   | 'Lost';
 
+/**
+ * Lightweight state probe consumed by PayLotPage on mount. Lets a returning buyer skip the steps
+ * they already completed (delivery details / payment-intent creation) instead of being walked
+ * through the form again only to hit a dead-end "payment already in progress" message.
+ */
+export interface LotPaymentStateModel {
+  shipmentExists: boolean;
+  payment: { id: string; status: PaymentStatus } | null;
+}
+
 export interface MyPurchaseItemModel {
   paymentId: string;
   paymentStatus: PaymentStatus;
@@ -97,6 +109,9 @@ export const payments = {
     api<CreatePaymentIntentResponse>(`/api/v1/lots/${lotId}/payment-intent`, { method: 'POST' }),
 
   getById: (paymentId: string) => api<PaymentDetailModel>(`/api/v1/payments/${paymentId}`),
+
+  getLotPaymentState: (lotId: string) =>
+    api<LotPaymentStateModel>(`/api/v1/lots/${lotId}/payment-state`),
 
   myPurchasesSearch: (paginate: PageRequest) =>
     api<Paginated<MyPurchaseItemModel>>('/api/v1/users/me/payments/list', {

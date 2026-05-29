@@ -20,8 +20,8 @@ public class UpdateLotValidator : AbstractValidator<UpdateLotRequest>
             .WithMessage("Starting price must be at least 1 UAH (100 kopiykas).");
 
         RuleFor(x => x.EndsAt)
-            .Must((_, endsAt) => endsAt >= clock.UtcNow.AddHours(1))
-                .WithMessage("EndsAt must be at least 1 hour in the future.")
+            .Must((_, endsAt) => endsAt >= clock.UtcNow.AddMinutes(1))
+                .WithMessage("EndsAt must be at least 1 minute in the future.")
             .Must((_, endsAt) => endsAt <= clock.UtcNow.AddDays(7))
                 .WithMessage("EndsAt must be within 7 days from now.");
 

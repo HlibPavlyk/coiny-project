@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { LotImagePlaceholder } from '@/components/LotImagePlaceholder';
 import { ShipmentTimeline } from '@/components/ShipmentTimeline';
 import { payments, type MyPurchaseItemModel, type PaymentStatus } from '@/api/payments';
+import { formatLocal } from '@/lib/datetime';
 
 const PAGE_SIZE = 20;
 
@@ -104,7 +105,7 @@ function PurchaseRow({ item }: { item: MyPurchaseItemModel }) {
               <>
                 {' · '}
                 <span>
-                  Due <span className="mono">{new Date(item.dueAt).toLocaleString('en-US')}</span>
+                  Due <span className="mono">{formatLocal(item.dueAt)}</span>
                 </span>
               </>
             )}

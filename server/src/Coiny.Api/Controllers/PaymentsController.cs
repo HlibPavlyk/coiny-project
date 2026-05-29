@@ -4,6 +4,7 @@ using Coiny.Application.Features.Payments.ConnectOnboard;
 using Coiny.Application.Features.Payments.CreatePaymentIntent;
 using Coiny.Application.Features.Payments.GetConnectStatus;
 using Coiny.Application.Features.Payments.GetExpressDashboardLink;
+using Coiny.Application.Features.Payments.GetLotPaymentState;
 using Coiny.Application.Features.Payments.GetPaymentById;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -61,4 +62,13 @@ public class PaymentsController(IMediator mediator) : ControllerBase
     [HttpGet("{paymentId:guid}")]
     public Task<Result<PaymentDetailModel>> GetById(Guid paymentId, CancellationToken ct) =>
         mediator.Send(new GetPaymentByIdRequest(paymentId), ct);
+
+    /// <summary>
+    /// Lightweight state probe for the post-win purchase flow — drives PayLotPage's entry decision
+    /// (skip already-completed steps). Caller must be the winning bidder. Cheap: two AsNoTracking
+    /// reads, no Stripe traffic.
+    /// </summary>
+    [HttpGet("/api/v1/lots/{lotId:guid}/payment-state")]
+    public Task<Result<LotPaymentStateModel>> GetLotState(Guid lotId, CancellationToken ct) =>
+        mediator.Send(new GetLotPaymentStateRequest(lotId), ct);
 }

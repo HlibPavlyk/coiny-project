@@ -10,6 +10,9 @@ interface NavItem {
   external?: boolean;
   requireRoles?: string[];
   count?: number;
+  /** Explicit marker for "section start" — renders a divider above this item. Used to group the
+   *  admin-only Demo + Background-jobs items as one "tools" section. */
+  sectionStart?: boolean;
 }
 
 // Hangfire is reverse-proxied via Vite in dev and same-origin in prod, so a relative URL works in both.
@@ -20,6 +23,11 @@ const items: NavItem[] = [
   { id: 'reports', label: 'Reports', icon: 'info', to: '/moderation/reports' },
   { id: 'users', label: 'Users', icon: 'user', to: '/moderation/users' },
   { id: 'lots', label: 'Lots', icon: 'cards', to: '/moderation/lots' },
+  // Admin-only "tools" group — Demo and Background jobs sit together under a single divider so
+  // moderators visually understand the surface above is everyday moderation and below is admin
+  // utilities. Demo's own page + the server endpoints both re-check Admin role, so the sidebar
+  // visibility is the third layer of guard (defence in depth).
+  { id: 'demo', label: 'Demo', icon: 'clock', to: '/moderation/demo', requireRoles: ['Admin'], sectionStart: true },
   { id: 'jobs', label: 'Background jobs', icon: 'external', to: HANGFIRE_URL, external: true, requireRoles: ['Admin'] },
 ];
 
@@ -47,7 +55,6 @@ function SidebarVariant({
   openReportsCount?: number;
 }) {
   const location = useLocation();
-  const reportsIdx = items.findIndex((it) => it.id === 'reports');
 
   return (
     <aside className="bg-surface border border-border rounded-lg p-2 self-start">
@@ -55,11 +62,14 @@ function SidebarVariant({
         <div className="text-[11px] font-semibold uppercase tracking-wider text-text-3">Moderation</div>
       </div>
 
-      {items.map((it, idx) => {
+      {items.map((it) => {
         const isActive = !it.external && (active === it.id || location.pathname === it.to);
         const count = it.id === 'reports' ? openReportsCount : it.count;
-        const prevWasInternal = idx > 0 && !items[idx - 1].external;
-        const needsDivider = it.external && prevWasInternal && idx !== reportsIdx;
+        // Divider only on `sectionStart`. The legacy "external after internal" heuristic was
+        // emitting a second divider before Background jobs (since Demo before it is internal),
+        // splitting the Demo+Jobs admin-tools group into two visually. sectionStart on Demo alone
+        // is enough to mark the start of that section; Jobs flows continuously after it.
+        const needsDivider = !!it.sectionStart;
 
         const labelMarkup = (
           <>

@@ -17,9 +17,11 @@ public class PaymentConfiguration : IEntityTypeConfiguration<Payment>
         builder.Property(p => p.RateUsedUahPerUsd)
             .HasColumnType("decimal(10, 4)");
 
+        // Nullable: AuctionCloseJob pre-creates the Payment row with intent id null. The id is
+        // populated when the buyer first opens the checkout (CreatePaymentIntentHandler mints
+        // the Stripe intent at that point).
         builder.Property(p => p.StripePaymentIntentId)
-            .HasMaxLength(64)
-            .IsRequired();
+            .HasMaxLength(64);
 
         builder.Property(p => p.LastWebhookEventId)
             .HasMaxLength(64);
@@ -49,6 +51,8 @@ public class PaymentConfiguration : IEntityTypeConfiguration<Payment>
         builder.HasIndex(p => p.LotId)
             .IsUnique();
 
+        // Unique among non-null values. PostgreSQL treats NULLs as distinct in unique indexes, so
+        // multiple pre-created rows (intent id null) coexist without violating uniqueness.
         builder.HasIndex(p => p.StripePaymentIntentId)
             .IsUnique();
 

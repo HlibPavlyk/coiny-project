@@ -10,6 +10,7 @@ const HEADERS: Record<string, { title: string; subtitle?: string }> = {
   '/moderation/reports': { title: 'Reports', subtitle: 'Triage open reports — dismiss or take action.' },
   '/moderation/users': { title: 'Users', subtitle: 'Ban or unban an account directly.' },
   '/moderation/lots': { title: 'Lots', subtitle: 'Take a lot down without going through a report.' },
+  '/moderation/demo': { title: 'Demo controls', subtitle: 'Short-circuit time-based triggers to walk the full workflow on stage.' },
 };
 
 /**

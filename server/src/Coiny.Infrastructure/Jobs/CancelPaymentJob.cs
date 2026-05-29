@@ -57,6 +57,18 @@ public class CancelPaymentJob(
             return;
         }
 
+        // An Authorized payment definitionally has a Stripe intent (Authorized is set by the
+        // payment_intent.amount_capturable_updated webhook). The null check satisfies the compiler
+        // and guards against the impossible-but-defensible case where the row got into a weird
+        // state via direct DB editing.
+        if (string.IsNullOrEmpty(payment.StripePaymentIntentId))
+        {
+            logger.LogError(
+                "CancelPaymentJob: payment {PaymentId} is Authorized but has no Stripe intent id — manual review needed",
+                paymentId);
+            return;
+        }
+
         await stripe.CancelPaymentIntentAsync(payment.StripePaymentIntentId, "requested_by_customer", ct);
 
         logger.LogInformation(

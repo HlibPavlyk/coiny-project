@@ -329,6 +329,9 @@ public class PlaceBidHandlerTests
 
         public string EnqueueCapture(Guid paymentId) => "test-capture-job-id";
         public string EnqueueCancelPayment(Guid paymentId) => "test-cancel-job-id";
+        public string EnqueueAuctionCloseNow(Guid lotId) => "test-close-now-job-id";
+        public void TriggerPaymentReminderSweep() { }
+        public void TriggerNonPaymentCancelSweep() { }
     }
 
     private sealed class TestAuctionNotifier : IAuctionNotifier

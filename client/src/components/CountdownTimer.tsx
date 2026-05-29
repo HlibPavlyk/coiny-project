@@ -4,12 +4,24 @@ import { timeRemaining } from '@/lib/datetime';
 
 interface CountdownTimerProps {
   endsAt: string;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | 'xl';
   showIcon?: boolean;
   tone?: 'default' | 'light';
+  /**
+   * When true the label always carries a seconds segment ("1h 23m 45s" instead of "1h 23m"). The
+   * detail page wants the visible tick; cards on browse views (HomePage, LotCard, MyBidsPage,
+   * MyLotsPage) keep the quieter at-a-glance copy.
+   */
+  showSeconds?: boolean;
 }
 
-export function CountdownTimer({ endsAt, size = 'sm', showIcon = true, tone = 'default' }: CountdownTimerProps) {
+export function CountdownTimer({
+  endsAt,
+  size = 'sm',
+  showIcon = true,
+  tone = 'default',
+  showSeconds = false,
+}: CountdownTimerProps) {
   const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
@@ -18,7 +30,7 @@ export function CountdownTimer({ endsAt, size = 'sm', showIcon = true, tone = 'd
   }, []);
 
   const t = timeRemaining(endsAt, now);
-  const fontSize = size === 'sm' ? 11 : size === 'md' ? 13 : 16;
+  const fontSize = size === 'sm' ? 11 : size === 'md' ? 13 : size === 'lg' ? 16 : 26;
   const color = t.expired
     ? tone === 'light' ? 'rgba(255,255,255,0.7)' : 'var(--color-text-3)'
     : t.critical
@@ -40,9 +52,13 @@ export function CountdownTimer({ endsAt, size = 'sm', showIcon = true, tone = 'd
   let label: string;
   if (t.hours >= 24) {
     const days = Math.floor(t.hours / 24);
-    label = `${days}d ${t.hours % 24}h`;
+    label = showSeconds
+      ? `${days}d ${t.hours % 24}h ${t.minutes}m ${t.seconds}s`
+      : `${days}d ${t.hours % 24}h`;
   } else if (t.hours > 0) {
-    label = `${t.hours}h ${t.minutes}m`;
+    label = showSeconds
+      ? `${t.hours}h ${t.minutes}m ${t.seconds}s`
+      : `${t.hours}h ${t.minutes}m`;
   } else if (t.minutes > 0) {
     label = `${t.minutes}m ${t.seconds}s`;
   } else {

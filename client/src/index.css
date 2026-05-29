@@ -186,3 +186,55 @@ input[type="search"]::-webkit-search-results-decoration {
   outline-offset: 2px;
   border-radius: 4px;
 }
+
+/*
+ * @uiw/react-md-editor (CreateLotPage / EditLotPage Description field).
+ *
+ * Two issues the library's defaults cause and we fix here:
+ *
+ *  1. .w-md-editor-text defaults to a 100px min-height rather than filling its parent. With the
+ *     React `height={280}` prop, the editor container is 280px but the inner textarea only paints
+ *     100px — the remaining ~150px below is empty void that reads as a "second pane" with a
+ *     ghostly divider (the bottom edge of .w-md-editor-text). Forcing height: 100% on every
+ *     vertical hop (text → text-input → text-pre) collapses the void.
+ *
+ *  2. The library's outer grey border + dropshadow clash with Coiny's surface palette. The
+ *     parent <div.coiny-md> handles the frame (rounded-md + border-strong, matching FieldInput);
+ *     we strip the library's own border here.
+ *
+ * We deliberately do NOT override `.w-md-editor-text-input` colors. The library lays a
+ * transparent textarea over a `.w-md-editor-text-pre` syntax-highlight div, and overriding `color`
+ * makes the textarea's text render visibly on top of the highlight (double letters). Leaving the
+ * library's defaults intact keeps text readable.
+ */
+.coiny-md .w-md-editor {
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  background: var(--color-surface);
+}
+.coiny-md .w-md-editor-toolbar {
+  background: var(--color-bg-soft);
+  border-bottom: 1px solid var(--color-border-soft);
+}
+.coiny-md .w-md-editor-content {
+  border: none !important;
+}
+.coiny-md .w-md-editor-area,
+.coiny-md .w-md-editor-input,
+.coiny-md .w-md-editor-text,
+.coiny-md .w-md-editor-text-pre,
+.coiny-md .w-md-editor-text-input {
+  height: 100% !important;
+  min-height: 100% !important;
+}
+/* Make the live-mode divider between edit + preview neutral, not the library's accent color.
+ * Coiny's accent is bronze and the library's default divider can read as brown on some screens —
+ * a soft grey is calmer and matches FieldInput's separation language. */
+.coiny-md .w-md-editor-bar {
+  background: var(--color-border-soft);
+}
+.coiny-md .w-md-editor-preview {
+  border-left: 1px solid var(--color-border-soft);
+  background: var(--color-surface);
+}

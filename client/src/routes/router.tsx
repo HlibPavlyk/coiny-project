@@ -31,6 +31,7 @@ import ModerationOverviewPage from './ModerationOverviewPage';
 import ModerationReportsPage from './ModerationReportsPage';
 import ModerationUsersPage from './ModerationUsersPage';
 import ModerationLotsPage from './ModerationLotsPage';
+import ModerationDemoPage from './ModerationDemoPage';
 import { MyAccountLayout } from './MyAccountLayout';
 import { ModerationLayout } from './ModerationLayout';
 
@@ -124,6 +125,16 @@ export const router = createBrowserRouter([{
       { path: '/moderation/reports', element: <ModerationReportsPage /> },
       { path: '/moderation/users', element: <ModerationUsersPage /> },
       { path: '/moderation/lots', element: <ModerationLotsPage /> },
+      // Admin-only — Demo tab is hidden from Moderators in the sidebar, and the route is also
+      // wrapped in a tighter role guard so a direct URL hit by a Moderator falls back to a 403.
+      {
+        path: '/moderation/demo',
+        element: (
+          <RequireAuth roles={['Admin']}>
+            <ModerationDemoPage />
+          </RequireAuth>
+        ),
+      },
     ],
   },
 

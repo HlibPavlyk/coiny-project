@@ -279,5 +279,9 @@ public class NovaPoshtaPollingJobTests
             LastCancelPaymentId = paymentId;
             return "cancel-id";
         }
+
+        public string EnqueueAuctionCloseNow(Guid lotId) => "close-now-id";
+        public void TriggerPaymentReminderSweep() { }
+        public void TriggerNonPaymentCancelSweep() { }
     }
 }

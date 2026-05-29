@@ -40,10 +40,10 @@ public class PublishLotHandler(
             return Result.Failure<PublishedLotModel>(Error.Validation("Lot.NoImages", "At least one image is required to publish."));
 
         DateTime now = clock.UtcNow;
-        if (lot.EndsAt < now.AddHours(1) || lot.EndsAt > now.AddDays(7))
+        if (lot.EndsAt < now.AddMinutes(1) || lot.EndsAt > now.AddDays(7))
             return Result.Failure<PublishedLotModel>(Error.Validation(
                 "Lot.EndsAtOutOfWindow",
-                "EndsAt must be at least 1 hour and at most 7 days in the future."));
+                "EndsAt must be at least 1 minute and at most 7 days in the future."));
 
         await using var tx = await db.Database.BeginTransactionAsync(ct);
 

@@ -11,6 +11,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Coiny.Application.Features.Payments.CreatePaymentIntent;
 
+/// <summary>
+/// Mints (or surfaces) the Stripe PaymentIntent for a sold lot.
+///
+/// <para>Lifecycle context: <c>AuctionCloseJob</c> pre-creates a Payment row at close-time with a
+/// null <see cref="Payment.StripePaymentIntentId"/> so the 96h deadline is enforceable regardless
+/// of buyer engagement. This handler therefore deals with three cases:</para>
+/// <list type="bullet">
+///   <item><description><b>First open</b>: row exists, intent id null → mint Stripe intent, write it onto the row.</description></item>
+///   <item><description><b>Resume</b>: row exists, intent id set → retrieve client_secret from Stripe so Elements can remount.</description></item>
+///   <item><description><b>Defensive create</b>: row missing (legacy data pre-dating Option A, or a manual cleanup) → full create as before.</description></item>
+/// </list>
+/// </summary>
 public class CreatePaymentIntentHandler(
     IApplicationDbContext db,
     ICurrentUserService currentUser,
@@ -46,11 +58,31 @@ public class CreatePaymentIntentHandler(
             return Result.Failure<CreatePaymentIntentResponse>(
                 Error.Forbidden("Lot.NotWinner", "Only the winning bidder can create a PaymentIntent."));
 
-        bool paymentAlreadyExists = await db.Payments.AnyAsync(p => p.LotId == lot.Id, ct);
-        if (paymentAlreadyExists)
-            return Result.Failure<CreatePaymentIntentResponse>(
-                Error.Conflict("Payment.AlreadyExists", "A payment for this lot has already been created."));
+        Payment? existingPayment = await db.Payments.FirstOrDefaultAsync(p => p.LotId == lot.Id, ct);
 
+        // Branch on existing-row state. Non-pending statuses are terminal/locked — refuse to mint a
+        // second intent for the same lot.
+        if (existingPayment is not null && existingPayment.Status != PaymentStatus.PendingAuthorization)
+        {
+            return existingPayment.Status is PaymentStatus.Authorized or PaymentStatus.Captured
+                ? Result.Failure<CreatePaymentIntentResponse>(Error.Conflict(
+                    "Payment.AlreadyAuthorized",
+                    "This lot has already been paid — open it in My Purchases."))
+                : Result.Failure<CreatePaymentIntentResponse>(Error.Conflict(
+                    "Payment.Terminal",
+                    $"This lot's payment is in terminal {existingPayment.Status} — contact support."));
+        }
+
+        // Resume path — the buyer already minted an intent in a previous session. Retrieve it from
+        // Stripe and surface the same client_secret so Elements remounts cleanly.
+        if (existingPayment is { StripePaymentIntentId: { Length: > 0 } })
+        {
+            return await ResumeExistingAsync(existingPayment, ct);
+        }
+
+        // First-mint path. Both fresh-from-AuctionCloseJob rows (intent id null) and the defensive
+        // "no row at all" fallback fall through here. Validate shipment + seller before touching
+        // Stripe — these are real preconditions for a successful charge.
         Shipment? shipment = await db.Shipments
             .FirstOrDefaultAsync(s => s.LotId == lot.Id && s.Status == ShipmentStatus.PendingTtn, ct);
         if (shipment is null)
@@ -62,11 +94,14 @@ public class CreatePaymentIntentHandler(
             return Result.Failure<CreatePaymentIntentResponse>(
                 Error.Validation("Stripe.SellerNotOnboarded", "Seller is not ready to receive payments via Stripe Connect."));
 
-        decimal rate = stripe.UahPerUsdRate;
-        long amountUah = winningBid.AmountUahKopiykas;
-        long amountUsdCents = CurrencyConverter.UahKopiykasToUsdCents(amountUah, rate);
+        // For the existing-row case we keep the close-time rate locked (audit). For the defensive
+        // path we lock at the current rate the same way AuctionCloseJob would have.
+        decimal rate = existingPayment?.RateUsedUahPerUsd ?? stripe.UahPerUsdRate;
+        long amountUah = existingPayment?.AmountUahKopiykas ?? winningBid.AmountUahKopiykas;
+        long amountUsdCents = existingPayment?.AmountUsdCents
+            ?? CurrencyConverter.UahKopiykasToUsdCents(amountUah, rate);
 
-        Guid paymentId = Guid.NewGuid();
+        Guid paymentId = existingPayment?.Id ?? Guid.NewGuid();
         DateTime now = clock.UtcNow;
 
         var metadata = new Dictionary<string, string>
@@ -93,23 +128,34 @@ public class CreatePaymentIntentHandler(
                 Error.Internal("Stripe.IntentCreateFailed", ex.Message));
         }
 
-        var payment = new Payment
+        if (existingPayment is not null)
         {
-            Id = paymentId,
-            LotId = lot.Id,
-            BuyerId = userId,
-            SellerId = seller.Id,
-            AmountUahKopiykas = amountUah,
-            AmountUsdCents = amountUsdCents,
-            RateUsedUahPerUsd = rate,
-            StripePaymentIntentId = intent.Id,
-            Status = PaymentStatus.PendingAuthorization,
-            DueAt = lot.EndsAt + PaymentWindow,
-            CreatedAt = now,
-            UpdatedAt = now,
-        };
+            // Update the pre-created row in-place. CreatedAt stays as close-time so DueAt remains
+            // anchored correctly; only fields the intent contributes are touched.
+            existingPayment.StripePaymentIntentId = intent.Id;
+            existingPayment.UpdatedAt = now;
+        }
+        else
+        {
+            // Defensive fallback only — Option A guarantees AuctionCloseJob inserted a row, but
+            // historical rows or manual cleanups could still hit this path.
+            db.Payments.Add(new Payment
+            {
+                Id = paymentId,
+                LotId = lot.Id,
+                BuyerId = userId,
+                SellerId = seller.Id,
+                AmountUahKopiykas = amountUah,
+                AmountUsdCents = amountUsdCents,
+                RateUsedUahPerUsd = rate,
+                StripePaymentIntentId = intent.Id,
+                Status = PaymentStatus.PendingAuthorization,
+                DueAt = lot.EndsAt + PaymentWindow,
+                CreatedAt = now,
+                UpdatedAt = now,
+            });
+        }
 
-        db.Payments.Add(payment);
         shipment.PaymentId = paymentId;
         shipment.UpdatedAt = now;
 
@@ -122,5 +168,32 @@ public class CreatePaymentIntentHandler(
             amountUah,
             amountUsdCents,
             rate));
+    }
+
+    /// <summary>
+    /// Resume path for a returning buyer: fetch the existing intent's client_secret from Stripe so
+    /// Elements can remount the card form. We do NOT touch local Payment state — it stays in
+    /// PendingAuthorization until the webhook says otherwise.
+    /// </summary>
+    private async Task<Result<CreatePaymentIntentResponse>> ResumeExistingAsync(Payment payment, CancellationToken ct)
+    {
+        StripePaymentIntentResult intent;
+        try
+        {
+            intent = await stripe.RetrievePaymentIntentAsync(payment.StripePaymentIntentId!, ct);
+        }
+        catch (Exception ex)
+        {
+            return Result.Failure<CreatePaymentIntentResponse>(
+                Error.Internal("Stripe.IntentRetrieveFailed", ex.Message));
+        }
+
+        return Result.Success(new CreatePaymentIntentResponse(
+            payment.Id,
+            intent.ClientSecret ?? string.Empty,
+            stripe.PublishableKey,
+            payment.AmountUahKopiykas,
+            payment.AmountUsdCents,
+            payment.RateUsedUahPerUsd));
     }
 }

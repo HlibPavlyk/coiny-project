@@ -47,17 +47,35 @@ public class NonPaymentCancelJob(
 
         foreach (Payment payment in expired)
         {
-            try
+            // Two paths into this loop:
+            //  (a) Buyer reached the Stripe step → StripePaymentIntentId is set → cancel via Stripe;
+            //      payment_intent.canceled webhook flips Payment.Status = Cancelled.
+            //  (b) Buyer never opened the pay form → no intent was ever minted → no webhook will
+            //      ever fire → we flip Payment.Status = Cancelled locally here. Penalty + lot flip
+            //      are identical to (a).
+            if (string.IsNullOrEmpty(payment.StripePaymentIntentId))
             {
-                await stripe.CancelPaymentIntentAsync(payment.StripePaymentIntentId, "abandoned", ct);
+                payment.Status = PaymentStatus.Cancelled;
+                payment.CancelledAt = now;
+                payment.UpdatedAt = now;
+                logger.LogInformation(
+                    "NonPaymentCancelJob: payment {PaymentId} had no Stripe intent (buyer never opened checkout) — marking Cancelled locally",
+                    payment.Id);
             }
-            catch (Exception ex)
+            else
             {
-                // Don't kill the whole batch on one bad row; webhook reconciliation will catch up later.
-                logger.LogWarning(ex,
-                    "NonPaymentCancelJob: stripe.CancelPaymentIntentAsync failed for payment {PaymentId} (pi={Pi}) — skipping",
-                    payment.Id, payment.StripePaymentIntentId);
-                continue;
+                try
+                {
+                    await stripe.CancelPaymentIntentAsync(payment.StripePaymentIntentId, "abandoned", ct);
+                }
+                catch (Exception ex)
+                {
+                    // Don't kill the whole batch on one bad row; webhook reconciliation will catch up later.
+                    logger.LogWarning(ex,
+                        "NonPaymentCancelJob: stripe.CancelPaymentIntentAsync failed for payment {PaymentId} (pi={Pi}) — skipping",
+                        payment.Id, payment.StripePaymentIntentId);
+                    continue;
+                }
             }
 
             // Penalize the buyer for non-payment (THESIS-SCOPE.md §9: −10). Applied here rather

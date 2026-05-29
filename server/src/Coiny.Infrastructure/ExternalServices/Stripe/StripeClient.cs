@@ -92,6 +92,13 @@ public class StripeClient : IAppStripeClient
         return new StripePaymentIntentResult(intent.Id, intent.Status, intent.ClientSecret);
     }
 
+    public async Task<StripePaymentIntentResult> RetrievePaymentIntentAsync(string paymentIntentId, CancellationToken ct)
+    {
+        var service = new PaymentIntentService();
+        PaymentIntent intent = await service.GetAsync(paymentIntentId, cancellationToken: ct);
+        return new StripePaymentIntentResult(intent.Id, intent.Status, intent.ClientSecret);
+    }
+
     public async Task<StripePaymentIntentResult> CapturePaymentIntentAsync(string paymentIntentId, CancellationToken ct)
     {
         var service = new PaymentIntentService();

@@ -21,8 +21,12 @@ public class Payment
     /// <summary>The <c>Stripe__UahPerUsd</c> value at intent creation. Audit field — locks the rate.</summary>
     public decimal RateUsedUahPerUsd { get; set; }
 
-    /// <summary>Stripe PaymentIntent id (<c>pi_…</c>). Unique.</summary>
-    public string StripePaymentIntentId { get; set; } = string.Empty;
+    /// <summary>
+    /// Stripe PaymentIntent id (<c>pi_…</c>). Unique. Null when the Payment row was pre-created
+    /// by <c>AuctionCloseJob</c> but the buyer has not yet opened the pay form (no Stripe intent
+    /// minted yet). Populated by <c>CreatePaymentIntentHandler</c> on first form open.
+    /// </summary>
+    public string? StripePaymentIntentId { get; set; }
 
     public PaymentStatus Status { get; set; }
 

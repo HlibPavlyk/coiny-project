@@ -32,6 +32,8 @@ export interface PublicConfigModel {
   stripePublishableKey: string;
   signalRHubUrl: string;
   uahPerUsdDisplay: number;
+  /** True when the server has `DemoMode:Enabled = true` — gates the /moderation/demo surface. */
+  demoModeEnabled: boolean;
 }
 
 export const config = {

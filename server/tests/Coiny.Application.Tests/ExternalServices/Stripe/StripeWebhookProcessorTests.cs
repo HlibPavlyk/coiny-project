@@ -261,6 +261,9 @@ public class StripeWebhookProcessorTests
 
         public string EnqueueCapture(Guid paymentId) => "capture-id";
         public string EnqueueCancelPayment(Guid paymentId) => "cancel-id";
+        public string EnqueueAuctionCloseNow(Guid lotId) => "close-now-id";
+        public void TriggerPaymentReminderSweep() { }
+        public void TriggerNonPaymentCancelSweep() { }
     }
 
     private sealed class FixedClock(DateTime utcNow) : IDateTimeProvider

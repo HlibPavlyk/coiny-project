@@ -8,6 +8,7 @@ using Coiny.Application.Abstractions.Presentation.Http;
 using Coiny.Application.Abstractions.Presentation.Realtime;
 using Coiny.Application.Abstractions.ExternalServices.Search;
 using Coiny.Application.Common.Json;
+using Coiny.Application.Features.Demo;
 using Coiny.Infrastructure;
 using Coiny.Infrastructure.Jobs;
 using Hangfire;
@@ -18,6 +19,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication();
 builder.Services.AddMemoryCache();
+
+// Demo-mode flag — gates the /api/v1/demo/* endpoint surface. Default Enabled = false; production
+// returns 404 from those endpoints even to authenticated admins. See DemoModeOptions docs.
+builder.Services.AddOptions<DemoModeOptions>()
+    .Bind(builder.Configuration.GetSection(DemoModeOptions.Section));
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserService, HttpContextCurrentUserService>();
@@ -88,10 +94,14 @@ RecurringJob.AddOrUpdate<RetryFailedWebhookJob>(
     job => job.RunAsync(CancellationToken.None),
     Cron.Hourly());
 
+// Thesis demo cadence: poll every minute (the natural-cron sub-2-minute granularity) instead of
+// the 15-min production cadence. Lets `Force → Delivered` / `Force → Returned` demo actions show
+// the downstream Stripe webhook + UI update within seconds instead of forcing the demonstrator
+// to wait for the next quarter-hour tick. Switch back to "*/15 * * * *" for production.
 RecurringJob.AddOrUpdate<NovaPoshtaPollingJob>(
     "np-polling",
     job => job.RunAsync(CancellationToken.None),
-    "*/15 * * * *");
+    "* * * * *");
 
 RecurringJob.AddOrUpdate<NonPaymentCancelJob>(
     "non-payment-cancel",

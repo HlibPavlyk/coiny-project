@@ -10,7 +10,7 @@ public record PaymentDetailModel(
     long AmountUahKopiykas,
     long AmountUsdCents,
     decimal RateUsedUahPerUsd,
-    string StripePaymentIntentId,
+    string? StripePaymentIntentId,
     PaymentStatus Status,
     DateTime DueAt,
     DateTime? AuthorizedAt,

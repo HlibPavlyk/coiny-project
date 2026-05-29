@@ -97,19 +97,26 @@ public class EmailOutboxFlushJob(
     private async Task HandleWonPayAsync(EmailOutboxEvent evt, bool reminder, CancellationToken ct)
     {
         var payload = AuctionWonPayWithin96hPayload.Deserialize(evt.Payload);
-        Payment? payment = await ResolvePaymentByLotAsync(payload.LotId, ct);
-        if (payment is null)
+
+        // The "you won — pay within 96h" email is emitted in the SAME transaction as AuctionCloseJob,
+        // BEFORE any Payment row exists (Payment is created later when the buyer fills checkout
+        // details and mints a Stripe intent). The buyer id is already on the outbox row's
+        // AggregateId — no Payment lookup needed. Going through Payment here would silently lose
+        // every initial "you won" email forever (legacy bug).
+        if (evt.AggregateId == Guid.Empty)
         {
-            logger.LogWarning("EmailOutboxFlushJob: no payment for lot {LotId} on AuctionWonPayWithin96h event {Id}",
-                payload.LotId, evt.Id);
+            logger.LogWarning("EmailOutboxFlushJob: AuctionWonPayWithin96h event {Id} has no AggregateId (buyer)", evt.Id);
             return;
         }
 
-        string toAddress = await ResolveBuyerEmailAsync(payment.BuyerId, ct);
+        string toAddress = await ResolveBuyerEmailAsync(evt.AggregateId, ct);
         if (toAddress is "")
             return;
 
-        string paymentUrl = $"{FrontendBase()}/my-purchases/{payment.Id}";
+        // Route the buyer to the lot-id-based pay page (the route that exists in router.tsx).
+        // PayLotPage state-probes on mount and renders the right step depending on what's already
+        // saved — works for both fresh winners and returning buyers.
+        string paymentUrl = $"{FrontendBase()}/my-purchases/{payload.LotId}/pay";
         if (reminder)
         {
             await emailSender.SendWonPayReminderEmailAsync(
@@ -137,7 +144,8 @@ public class EmailOutboxFlushJob(
         if (toAddress is "")
             return;
 
-        string paymentUrl = $"{FrontendBase()}/my-purchases/{payment.Id}";
+        // Same lot-id-based route as the initial won-pay email — PayLotPage handles step routing.
+        string paymentUrl = $"{FrontendBase()}/my-purchases/{payment.LotId}/pay";
         await emailSender.SendWonPayReminderEmailAsync(
             toAddress, payload.LotTitle, payload.AmountUahKopiykas, payload.DueAt, paymentUrl, ct);
     }
@@ -181,9 +189,6 @@ public class EmailOutboxFlushJob(
     private string FrontendBase() =>
         configuration["Frontend:BaseUrl"]?.TrimEnd('/')
             ?? throw new InvalidOperationException("Frontend:BaseUrl is not configured.");
-
-    private async Task<Payment?> ResolvePaymentByLotAsync(Guid lotId, CancellationToken ct) =>
-        await db.Payments.FirstOrDefaultAsync(p => p.LotId == lotId, ct);
 
     private async Task<string> ResolveBuyerEmailAsync(Guid buyerId, CancellationToken ct)
     {

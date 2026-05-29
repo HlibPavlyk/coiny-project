@@ -57,10 +57,13 @@ public class EmailOutboxFlushJobTests
         User buyer = SeedUser(ctx, "winner@coiny.test");
         Lot lot = SeedLot(ctx, "Coin A");
         Payment payment = SeedPayment(ctx, buyer, lot);
+        // AuctionCloseJob writes the buyer's id into AggregateId so the email handler can resolve
+        // the recipient WITHOUT going through Payment (which doesn't exist when the event fires
+        // in production). The previous Lot-id-as-aggregate setup masked a silent-skip bug.
         ctx.EmailOutboxEvents.Add(new EmailOutboxEvent
         {
-            AggregateType = nameof(Lot),
-            AggregateId = lot.Id,
+            AggregateType = nameof(User),
+            AggregateId = buyer.Id,
             EventType = AuctionWonPayWithin96hPayload.EventType,
             Payload = new AuctionWonPayWithin96hPayload(
                 lot.Id, lot.Title, payment.AmountUahKopiykas, payment.DueAt).Serialize(),
@@ -73,7 +76,8 @@ public class EmailOutboxFlushJobTests
 
         sender.WonPayCalls.Should().Be(1);
         sender.LastWonPayToAddress.Should().Be("winner@coiny.test");
-        sender.LastWonPayUrl.Should().Be($"{FrontendBase}/my-purchases/{payment.Id}");
+        // Lot-id-based URL — matches the actual /my-purchases/:lotId/pay route in router.tsx.
+        sender.LastWonPayUrl.Should().Be($"{FrontendBase}/my-purchases/{lot.Id}/pay");
         sender.LastWonPayReminderFlag.Should().BeFalse();
     }
 

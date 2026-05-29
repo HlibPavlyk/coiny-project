@@ -8,6 +8,7 @@ import { CategoryAttributeForm, type SubcategoryKind } from '@/components/Catego
 import { ImageUploader } from '@/components/ImageUploader';
 import { Icon } from '@/components/Icon';
 import { useCategoryTree, findCategoryPath, type CategoryNode } from '@/api/categories';
+import { formatLocal } from '@/lib/datetime';
 import { lots, type LotCondition, type LotDetailModel, type LotImage } from '@/api/lots';
 import { ApiError } from '@/api/fetch';
 import { useAuthStore } from '@/state/useAuthStore';
@@ -293,10 +294,10 @@ export default function CreateLotPage({ draft }: CreateLotPageProps = {}) {
       setError('Invalid ends-at date.');
       return;
     }
-    const minEnds = Date.now() + 60 * 60 * 1000;
+    const minEnds = Date.now() + 60 * 1000; // 1 minute
     const maxEnds = Date.now() + 7 * 24 * 60 * 60 * 1000;
     if (endsAt.getTime() < minEnds || endsAt.getTime() > maxEnds) {
-      setError('End time must be between 1 hour and 7 days from now.');
+      setError('End time must be between 1 minute and 7 days from now.');
       return;
     }
 
@@ -419,7 +420,9 @@ export default function CreateLotPage({ draft }: CreateLotPageProps = {}) {
 
             <div>
               <FieldLabel htmlFor="lot-description">Description</FieldLabel>
-              <div data-color-mode="light">
+              {/* coiny-md wrapper handles framing — the MDEditor's own grey border is overridden
+                  via index.css so the field matches FieldInput's look (border-strong + rounded-md). */}
+              <div data-color-mode="light" className="coiny-md rounded-md border border-border-strong overflow-hidden">
                 <MDEditor
                   value={description}
                   onChange={(val) => setDescription((val ?? '').slice(0, 10000))}
@@ -441,6 +444,11 @@ export default function CreateLotPage({ draft }: CreateLotPageProps = {}) {
                     commands.link,
                     commands.code,
                   ]}
+                  // Restore the library's default Edit / Live / Preview switcher in the toolbar's
+                  // right side so the seller can preview their formatted markdown without leaving
+                  // the page. `preview="edit"` is the default landing mode (single textarea); the
+                  // switcher lets them toggle to Live (edit + preview side-by-side) or Preview
+                  // (rendered only) when they want to verify formatting.
                   extraCommands={[commands.codeEdit, commands.codeLive, commands.codePreview]}
                   textareaProps={{
                     id: 'lot-description',
@@ -556,7 +564,7 @@ export default function CreateLotPage({ draft }: CreateLotPageProps = {}) {
                 <dt className="text-text-3">Starting price</dt>
                 <dd className="m-0 mono">UAH {Number(startingPriceUah).toFixed(2)}</dd>
                 <dt className="text-text-3">Ends at</dt>
-                <dd className="m-0">{new Date(endsAtLocal).toLocaleString()}</dd>
+                <dd className="m-0">{formatLocal(endsAtLocal)}</dd>
               </dl>
             </div>
 

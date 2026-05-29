@@ -51,14 +51,18 @@ public class CreatePaymentIntentHandlerTests
     }
 
     [Fact]
-    public async Task Existing_payment_returns_conflict()
+    public async Task Existing_pending_payment_resumes_via_stripe_retrieve()
     {
+        // A returning buyer (closed the tab, clicked "pay" again) must land on the existing
+        // PaymentIntent — not a 409. The handler retrieves the intent from Stripe and surfaces
+        // the same client_secret so Elements can remount the card form.
         using var ctx = NewDb();
         var seedIds = await Seed(ctx, lotEndsAt: BaseTime.AddHours(-1), withShipment: true);
 
+        Guid existingPaymentId = Guid.NewGuid();
         ctx.Payments.Add(new Payment
         {
-            Id = Guid.NewGuid(),
+            Id = existingPaymentId,
             LotId = seedIds.LotId,
             BuyerId = _winnerId,
             SellerId = _sellerId,
@@ -73,12 +77,111 @@ public class CreatePaymentIntentHandlerTests
         });
         await ctx.SaveChangesAsync();
 
+        var stripe = new FakeStripeClient
+        {
+            UahPerUsdRate = 41.5m,
+            PublishableKey = "pk_test_xyz",
+            NextPaymentIntentClientSecret = "pi_prev_secret_resumed",
+        };
+
+        var handler = NewHandler(ctx, _winnerId, stripe);
+        Result<CreatePaymentIntentResponse> result = await handler.Handle(
+            new CreatePaymentIntentRequest(seedIds.LotId), CancellationToken.None);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.PaymentId.Should().Be(existingPaymentId);
+        result.Value.ClientSecret.Should().Be("pi_prev_secret_resumed");
+        stripe.RetrievePaymentIntentCalls.Should().Be(1);
+        stripe.LastRetrievedPaymentIntentId.Should().Be("pi_prev");
+        // No new Payment row was created.
+        (await ctx.Payments.CountAsync()).Should().Be(1);
+    }
+
+    [Fact]
+    public async Task Pre_created_payment_without_intent_id_is_minted_in_place()
+    {
+        // Option A: AuctionCloseJob pre-creates the Payment row with null Stripe intent. The first
+        // time the buyer opens the pay form, CreatePaymentIntent mints the Stripe intent and writes
+        // it onto the existing row instead of inserting a new one.
+        using var ctx = NewDb();
+        var seedIds = await Seed(ctx, lotEndsAt: BaseTime.AddHours(-1), withShipment: true);
+
+        Guid existingPaymentId = Guid.NewGuid();
+        ctx.Payments.Add(new Payment
+        {
+            Id = existingPaymentId,
+            LotId = seedIds.LotId,
+            BuyerId = _winnerId,
+            SellerId = _sellerId,
+            AmountUahKopiykas = 1_500_00,
+            AmountUsdCents = 361,
+            RateUsedUahPerUsd = 41.5m,
+            StripePaymentIntentId = null, // ← pre-created at auction close
+            Status = PaymentStatus.PendingAuthorization,
+            DueAt = BaseTime.AddHours(95),
+            CreatedAt = BaseTime,
+            UpdatedAt = BaseTime,
+        });
+        await ctx.SaveChangesAsync();
+
+        var stripe = new FakeStripeClient
+        {
+            UahPerUsdRate = 41.5m,
+            PublishableKey = "pk_test_xyz",
+            NextPaymentIntentId = "pi_fresh",
+            NextPaymentIntentClientSecret = "pi_fresh_secret",
+        };
+
+        var handler = NewHandler(ctx, _winnerId, stripe);
+        Result<CreatePaymentIntentResponse> result = await handler.Handle(
+            new CreatePaymentIntentRequest(seedIds.LotId), CancellationToken.None);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.PaymentId.Should().Be(existingPaymentId); // same row, not a new one
+        result.Value.ClientSecret.Should().Be("pi_fresh_secret");
+        stripe.CreatePaymentIntentCalls.Should().Be(1);
+        stripe.RetrievePaymentIntentCalls.Should().Be(0);
+
+        // The pre-existing row was updated, not duplicated.
+        (await ctx.Payments.CountAsync()).Should().Be(1);
+        Payment updated = await ctx.Payments.AsNoTracking().FirstAsync();
+        updated.StripePaymentIntentId.Should().Be("pi_fresh");
+        updated.DueAt.Should().Be(BaseTime.AddHours(95)); // anchored to close, unchanged
+    }
+
+    [Theory]
+    [InlineData(PaymentStatus.Authorized, "Payment.AlreadyAuthorized")]
+    [InlineData(PaymentStatus.Captured, "Payment.AlreadyAuthorized")]
+    [InlineData(PaymentStatus.Cancelled, "Payment.Terminal")]
+    [InlineData(PaymentStatus.Failed, "Payment.Terminal")]
+    public async Task Existing_terminal_payment_returns_conflict(PaymentStatus status, string expectedCode)
+    {
+        using var ctx = NewDb();
+        var seedIds = await Seed(ctx, lotEndsAt: BaseTime.AddHours(-1), withShipment: true);
+
+        ctx.Payments.Add(new Payment
+        {
+            Id = Guid.NewGuid(),
+            LotId = seedIds.LotId,
+            BuyerId = _winnerId,
+            SellerId = _sellerId,
+            AmountUahKopiykas = 1_500_00,
+            AmountUsdCents = 361,
+            RateUsedUahPerUsd = 41.5m,
+            StripePaymentIntentId = "pi_prev",
+            Status = status,
+            DueAt = BaseTime.AddHours(95),
+            CreatedAt = BaseTime,
+            UpdatedAt = BaseTime,
+        });
+        await ctx.SaveChangesAsync();
+
         var handler = NewHandler(ctx, _winnerId);
         Result<CreatePaymentIntentResponse> result = await handler.Handle(
             new CreatePaymentIntentRequest(seedIds.LotId), CancellationToken.None);
 
         result.IsFailure.Should().BeTrue();
-        result.Error.Code.Should().Be("Payment.AlreadyExists");
+        result.Error.Code.Should().Be(expectedCode);
         result.Error.Type.Should().Be(ErrorType.Conflict);
     }
 

@@ -69,7 +69,14 @@ public class NovaPoshtaClient : INovaPoshtaClient
             methodProperties: props,
             ct);
 
+        // Filter out parcel lockers (Поштомати) — buyers should pick a staffed branch only.
+        // NP exposes the category via `CategoryOfWarehouse`: "Branch" for staffed offices,
+        // "Postomat" for lockers. We exclude the latter outright; "Branch" is the only category
+        // currently kept. If NP introduces a new category in the future, it stays included by
+        // default (whitelist of one negative match) — a too-restrictive whitelist would silently
+        // drop new branch types.
         return response.Data
+            .Where(w => !string.Equals(w.CategoryOfWarehouse, "Postomat", StringComparison.OrdinalIgnoreCase))
             .Select(w => new NpWarehouse(w.Ref, w.Number, w.Description))
             .ToList();
     }
@@ -171,10 +178,16 @@ public class NovaPoshtaClient : INovaPoshtaClient
         string MainDescription,
         string Area);
 
+    /// <summary>
+    /// Subset of NP's getWarehouses response fields. <see cref="CategoryOfWarehouse"/> distinguishes
+    /// "Branch" (staffed office) from "Postomat" (self-service locker); we filter on it client-side
+    /// because NP's request-level filter requires a TypeOfWarehouseRef Guid that is brittle.
+    /// </summary>
     private sealed record WarehouseDto(
         string Ref,
         string Number,
-        string Description);
+        string Description,
+        string? CategoryOfWarehouse);
 
     private sealed record InternetDocumentDto(
         string Ref,

@@ -1,8 +1,10 @@
 using System.Data;
+using Coiny.Application.Abstractions.ExternalServices.Payments;
 using Coiny.Application.Abstractions.Infrastructure.Data;
 using Coiny.Application.Abstractions.Infrastructure.Jobs;
 using Coiny.Application.Abstractions.Infrastructure.Providers;
 using Coiny.Application.Abstractions.Presentation.Realtime;
+using Coiny.Application.Common.Currency;
 using Coiny.Domain.Entities;
 using Coiny.Domain.Enums;
 using Hangfire;
@@ -26,10 +28,14 @@ public class AuctionCloseJob(
     IApplicationDbContext db,
     IJobScheduler jobScheduler,
     IAuctionNotifier notifier,
+    IStripeClient stripe,
     IDateTimeProvider clock,
     ILogger<AuctionCloseJob> logger) : IAuctionCloseJob
 {
     private const string NpgsqlProviderName = "Npgsql.EntityFrameworkCore.PostgreSQL";
+
+    /// <summary>96h window the winning bidder has to pay (THESIS-SCOPE §B / §F).</summary>
+    private static readonly TimeSpan _paymentWindow = TimeSpan.FromHours(96);
 
     public async Task RunAsync(Guid lotId, CancellationToken ct)
     {
@@ -95,13 +101,38 @@ public class AuctionCloseJob(
                 CreatedAt = now,
             });
 
+            // Pre-create the Payment row so the 96h non-payment deadline is enforceable even for
+            // winners who never open the checkout. StripePaymentIntentId stays null until the
+            // buyer first opens PayLotPage (CreatePaymentIntentHandler updates this row instead
+            // of inserting a new one). DueAt is anchored to the close moment, not to when the
+            // buyer eventually engages — fairness across procrastinators.
+            decimal rate = stripe.UahPerUsdRate;
+            long amountUsdCents = CurrencyConverter.UahKopiykasToUsdCents(topBid.AmountUahKopiykas, rate);
+            DateTime dueAt = lot.EndsAt + _paymentWindow;
+
+            db.Payments.Add(new Payment
+            {
+                Id = Guid.NewGuid(),
+                LotId = lot.Id,
+                BuyerId = topBid.BidderId,
+                SellerId = lot.SellerId,
+                AmountUahKopiykas = topBid.AmountUahKopiykas,
+                AmountUsdCents = amountUsdCents,
+                RateUsedUahPerUsd = rate,
+                StripePaymentIntentId = null, // populated by CreatePaymentIntentHandler on first open
+                Status = PaymentStatus.PendingAuthorization,
+                DueAt = dueAt,
+                CreatedAt = now,
+                UpdatedAt = now,
+            });
+
             db.EmailOutboxEvents.Add(new EmailOutboxEvent
             {
                 AggregateType = nameof(User),
                 AggregateId = topBid.BidderId,
                 EventType = AuctionWonPayWithin96hPayload.EventType,
                 Payload = new AuctionWonPayWithin96hPayload(
-                    lot.Id, lot.Title, topBid.AmountUahKopiykas, now.AddHours(96)).Serialize(),
+                    lot.Id, lot.Title, topBid.AmountUahKopiykas, dueAt).Serialize(),
                 CreatedAt = now,
             });
         }

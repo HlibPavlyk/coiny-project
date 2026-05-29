@@ -32,4 +32,25 @@ public interface IJobScheduler
     /// the hold back to the buyer (THESIS-SCOPE §B: automated refund on non-delivery).
     /// </summary>
     string EnqueueCancelPayment(Guid paymentId);
+
+    /// <summary>
+    /// Demo-only: fire-and-forget enqueue of <see cref="IAuctionCloseJob"/> without a delay. Used by
+    /// <c>Features/Demo/CloseLotNow</c> to short-circuit the time-based <c>EndsAt</c> trigger while
+    /// keeping the production job (with its anti-snipe / status guards) on the critical path.
+    /// </summary>
+    string EnqueueAuctionCloseNow(Guid lotId);
+
+    /// <summary>
+    /// Demo-only: trigger the <c>payment-reminder</c> recurring job ad-hoc, instead of waiting for
+    /// the next hourly tick. The job itself still applies its own <c>DueAt ∈ [now+47h, now+49h]</c>
+    /// window — callers are expected to mutate <c>Payment.DueAt</c> into that window first.
+    /// </summary>
+    void TriggerPaymentReminderSweep();
+
+    /// <summary>
+    /// Demo-only: trigger the <c>non-payment-cancel</c> recurring job ad-hoc, instead of waiting for
+    /// the next daily tick. The job itself still applies <c>DueAt &lt;= now</c> — callers are expected
+    /// to mutate <c>Payment.DueAt</c> into the past first.
+    /// </summary>
+    void TriggerNonPaymentCancelSweep();
 }

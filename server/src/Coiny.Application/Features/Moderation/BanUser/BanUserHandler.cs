@@ -105,8 +105,18 @@ public class BanUserHandler(
         }
 
         int stripeFailures = 0;
+        List<Payment> intentlessPayments = [];
         foreach (Payment payment in inFlightPayments)
         {
+            // Auction-close pre-creates Payment rows with null intent id (Option A — see
+            // AuctionCloseJob). If the banned user never opened the pay form, there is no Stripe
+            // intent to cancel; mark the row Cancelled locally instead.
+            if (string.IsNullOrEmpty(payment.StripePaymentIntentId))
+            {
+                intentlessPayments.Add(payment);
+                continue;
+            }
+
             try
             {
                 // Success path: Stripe emits payment_intent.canceled → the webhook handler flips
@@ -120,6 +130,18 @@ public class BanUserHandler(
                     "BanUserHandler: Stripe cancel failed for payment {PaymentId} (PI {PaymentIntentId})",
                     payment.Id, payment.StripePaymentIntentId);
             }
+        }
+
+        // No-intent rows need their status flipped locally — the webhook will never fire for them.
+        if (intentlessPayments.Count > 0)
+        {
+            foreach (Payment payment in intentlessPayments)
+            {
+                payment.Status = PaymentStatus.Cancelled;
+                payment.CancelledAt = now;
+                payment.UpdatedAt = now;
+            }
+            await db.SaveChangesAsync(ct);
         }
 
         if (stripeFailures > 0)

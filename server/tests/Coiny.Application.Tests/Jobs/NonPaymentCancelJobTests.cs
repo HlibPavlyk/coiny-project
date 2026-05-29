@@ -54,6 +54,37 @@ public class NonPaymentCancelJobTests
     }
 
     [Fact]
+    public async Task Cancels_intentless_payment_locally_without_stripe_call()
+    {
+        // Option A: AuctionCloseJob pre-creates the row with null StripePaymentIntentId. If the
+        // buyer never opens the pay form, no Stripe intent is minted. The job must mark the row
+        // Cancelled locally instead of trying to cancel a non-existent intent — otherwise the
+        // 96h deadline could never be enforced for ghost buyers.
+        using var ctx = NewDb();
+        Payment payment = SeedPayment(ctx, PaymentStatus.PendingAuthorization, dueAt: Now.AddHours(-1), stripeIntentId: "");
+        Lot lot = SeedLot(ctx, payment, LotStatus.Sold);
+        await ctx.SaveChangesAsync();
+
+        var stripe = new FakeStripeClient();
+        var job = NewJob(ctx, stripe);
+
+        await job.RunAsync(CancellationToken.None);
+
+        // No Stripe call — there's no intent to cancel.
+        stripe.CancelPaymentIntentCalls.Should().Be(0);
+
+        // Payment flipped locally (webhook can't fire when no intent exists).
+        Payment updatedPayment = await ctx.Payments.SingleAsync(p => p.Id == payment.Id);
+        updatedPayment.Status.Should().Be(PaymentStatus.Cancelled);
+        updatedPayment.CancelledAt.Should().NotBeNull();
+
+        // Same downstream as the normal cancel: lot → EndedNoSale, SearchOutbox event.
+        Lot updatedLot = await ctx.Lots.SingleAsync(l => l.Id == lot.Id);
+        updatedLot.Status.Should().Be(LotStatus.EndedNoSale);
+        (await ctx.SearchOutboxEvents.CountAsync()).Should().Be(1);
+    }
+
+    [Fact]
     public async Task Skips_payments_not_yet_due()
     {
         using var ctx = NewDb();
@@ -204,6 +235,9 @@ public class NonPaymentCancelJobTests
             string idempotencyKey, CancellationToken ct) => throw new NotImplementedException();
 
         public Task<Coiny.Application.Abstractions.ExternalServices.Payments.StripePaymentIntentResult> CapturePaymentIntentAsync(
+            string paymentIntentId, CancellationToken ct) => throw new NotImplementedException();
+
+        public Task<Coiny.Application.Abstractions.ExternalServices.Payments.StripePaymentIntentResult> RetrievePaymentIntentAsync(
             string paymentIntentId, CancellationToken ct) => throw new NotImplementedException();
 
         public Task<Coiny.Application.Abstractions.ExternalServices.Payments.StripePaymentIntentResult> CancelPaymentIntentAsync(

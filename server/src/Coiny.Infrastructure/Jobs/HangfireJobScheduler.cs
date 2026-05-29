@@ -3,7 +3,7 @@ using Hangfire;
 
 namespace Coiny.Infrastructure.Jobs;
 
-public class HangfireJobScheduler(IBackgroundJobClient client) : IJobScheduler
+public class HangfireJobScheduler(IBackgroundJobClient client, IRecurringJobManager recurring) : IJobScheduler
 {
     public string ScheduleAuctionClose(Guid lotId, DateTime endsAtUtc) =>
         client.Schedule<IAuctionCloseJob>(
@@ -29,4 +29,11 @@ public class HangfireJobScheduler(IBackgroundJobClient client) : IJobScheduler
 
     public string EnqueueCancelPayment(Guid paymentId) =>
         client.Enqueue<ICancelPaymentJob>(j => j.RunAsync(paymentId, CancellationToken.None));
+
+    public string EnqueueAuctionCloseNow(Guid lotId) =>
+        client.Enqueue<IAuctionCloseJob>(j => j.RunAsync(lotId, CancellationToken.None));
+
+    public void TriggerPaymentReminderSweep() => recurring.Trigger("payment-reminder");
+
+    public void TriggerNonPaymentCancelSweep() => recurring.Trigger("non-payment-cancel");
 }

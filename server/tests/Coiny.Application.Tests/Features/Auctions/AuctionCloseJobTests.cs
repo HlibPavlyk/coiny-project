@@ -1,6 +1,7 @@
 using Coiny.Application.Abstractions.Infrastructure.Jobs;
 using Coiny.Application.Abstractions.Infrastructure.Providers;
 using Coiny.Application.Abstractions.Presentation.Realtime;
+using Coiny.Application.Tests.Fakes;
 using Coiny.Application.Features.Auctions;
 using Coiny.Domain.Entities;
 using Coiny.Domain.Enums;
@@ -78,8 +79,36 @@ public class AuctionCloseJobTests
             e.EventType == "AuctionWonPayWithin96h" && e.AggregateId == _bidderB);
         (await ctx.Categories.AsNoTracking().FirstAsync(c => c.Id == 1)).LotCountActive.Should().Be(0);
 
+        // Option A: Payment row is pre-created at close-time with null Stripe intent id so the
+        // 96h non-payment deadline is enforceable even for winners who never open the pay form.
+        Payment payment = await ctx.Payments.AsNoTracking().FirstAsync(p => p.LotId == _lotId);
+        payment.BuyerId.Should().Be(_bidderB);
+        payment.SellerId.Should().Be(_sellerId);
+        payment.AmountUahKopiykas.Should().Be(1_500_00);
+        payment.Status.Should().Be(PaymentStatus.PendingAuthorization);
+        payment.StripePaymentIntentId.Should().BeNull();
+        payment.DueAt.Should().Be(lot.EndsAt.AddHours(96));
+
         f.Notifier.NotifyLotChangedCalls.Should().Be(1);
         f.Notifier.LastLotId.Should().Be(_lotId);
+    }
+
+    [Fact]
+    public async Task No_bids_does_not_create_payment_row()
+    {
+        // Sanity: the pre-create-on-close path is gated on `topBid != null`. The no-sale branch
+        // stays as it was — no Payment row, only the search outbox event.
+        using var ctx = NewDb();
+        SeedCategoryAndUsers(ctx);
+        SeedLot(ctx, currentPrice: 1_000_00, endsAt: Now.AddMinutes(-1), status: LotStatus.Active);
+        await ctx.SaveChangesAsync();
+
+        Fakes f = NewFakes();
+        var job = NewJob(ctx, f);
+
+        await job.RunAsync(_lotId, CancellationToken.None);
+
+        ctx.Payments.Should().BeEmpty();
     }
 
     [Fact]
@@ -209,11 +238,15 @@ public class AuctionCloseJobTests
     }
 
     private static AuctionCloseJob NewJob(ApplicationDbContext ctx, Fakes f) =>
-        new(ctx, f.Scheduler, f.Notifier, f.Clock, NullLogger<AuctionCloseJob>.Instance);
+        new(ctx, f.Scheduler, f.Notifier, f.Stripe, f.Clock, NullLogger<AuctionCloseJob>.Instance);
 
-    private static Fakes NewFakes() => new(new TestScheduler(), new TestNotifier(), new TestClock(Now));
+    private static Fakes NewFakes() => new(
+        new TestScheduler(),
+        new TestNotifier(),
+        new FakeStripeClient { UahPerUsdRate = 41.5m, PublishableKey = "pk_test_xyz" },
+        new TestClock(Now));
 
-    private record Fakes(TestScheduler Scheduler, TestNotifier Notifier, TestClock Clock);
+    private record Fakes(TestScheduler Scheduler, TestNotifier Notifier, FakeStripeClient Stripe, TestClock Clock);
 
     private sealed class TestClock(DateTime utcNow) : IDateTimeProvider
     {
@@ -240,6 +273,9 @@ public class AuctionCloseJobTests
 
         public string EnqueueCapture(Guid paymentId) => "capture-job-id";
         public string EnqueueCancelPayment(Guid paymentId) => "cancel-job-id";
+        public string EnqueueAuctionCloseNow(Guid lotId) => "close-now-job-id";
+        public void TriggerPaymentReminderSweep() { }
+        public void TriggerNonPaymentCancelSweep() { }
     }
 
     private sealed class TestNotifier : IAuctionNotifier

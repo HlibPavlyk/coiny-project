@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { shipments, TERMINAL_SHIPMENT_STATUSES } from '@/api/shipments';
 import type { ShipmentStatus } from '@/api/payments';
+import { formatLocal } from '@/lib/datetime';
 
 interface Props {
   paymentId: string;
@@ -97,7 +98,7 @@ export function ShipmentTimeline({ paymentId }: Props) {
                 )}
                 <div className="text-[13px] font-semibold">{STATUS_LABEL[evt.status]}</div>
                 <div className="text-[12px] text-text-3 mt-0.5">
-                  <span className="mono">{new Date(evt.observedAt).toLocaleString('en-US')}</span>
+                  <span className="mono">{formatLocal(evt.observedAt)}</span>
                   {evt.description && <span> — {evt.description}</span>}
                 </div>
               </li>
