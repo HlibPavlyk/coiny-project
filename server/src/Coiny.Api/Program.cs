@@ -11,7 +11,9 @@ using Coiny.Application.Common.Json;
 using Coiny.Application.Features.Demo;
 using Coiny.Infrastructure;
 using Coiny.Infrastructure.Jobs;
+using Coiny.Infrastructure.Persistence;
 using Hangfire;
+using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -62,6 +64,18 @@ builder.Services.AddScoped<IAuctionNotifier, SignalRAuctionNotifier>();
 
 var app = builder.Build();
 
+// Migrate-on-startup. Reads the env var `MIGRATE_ON_STARTUP` — opt-in so local dev (where you
+// usually want to control migrations manually) stays unchanged. Coolify deploys set this to
+// `true` in prod env so a fresh Postgres container gets the full schema on its first boot.
+// Idempotent on every later boot: EF checks __EFMigrationsHistory and no-ops if up-to-date.
+// On migration failure the container exits non-zero → Coolify keeps the previous image running.
+if (builder.Configuration.GetValue<bool>("MIGRATE_ON_STARTUP"))
+{
+    using IServiceScope migrationScope = app.Services.CreateScope();
+    var db = migrationScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await db.Database.MigrateAsync();
+}
+
 app.UseExceptionHandler();
 app.MapOpenApi();
 app.MapScalarApiReference(opts =>
@@ -73,8 +87,20 @@ app.MapScalarApiReference(opts =>
 app.UseAuthentication();
 app.UseAuthorization();
 
+// Hangfire dashboard at /hangfire. Dev = wide open for fast iteration. Prod = Admin-role gated
+// via HangfireRoleDashboardFilter, which reads the JWT cookie on each request and checks the role
+// claim. See docs/05-deployment.md "Hangfire dashboard auth" for the reasoning.
 if (app.Environment.IsDevelopment())
-    app.UseHangfireDashboard();
+{
+    app.UseHangfireDashboard("/hangfire");
+}
+else
+{
+    app.UseHangfireDashboard("/hangfire", new DashboardOptions
+    {
+        Authorization = new[] { new HangfireRoleDashboardFilter("Admin") },
+    });
+}
 
 RecurringJob.AddOrUpdate<EmailOutboxFlushJob>(
     "email-outbox-flush",

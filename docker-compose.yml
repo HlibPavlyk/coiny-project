@@ -1,6 +1,54 @@
-﻿services:
-  coinyproject.api:
-    image: coinyproject.api
-    build:
-      context: .
-      dockerfile: src/CoinyProject.Api/Dockerfile
+# Local dev parity for Coiny. Brings up Postgres + Meilisearch in containers; the API runs natively
+# via `dotnet run --project server/src/Coiny.Api` so you keep the hot-reload + debugger workflow.
+#
+# In production Coolify orchestrates the same images plus the API container. This compose file is
+# NOT what runs in prod — it's for local mirror-of-prod state.
+#
+# Usage:
+#   docker compose up -d      # start postgres + meilisearch in the background
+#   docker compose down       # stop them (data persists in named volumes)
+#   docker compose down -v    # nuke data too (factory reset)
+#
+# Connection details:
+#   Postgres:     Host=localhost;Port=5432;Database=coiny;Username=postgres;Password=postgres
+#   Meilisearch:  http://localhost:7700  (master key: coiny_dev_master_key_change_me)
+
+services:
+  postgres:
+    image: postgres:17
+    container_name: coiny-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: coiny
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d coiny"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.10
+    container_name: coiny-meilisearch
+    restart: unless-stopped
+    environment:
+      MEILI_MASTER_KEY: coiny_dev_master_key_change_me
+      MEILI_ENV: development
+    ports:
+      - "7700:7700"
+    volumes:
+      - meilisearch-data:/meili_data
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:7700/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres-data:
+  meilisearch-data:
