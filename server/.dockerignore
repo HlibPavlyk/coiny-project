@@ -1,0 +1,41 @@
+# Tells Docker which files NOT to copy into the build context. Trimming the context shrinks the
+# "transferring context" step in the build log from ~1.4 MB to ~200 KB and prevents stale bin/obj
+# artifacts from a local Rider/VS build leaking into the container image.
+
+# .NET build outputs
+**/bin/
+**/obj/
+
+# Tests aren't needed in the production image
+tests/
+
+# IDE + tooling
+.vs/
+.vscode/
+.idea/
+**/*.user
+**/*.suo
+
+# Local-only state
+**/appsettings.Development.json
+**/launchSettings.json
+**/secrets.json
+**/.env
+**/.env.*
+
+# Git metadata
+.git/
+.gitignore
+.gitattributes
+**/.gitkeep
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Docs / runtime test artifacts that don't ship in the image
+*.md
+*.log
+*.binlog
+docker-compose*.yml
+.dockerignore
