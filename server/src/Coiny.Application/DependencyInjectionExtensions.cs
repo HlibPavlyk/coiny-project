@@ -1,0 +1,19 @@
+using Coiny.Application.Common.Behaviors;
+using FluentValidation;
+using MediatR;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace Coiny.Application;
+
+public static class DependencyInjectionExtensions
+{
+    public static void AddApplication(this IServiceCollection services)
+    {
+        services.AddMediatR(cfg =>
+            cfg.RegisterServicesFromAssembly(typeof(ApplicationAssemblyMarker).Assembly));
+
+        services.AddValidatorsFromAssemblyContaining<ApplicationAssemblyMarker>();
+
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+    }
+}

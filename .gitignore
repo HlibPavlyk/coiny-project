@@ -420,3 +420,25 @@ fabric.properties
 
 # Android studio 3.1+ serialized cache file
 .idea/caches/build_file_checksums.ser
+
+# Planning, documentation and reference material — not part of the tracked codebase
+plans/
+docs/
+THESIS-SCOPE.md
+numismatic-auction-mvp-brd.md
+
+# Old reference architecture (read-only style inspiration, not Coiny code)
+server-ref/
+
+.claude/
+CLAUDE.md
+# Local dev secrets — copy the committed appsettings.json and fill real values here
+**/appsettings.Development.json
+**/appsettings.Local.json
+
+# Local-only manual smoke scripts + session artifacts (auth cookies, log captures).
+# The folder itself is committed (README documents the workflow), but session-bound
+# files inside are not.
+local-testing/
+DIPLOMA/
+.impeccable.md

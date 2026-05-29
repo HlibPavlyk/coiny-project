@@ -1,0 +1,24 @@
+node_modules
+dist
+dist-ssr
+*.local
+.DS_Store
+
+# Editors
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Build artifacts
+src/api/generated/
+
+# Local env (commit .env, gitignore .env.local)
+.env.local
+
+# Claude Design handoff bundle — kept locally for reference, not committed
+design-reference/

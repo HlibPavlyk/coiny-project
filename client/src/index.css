@@ -1,0 +1,240 @@
+@import 'tailwindcss';
+
+/* Coiny — Design Tokens (mirrors client/design-reference/styles/tokens.css) */
+@theme {
+  /* Surfaces */
+  --color-bg: #FAFAF7;
+  --color-bg-soft: #F5F3EE;
+  --color-surface: #FFFFFF;
+  --color-surface-2: #FBFAF6;
+
+  /* Text */
+  --color-text: #1A1A1A;
+  --color-text-2: #4B5563;
+  --color-text-3: #6B7280;
+  --color-text-4: #9CA3AF;
+
+  /* Border */
+  --color-border: #E5E7EB;
+  --color-border-strong: #D1D5DB;
+  --color-border-soft: #EFECE5;
+
+  /* Accent — muted bronze */
+  --color-accent: #A8763E;
+  --color-accent-deep: #8C5F2E;
+  --color-accent-soft: #F0E4D2;
+  --color-accent-tint: #FAF3E8;
+
+  /* Semantic */
+  --color-success: #16A34A;
+  --color-success-soft: #DCFCE7;
+  --color-warning: #D97706;
+  --color-warning-soft: #FEF3C7;
+  --color-danger: #DC2626;
+  --color-danger-soft: #FEE2E2;
+  --color-info: #1E40AF;
+  --color-info-soft: #DBEAFE;
+
+  /* Type — fixed rem-based scale (per .impeccable.md design principles). App-UI density
+     keeps base at 14px / 0.875rem; hero text upshifts via responsive utilities. Tailwind v4
+     @theme turns any `--text-*` token into a `text-*` utility class. Reach for arbitrary
+     `text-[Xpx]` only when none of the canonical sizes carry the role (rare). */
+  --text-caption:  0.6875rem;       /* 11px — uppercase labels, small status pills, metadata */
+  --text-micro:    0.75rem;         /* 12px — tertiary copy, table cells, secondary metadata */
+  --text-small:    0.8125rem;       /* 13px — body-secondary, card captions */
+  --text-body:     0.875rem;        /* 14px — base body text (== html font-size) */
+  --text-medium:   0.9375rem;       /* 15px — emphasized body, key card text */
+  --text-lead:     1.0625rem;       /* 17px — sub-headers, emphasized paragraphs */
+  --text-title-sm: 1.375rem;        /* 22px — section H2, lot detail title (mobile) */
+  --text-title:    1.75rem;         /* 28px — page H1 (desktop) */
+
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Radius */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  /* Shadow — warm-tinted */
+  --shadow-1: 0 1px 2px rgba(15, 12, 8, 0.04), 0 1px 3px rgba(15, 12, 8, 0.04);
+  --shadow-2: 0 2px 6px rgba(15, 12, 8, 0.06), 0 4px 12px rgba(15, 12, 8, 0.04);
+  --shadow-3: 0 8px 24px rgba(15, 12, 8, 0.08), 0 2px 6px rgba(15, 12, 8, 0.04);
+  --shadow-card-hover: 0 4px 14px rgba(15, 12, 8, 0.08), 0 1px 3px rgba(15, 12, 8, 0.04);
+}
+
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  /* Always reserve the scrollbar gutter so pages don't shift sideways when content height changes
+     (e.g. filtering search results to a shorter list). */
+  scrollbar-gutter: stable;
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  background: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'cv11', 'ss01';
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/*
+ * Sticky-footer pattern without touching any route JSX.
+ *
+ * #root becomes a flex column at viewport height. The page wrapper (the bare
+ * <div> each route returns) gets `display: contents` — it disappears from
+ * layout, and its children (TopNav, sections, Footer) "promote" to become
+ * direct flex items of #root. The Footer then uses `margin-top: auto` to
+ * absorb leftover vertical space and stick to the bottom on short pages.
+ *
+ * `width: 100%` on the promoted children matters: a few sections (e.g. the
+ * category-cards section on HomePage, the main grid on CategoryPage) carry
+ * `max-w-[1280px] mx-auto` directly on themselves. In flex layout, `mx-auto`
+ * normally shrinks the flex item to its content width before centering, which
+ * was making whole sections look squeezed. Forcing `width: 100%` keeps each
+ * item at full cross-axis size; `max-w` then caps it at 1280px and `mx-auto`
+ * cleanly distributes the leftover space.
+ *
+ * `:first-child` skips ToastViewport (App.tsx's second #root child), which
+ * uses `position: fixed` and shouldn't be flattened.
+ */
+#root {
+  display: flex;
+  flex-direction: column;
+}
+#root > div:first-child {
+  display: contents;
+}
+#root > div:first-child > * {
+  width: 100%;
+}
+#root footer {
+  margin-top: auto;
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-feature-settings: 'tnum', 'zero';
+}
+
+/* Toast slide-in from top */
+@keyframes toast-slide-in {
+  from { opacity: 0; transform: translateY(-12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.toast-enter {
+  animation: toast-slide-in 220ms ease-out;
+}
+
+/*
+ * Hide the browser's native `<input type="search">` decorations. Chrome/Safari render a blue
+ * "x" clear-button when the input has content; we render our own custom X in every search field
+ * (TopNav search, mobile search panel, etc.), so the native one is a visual duplicate.
+ */
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-results-button,
+input[type="search"]::-webkit-search-results-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/*
+ * iOS Safari auto-zooms when a form control with font-size < 16px receives focus — to "help" the
+ * user see what they're typing. The behaviour only disables when font-size ≥ 16px.
+ *
+ * We force 16px on form controls ONLY on iOS, leaving Android (which respects our viewport meta
+ * and doesn't auto-zoom) and desktop alone — so the rest of the app keeps its 14px-base density.
+ *
+ * iOS detection via `@supports (-webkit-touch-callout: none)` — that property only exists on iOS
+ * WebKit; Android Chrome and desktop browsers don't match.
+ *
+ * NOT done via `user-scalable=no` viewport meta — that breaks accessibility (pinch-to-zoom).
+ */
+@supports (-webkit-touch-callout: none) {
+  @media screen and (max-width: 767px) {
+    input, select, textarea {
+      font-size: 16px !important;
+    }
+  }
+}
+
+/*
+ * A11y: respect prefers-reduced-motion. Disables CSS animations + transitions globally for users
+ * who set this preference (OS-level). Keeps state changes instant.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/*
+ * A11y: keyboard focus visible. Custom buttons + links lose default focus rings when we set
+ * `outline-none` deeper in components. Provide a global focus-visible ring on every focusable
+ * interactive element (button, a, input, etc.) so keyboard users can track focus.
+ */
+:where(button, a, [role="button"], input, select, textarea, summary):focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/*
+ * @uiw/react-md-editor (CreateLotPage / EditLotPage Description field).
+ *
+ * Two issues the library's defaults cause and we fix here:
+ *
+ *  1. .w-md-editor-text defaults to a 100px min-height rather than filling its parent. With the
+ *     React `height={280}` prop, the editor container is 280px but the inner textarea only paints
+ *     100px — the remaining ~150px below is empty void that reads as a "second pane" with a
+ *     ghostly divider (the bottom edge of .w-md-editor-text). Forcing height: 100% on every
+ *     vertical hop (text → text-input → text-pre) collapses the void.
+ *
+ *  2. The library's outer grey border + dropshadow clash with Coiny's surface palette. The
+ *     parent <div.coiny-md> handles the frame (rounded-md + border-strong, matching FieldInput);
+ *     we strip the library's own border here.
+ *
+ * We deliberately do NOT override `.w-md-editor-text-input` colors. The library lays a
+ * transparent textarea over a `.w-md-editor-text-pre` syntax-highlight div, and overriding `color`
+ * makes the textarea's text render visibly on top of the highlight (double letters). Leaving the
+ * library's defaults intact keeps text readable.
+ */
+.coiny-md .w-md-editor {
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  background: var(--color-surface);
+}
+.coiny-md .w-md-editor-toolbar {
+  background: var(--color-bg-soft);
+  border-bottom: 1px solid var(--color-border-soft);
+}
+.coiny-md .w-md-editor-content {
+  border: none !important;
+}
+.coiny-md .w-md-editor-area,
+.coiny-md .w-md-editor-input,
+.coiny-md .w-md-editor-text,
+.coiny-md .w-md-editor-text-pre,
+.coiny-md .w-md-editor-text-input {
+  height: 100% !important;
+  min-height: 100% !important;
+}
+/* Make the live-mode divider between edit + preview neutral, not the library's accent color.
+ * Coiny's accent is bronze and the library's default divider can read as brown on some screens —
+ * a soft grey is calmer and matches FieldInput's separation language. */
+.coiny-md .w-md-editor-bar {
+  background: var(--color-border-soft);
+}
+.coiny-md .w-md-editor-preview {
+  border-left: 1px solid var(--color-border-soft);
+  background: var(--color-surface);
+}

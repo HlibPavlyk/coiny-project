@@ -2,30 +2,90 @@ name: dotnet-ci
 
 on:
   push:
-    branches:
-      - master
+    branches: [master]
   pull_request:
-    branches:
-      - master
-
+    branches: [master]
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v3
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 6.0.x
+          dotnet-version: '10.0.x'
 
-      - name: Install dependencies
-        run: dotnet restore
+      - name: Restore
+        run: dotnet restore Coiny.slnx
 
       - name: Build
-        run: dotnet build --no-restore
+        run: dotnet build Coiny.slnx --no-restore --configuration Release
 
-      - name: Test
-        run: dotnet test --no-build --verbosity normal
+      - name: Test (full suite)
+        run: dotnet test Coiny.slnx --no-build --configuration Release --verbosity normal
+
+  showcase-tests:
+    # Separate lane that runs only the thesis "showcase" tests (per THESIS-SCOPE.md §G item 13).
+    # Output of this job is the screenshot used in the defense write-up. Filter uses the xUnit trait
+    # syntax `Name=Value` (NOT the MSTest `Trait=Name`).
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore
+        run: dotnet restore Coiny.slnx
+
+      - name: Build test project
+        run: dotnet build tests/Coiny.Application.Tests/Coiny.Application.Tests.csproj --no-restore --configuration Release
+
+      - name: Test (showcase only)
+        run: dotnet test tests/Coiny.Application.Tests/Coiny.Application.Tests.csproj --no-build --configuration Release --filter "Showcase=true" --verbosity normal
+
+  frontend:
+    # Type-check and production-build the React + Vite SPA. We deliberately don't run a separate
+    # ESLint step — the repo's TypeScript strict-mode catches the bulk of code-quality issues at
+    # tsc time, and the Vite build itself re-verifies the dependency graph. If the build succeeds,
+    # the SPA is ready to ship to Coolify.
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: client
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+          cache-dependency-path: client/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Type check
+        run: pnpm exec tsc --noEmit
+
+      - name: Build
+        run: pnpm build
