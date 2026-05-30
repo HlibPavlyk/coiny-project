@@ -23,7 +23,10 @@ export interface AuctionHubHandlers {
  *    the subscribers Map.
  */
 
-const HUB_URL = '/auctionHub';
+// SignalR hub URL. Reads from `VITE_SIGNALR_HUB_URL` at build time — the SPA can ship to a
+// different origin than the API (e.g. coiny.best for SPA + api.coiny.best for the hub). Falls
+// back to a same-origin relative path for local dev (`pnpm dev` proxies /auctionHub to localhost).
+const HUB_URL = import.meta.env.VITE_SIGNALR_HUB_URL ?? '/auctionHub';
 
 let connection: HubConnection | null = null;
 const subscribers = new Map<string, AuctionHubHandlers>();
